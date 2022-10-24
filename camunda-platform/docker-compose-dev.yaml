@@ -1,3 +1,8 @@
+# This docker compose file has been taken from the camunda-platform repo
+# https://github.com/camunda/camunda-platform
+# It is extended with Zookeeper, Kafka, and the batch controller for batch
+# processing.
+
 # While the Docker images themselves are supported for production usage,
 # this docker-compose.yaml is designed to be used by developers to run
 # an environment locally. It is not designed to be used in production.
@@ -126,8 +131,10 @@ services:
       - zookeeper
     networks:
       - camunda-platform
-  test-app:
-    image: sytse/test-app
+  batch-controller:
+    image: batch-controller
+    ports:
+      - "9000:9000"
     depends_on:
       - kafka
     networks:

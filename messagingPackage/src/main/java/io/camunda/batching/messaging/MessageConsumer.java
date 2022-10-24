@@ -16,13 +16,14 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MessageConsumer<T> {
-  private Logger logger;
+public abstract class MessageConsumer<T> {
+  protected Logger logger;
   private Properties properties;
   private String topic;
 
   public MessageConsumer(String bootstrapServers, String topic, AbstractDeserializer<T> valueDeserializer) {
     this.logger = LoggerFactory.getLogger("io.camunda.zeebe.engine.adapter");
+    logger.info("Logger constructed for MessageConsumer");
     this.properties = new Properties();
     this.properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     this.properties.setProperty(
@@ -34,18 +35,18 @@ public class MessageConsumer<T> {
     this.topic = new String(topic);
   }
 
-  public void readMessage() {
-    logger.info("readMessage()");
+  public abstract void handleMessage(T message);
+
+  public void consumeMessages() {
+    logger.info("consumeMessages()");
     try (KafkaConsumer<String, T> consumer = new KafkaConsumer<String, T>(properties)) {
-      logger.info("okay");
       consumer.subscribe(Arrays.asList(topic));
-      logger.info("okay good");
       while (true) {
-        logger.info("in loop");
         ConsumerRecords<String, T> messages = consumer.poll(100);
         for (ConsumerRecord<String, T> message : messages) {
-          logger.info("Message received " + message.key());
+          handleMessage(message.value());
         }
+        logger.info(String.valueOf(messages.count()) + " message received on topic " + topic);
       }
     } catch (Exception e) {
       e.printStackTrace();
