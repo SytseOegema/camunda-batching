@@ -8,6 +8,7 @@
 package io.camunda.zeebe.engine.processing.bpmn;
 
 import io.camunda.zeebe.engine.Loggers;
+import io.camunda.zeebe.engine.adapter.ProcessInstanceLogger;
 import io.camunda.zeebe.engine.api.TypedRecord;
 import io.camunda.zeebe.engine.metrics.ProcessEngineMetrics;
 import io.camunda.zeebe.engine.processing.bpmn.behavior.BpmnBehaviors;
@@ -103,6 +104,9 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
       final ProcessInstanceIntent intent,
       final BpmnElementProcessor<ExecutableFlowElement> processor,
       final ExecutableFlowElement element) {
+
+    final ProcessInstanceLogger logger = new ProcessInstanceLogger();
+    logger.logInstance(context);
 
     switch (intent) {
       case ACTIVATE_ELEMENT:

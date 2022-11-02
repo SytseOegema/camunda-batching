@@ -23,6 +23,7 @@ import io.camunda.zeebe.client.api.command.DeployResourceCommandStep1;
 import io.camunda.zeebe.client.api.command.ModifyProcessInstanceCommandStep1;
 import io.camunda.zeebe.client.api.command.PublishMessageCommandStep1;
 import io.camunda.zeebe.client.api.command.ResolveIncidentCommandStep1;
+import io.camunda.zeebe.client.api.command.ResumeBatchActivityCommandStep1;
 import io.camunda.zeebe.client.api.command.SetVariablesCommandStep1;
 import io.camunda.zeebe.client.api.command.TopologyRequestStep1;
 import io.camunda.zeebe.client.api.command.UpdateRetriesJobCommandStep1;
@@ -94,6 +95,23 @@ public interface ZeebeClient extends AutoCloseable, JobClient {
 
   @Override
   void close();
+
+  /**
+   * Command to deploy new processes.
+   *
+   * <pre>
+   * zeebeClient
+   *  .newDeployCommand()
+   *  .addResourceFile("~/wf/process1.bpmn")
+   *  .addResourceFile("~/wf/process2.bpmn")
+   *  .send();
+   * </pre>
+   *
+   * @return a builder for the command
+   * @deprecated since 8 for removal with 8.1, replaced by {@link
+   *     ZeebeClient#newDeployResourceCommand()}
+   */
+  ResumeBatchActivityCommandStep1 newResumeBatchActivityCommand();
 
   /**
    * Command to deploy new processes.

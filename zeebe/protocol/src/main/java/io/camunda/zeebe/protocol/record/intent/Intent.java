@@ -45,7 +45,8 @@ public interface Intent {
           MessageStartEventSubscriptionIntent.class,
           ProcessInstanceResultIntent.class,
           CheckpointIntent.class,
-          ProcessInstanceModificationIntent.class);
+          ProcessInstanceModificationIntent.class,
+          ResumeBatchActivityIntent.class);
   short NULL_VAL = 255;
   Intent UNKNOWN =
       new Intent() {
@@ -113,6 +114,8 @@ public interface Intent {
         return CheckpointIntent.from(intent);
       case PROCESS_INSTANCE_MODIFICATION:
         return ProcessInstanceModificationIntent.from(intent);
+      case RESUME_BATCH_ACTIVITY:
+        return ResumeBatchActivityIntent.from(intent);
       case NULL_VAL:
       case SBE_UNKNOWN:
         return Intent.UNKNOWN;
@@ -170,6 +173,8 @@ public interface Intent {
         return DecisionEvaluationIntent.valueOf(intent);
       case CHECKPOINT:
         return CheckpointIntent.valueOf(intent);
+      case RESUME_BATCH_ACTIVITY:
+        return ResumeBatchActivityIntent.valueOf(intent);
       case NULL_VAL:
       case SBE_UNKNOWN:
         return Intent.UNKNOWN;

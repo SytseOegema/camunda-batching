@@ -70,6 +70,8 @@ final class CommandApiRequestHandler
       return Either.left(errorWriter.outOfDiskSpace(partitionId));
     }
 
+    LOG.info("ben ik hier??? in CommandApiRequestHandler");
+
     final var command = reader.getMessageDecoder();
     final var logStreamWriter = leadingStreams.get(partitionId);
     final var limiter = partitionLimiters.get(partitionId);

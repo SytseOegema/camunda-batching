@@ -8,6 +8,18 @@ option go_package = "./;pb";
 // For a more complete documentation, refer to Zeebe documentation at:
 // https://docs.camunda.io/docs/reference/grpc
 
+message ResumeBatchActivityRequest {
+  // the job type, as defined in the BPMN process (e.g. <zeebe:taskDefinition
+  // type="payment-service" />)
+  string bpmnProcessId = 1;
+}
+
+
+message ResumeBatchActivityResponse {
+  // string with some reponse
+  string bpmnProcessId = 1;
+}
+
 message ActivateJobsRequest {
   // the job type, as defined in the BPMN process (e.g. <zeebe:taskDefinition
   // type="payment-service" />)
@@ -446,6 +458,16 @@ message ModifyProcessInstanceResponse {
 }
 
 service Gateway {
+  /*
+    Does something nice
+
+    Errors:
+     INVALID_ARGUMENT:
+      - bpmnProcessId is blank (empty string, null)
+   */
+  rpc ResumeBatchActivity  (ResumeBatchActivityRequest) returns (ResumeBatchActivityResponse) {
+  }
+
   /*
     Iterates through all known partitions round-robin and activates up to the requested
     maximum and streams them back to the client as they are activated.

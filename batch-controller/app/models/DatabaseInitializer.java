@@ -48,10 +48,10 @@ public class DatabaseInitializer {
     tables.add("process");
     tables.add("process_activity");
     tables.add("activity");
-    String sql = "SELECT tablename FROM pg_tables" +
+    String sql = "SELECT tablename FROM pg_tables " +
       "where tablename in ("  +
-      "'process'" +
-      "'process_activity'" +
+      "'process'," +
+      "'process_activity'," +
       "'activity'" +
       ")";
 

@@ -43,6 +43,8 @@ import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.PublishMessageRequest
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.PublishMessageResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResolveIncidentRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResolveIncidentResponse;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResumeBatchActivityRequest;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResumeBatchActivityResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.SetVariablesRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.SetVariablesResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ThrowErrorRequest;
@@ -149,6 +151,16 @@ public final class EndpointManager {
       final ActivateJobsRequest request,
       final ServerStreamObserver<ActivateJobsResponse> responseObserver) {
     activateJobsHandler.activateJobs(request, responseObserver);
+  }
+
+  public void resumeBatchActivity(
+      final ResumeBatchActivityRequest request,
+      final ServerStreamObserver<ResumeBatchActivityResponse> responseObserver) {
+    sendRequest(
+        request,
+        RequestMapper::toResumeBatchActivityRequest,
+        ResponseMapper::toResumeBatchActivityResponse,
+        responseObserver);
   }
 
   public void cancelProcessInstance(

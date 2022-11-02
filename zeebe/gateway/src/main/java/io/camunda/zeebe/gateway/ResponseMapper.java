@@ -25,11 +25,13 @@ import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ModifyProcessInstance
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ProcessMetadata;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.PublishMessageResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResolveIncidentResponse;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResumeBatchActivityResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.SetVariablesResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ThrowErrorResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.UpdateJobRetriesResponse;
 import io.camunda.zeebe.msgpack.value.LongValue;
 import io.camunda.zeebe.protocol.impl.encoding.MsgPackConverter;
+import io.camunda.zeebe.protocol.impl.record.value.batch.ResumeBatchActivityRecord;
 import io.camunda.zeebe.protocol.impl.record.value.deployment.DeploymentRecord;
 import io.camunda.zeebe.protocol.impl.record.value.incident.IncidentRecord;
 import io.camunda.zeebe.protocol.impl.record.value.job.JobBatchRecord;
@@ -43,6 +45,14 @@ import java.util.Iterator;
 import org.agrona.DirectBuffer;
 
 public final class ResponseMapper {
+
+  public static ResumeBatchActivityResponse toResumeBatchActivityResponse(
+      final long key, final ResumeBatchActivityRecord brokerResponse) {
+    final ResumeBatchActivityResponse.Builder responseBuilder =
+        ResumeBatchActivityResponse.newBuilder();
+
+    return responseBuilder.setBpmnProcessId(brokerResponse.getBpmnProcessId()).build();
+  }
 
   public static DeployProcessResponse toDeployProcessResponse(
       final long key, final DeploymentRecord brokerResponse) {

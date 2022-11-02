@@ -35,6 +35,7 @@ import io.camunda.zeebe.protocol.record.intent.ProcessInstanceModificationIntent
 import io.camunda.zeebe.protocol.record.intent.ProcessInstanceResultIntent;
 import io.camunda.zeebe.protocol.record.intent.ProcessIntent;
 import io.camunda.zeebe.protocol.record.intent.ProcessMessageSubscriptionIntent;
+import io.camunda.zeebe.protocol.record.intent.ResumeBatchActivityIntent;
 import io.camunda.zeebe.protocol.record.intent.TimerIntent;
 import io.camunda.zeebe.protocol.record.intent.VariableDocumentIntent;
 import io.camunda.zeebe.protocol.record.intent.VariableIntent;
@@ -55,6 +56,7 @@ import io.camunda.zeebe.protocol.record.value.ProcessInstanceModificationRecordV
 import io.camunda.zeebe.protocol.record.value.ProcessInstanceRecordValue;
 import io.camunda.zeebe.protocol.record.value.ProcessInstanceResultRecordValue;
 import io.camunda.zeebe.protocol.record.value.ProcessMessageSubscriptionRecordValue;
+import io.camunda.zeebe.protocol.record.value.ResumeBatchActivityRecordValue;
 import io.camunda.zeebe.protocol.record.value.TimerRecordValue;
 import io.camunda.zeebe.protocol.record.value.VariableDocumentRecordValue;
 import io.camunda.zeebe.protocol.record.value.VariableRecordValue;
@@ -172,6 +174,9 @@ public final class ValueTypeMapping {
         new Mapping<>(VariableDocumentRecordValue.class, VariableDocumentIntent.class));
     mapping.put(
         ValueType.CHECKPOINT, new Mapping<>(CheckpointRecordValue.class, CheckpointIntent.class));
+    mapping.put(
+        ValueType.RESUME_BATCH_ACTIVITY,
+        new Mapping<>(ResumeBatchActivityRecordValue.class, ResumeBatchActivityIntent.class));
 
     return mapping;
   }

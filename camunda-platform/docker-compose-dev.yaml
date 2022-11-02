@@ -109,6 +109,7 @@ services:
       - camunda-platform
   zookeeper:
     image: docker.io/bitnami/zookeeper:3.8
+    container_name: zookeeper
     ports:
       - "2181:2181"
     volumes:
@@ -119,6 +120,7 @@ services:
       - camunda-platform
   kafka:
     image: docker.io/bitnami/kafka:3.3
+    container_name: kafka
     ports:
       - "9092:9092"
     volumes:
@@ -131,14 +133,28 @@ services:
       - zookeeper
     networks:
       - camunda-platform
+  postgres:
+    container_name: batch-controller-postgres
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - camunda-platform
   batch-controller:
     image: batch-controller
     ports:
       - "9000:9000"
     depends_on:
       - kafka
+      - postgres
     networks:
       - camunda-platform
+
 
 
 volumes:

@@ -31,6 +31,7 @@ import io.camunda.zeebe.client.api.command.FailJobCommandStep1;
 import io.camunda.zeebe.client.api.command.ModifyProcessInstanceCommandStep1;
 import io.camunda.zeebe.client.api.command.PublishMessageCommandStep1;
 import io.camunda.zeebe.client.api.command.ResolveIncidentCommandStep1;
+import io.camunda.zeebe.client.api.command.ResumeBatchActivityCommandStep1;
 import io.camunda.zeebe.client.api.command.SetVariablesCommandStep1;
 import io.camunda.zeebe.client.api.command.ThrowErrorCommandStep1;
 import io.camunda.zeebe.client.api.command.TopologyRequestStep1;
@@ -47,6 +48,7 @@ import io.camunda.zeebe.client.impl.command.JobUpdateRetriesCommandImpl;
 import io.camunda.zeebe.client.impl.command.ModifyProcessInstanceCommandImpl;
 import io.camunda.zeebe.client.impl.command.PublishMessageCommandImpl;
 import io.camunda.zeebe.client.impl.command.ResolveIncidentCommandImpl;
+import io.camunda.zeebe.client.impl.command.ResumeBatchActivityCommandImpl;
 import io.camunda.zeebe.client.impl.command.SetVariablesCommandImpl;
 import io.camunda.zeebe.client.impl.command.TopologyRequestImpl;
 import io.camunda.zeebe.client.impl.util.VersionUtil;
@@ -235,6 +237,15 @@ public final class ZeebeClientImpl implements ZeebeClient {
       throw new ClientException(
           "Unexpectedly interrupted awaiting termination of in-flight request channel", e);
     }
+  }
+
+  @Override
+  public ResumeBatchActivityCommandStep1 newResumeBatchActivityCommand() {
+    return new ResumeBatchActivityCommandImpl(
+        asyncStub,
+        jsonMapper,
+        config.getDefaultRequestTimeout(),
+        credentialsProvider::shouldRetryRequest);
   }
 
   @Override

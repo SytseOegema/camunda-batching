@@ -38,12 +38,12 @@ public class ProcessRepository {
           Connection connection = db.getConnection();
           Statement st = connection.createStatement();
           ResultSet rs = st.executeQuery(sql);
-          connection.close();
 
           List<ProcessModel> processes = new ArrayList<ProcessModel>();
           while(rs.next()) {
             processes.add(new ProcessModel(rs.getString("id"), rs.getString("name")));
           }
+          connection.close();
           return Optional.of(processes);
         } catch(SQLException e) {
           e.printStackTrace();
@@ -56,7 +56,7 @@ public class ProcessRepository {
 
   public CompletionStage<Void> add(ProcessDTO process) {
     final String sql = String.format(
-      "INSERT INTO process (id, name) VALUES (%s, %s)",
+      "INSERT INTO process (id, name) VALUES ('%s', '%s')",
       process.id, process.name
     );
 
@@ -80,7 +80,7 @@ public class ProcessRepository {
 
   private void addActivities(Connection connection, List<ActivityDTO> activities) {
     String sql = "INSERT INTO activity (id, name, activity_type) VALUES ";
-    String values = "(%s, %s, %s)";
+    String values = "('%s', '%s', '%s')";
 
     for (ActivityDTO activity : activities) {
       sql += String.format(values, activity.id, activity.name, activity.activityType.getElementTypeName());
@@ -88,6 +88,7 @@ public class ProcessRepository {
     }
     // remove last ',' behind the final values from the query
     sql = sql.substring(0, sql.length() - 1);
+    System.out.println(sql);
 
     try {
       Statement st = connection.createStatement();
@@ -99,7 +100,7 @@ public class ProcessRepository {
 
   private void addProcessActivities(Connection connection, List<ActivityDTO> activities, String processId) {
     String sql = "INSERT INTO process_activity (process_id, activity_id) VALUES ";
-    String values = "(%s, %s)";
+    String values = "('%s', '%s')";
 
     for (ActivityDTO activity : activities) {
       sql += String.format(values, processId, activity.id);

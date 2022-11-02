@@ -20,6 +20,7 @@ import io.camunda.zeebe.gateway.impl.broker.request.BrokerFailJobRequest;
 import io.camunda.zeebe.gateway.impl.broker.request.BrokerModifyProcessInstanceRequest;
 import io.camunda.zeebe.gateway.impl.broker.request.BrokerPublishMessageRequest;
 import io.camunda.zeebe.gateway.impl.broker.request.BrokerResolveIncidentRequest;
+import io.camunda.zeebe.gateway.impl.broker.request.BrokerResumeBatchActivityRequest;
 import io.camunda.zeebe.gateway.impl.broker.request.BrokerSetVariablesRequest;
 import io.camunda.zeebe.gateway.impl.broker.request.BrokerThrowErrorRequest;
 import io.camunda.zeebe.gateway.impl.broker.request.BrokerUpdateJobRetriesRequest;
@@ -36,6 +37,7 @@ import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ProcessRequestObject;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.PublishMessageRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResolveIncidentRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.Resource;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResumeBatchActivityRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.SetVariablesRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ThrowErrorRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.UpdateJobRetriesRequest;
@@ -45,6 +47,13 @@ import org.agrona.DirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
 public final class RequestMapper {
+
+  public static BrokerResumeBatchActivityRequest toResumeBatchActivityRequest(
+      final ResumeBatchActivityRequest grpcRequest) {
+    final BrokerResumeBatchActivityRequest brokerRequest =
+        new BrokerResumeBatchActivityRequest(grpcRequest.getBpmnProcessId());
+    return brokerRequest;
+  }
 
   public static BrokerDeployResourceRequest toDeployProcessRequest(
       final DeployProcessRequest grpcRequest) {

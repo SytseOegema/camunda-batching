@@ -31,6 +31,8 @@ import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.PublishMessageRequest
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.PublishMessageResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResolveIncidentRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResolveIncidentResponse;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResumeBatchActivityRequest;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResumeBatchActivityResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.SetVariablesRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.SetVariablesResponse;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ThrowErrorRequest;
@@ -46,6 +48,14 @@ public class GatewayGrpcService extends GatewayImplBase {
 
   public GatewayGrpcService(final EndpointManager endpointManager) {
     this.endpointManager = endpointManager;
+  }
+
+  @Override
+  public void resumeBatchActivity(
+      final ResumeBatchActivityRequest request,
+      final StreamObserver<ResumeBatchActivityResponse> responseObserver) {
+    endpointManager.resumeBatchActivity(
+        request, ErrorMappingStreamObserver.ofStreamObserver(responseObserver));
   }
 
   @Override

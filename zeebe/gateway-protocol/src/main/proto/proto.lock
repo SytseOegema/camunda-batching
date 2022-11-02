@@ -39,6 +39,26 @@
         ],
         "messages": [
           {
+            "name": "ResumeBatchActivityRequest",
+            "fields": [
+              {
+                "id": 1,
+                "name": "bpmnProcessId",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "name": "ResumeBatchActivityResponse",
+            "fields": [
+              {
+                "id": 1,
+                "name": "bpmnProcessId",
+                "type": "string"
+              }
+            ]
+          },
+          {
             "name": "ActivateJobsRequest",
             "fields": [
               {
@@ -830,6 +850,11 @@
           {
             "name": "Gateway",
             "rpcs": [
+              {
+                "name": "ResumeBatchActivity",
+                "in_type": "ResumeBatchActivityRequest",
+                "out_type": "ResumeBatchActivityResponse"
+              },
               {
                 "name": "ActivateJobs",
                 "in_type": "ActivateJobsRequest",
