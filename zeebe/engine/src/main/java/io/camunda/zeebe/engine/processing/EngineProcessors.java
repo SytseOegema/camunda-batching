@@ -11,6 +11,7 @@ import static io.camunda.zeebe.protocol.record.intent.DeploymentIntent.CREATE;
 
 import io.camunda.zeebe.engine.metrics.JobMetrics;
 import io.camunda.zeebe.engine.metrics.ProcessEngineMetrics;
+import io.camunda.zeebe.engine.processing.batch.ResumeBatchActivityProcessor;
 import io.camunda.zeebe.engine.processing.bpmn.behavior.BpmnBehaviorsImpl;
 import io.camunda.zeebe.engine.processing.deployment.DeploymentCreateProcessor;
 import io.camunda.zeebe.engine.processing.deployment.distribute.CompleteDeploymentDistributionProcessor;
@@ -32,11 +33,15 @@ import io.camunda.zeebe.engine.state.immutable.ZeebeState;
 import io.camunda.zeebe.engine.state.migration.DbMigrationController;
 import io.camunda.zeebe.engine.state.mutable.MutableZeebeState;
 import io.camunda.zeebe.protocol.impl.record.value.processinstance.ProcessInstanceRecord;
+import io.camunda.zeebe.protocol.record.RecordType;
 import io.camunda.zeebe.protocol.record.ValueType;
 import io.camunda.zeebe.protocol.record.intent.DeploymentDistributionIntent;
 import io.camunda.zeebe.protocol.record.intent.DeploymentIntent;
+import io.camunda.zeebe.protocol.record.intent.ResumeBatchActivityIntent;
 import io.camunda.zeebe.util.FeatureFlags;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class EngineProcessors {
 
@@ -49,6 +54,10 @@ public final class EngineProcessors {
       final DeploymentDistributionCommandSender deploymentDistributionCommandSender,
       final Consumer<String> onJobsAvailableCallback,
       final FeatureFlags featureFlags) {
+
+    final Logger logger =
+        LoggerFactory.getLogger("io.camunda.zeebe.engine.ResumeBatchActivityProcessor");
+    logger.info("createEngineProcessors()");
 
     final MutableZeebeState zeebeState = typedRecordProcessorContext.getZeebeState();
     final var writers = typedRecordProcessorContext.getWriters();
@@ -80,6 +89,15 @@ public final class EngineProcessors {
             processEngineMetrics,
             sideEffectQueue);
 
+    addBatchRelatedProcessorAndServices(
+        bpmnBehaviors,
+        zeebeState,
+        typedRecordProcessors,
+        writers,
+        partitionsCount,
+        deploymentDistributionCommandSender,
+        zeebeState.getKeyGenerator());
+
     addDeploymentRelatedProcessorAndServices(
         bpmnBehaviors,
         zeebeState,
@@ -110,6 +128,20 @@ public final class EngineProcessors {
         jobMetrics);
 
     addIncidentProcessors(zeebeState, bpmnStreamProcessor, typedRecordProcessors, writers);
+
+    final TypedRecordProcessor processor =
+        typedRecordProcessors
+            .getRecordProcessorMap()
+            .get(
+                RecordType.COMMAND,
+                ValueType.RESUME_BATCH_ACTIVITY,
+                ResumeBatchActivityIntent.RESUME.value());
+
+    if (processor == null) {
+      logger.info("och nee null");
+    } else {
+      logger.info("toch wel success");
+    }
 
     return typedRecordProcessors;
   }
@@ -150,6 +182,27 @@ public final class EngineProcessors {
         timerChecker,
         writers,
         sideEffectQueue);
+  }
+
+  private static void addBatchRelatedProcessorAndServices(
+      final BpmnBehaviorsImpl bpmnBehaviors,
+      final ZeebeState zeebeState,
+      final TypedRecordProcessors typedRecordProcessors,
+      final Writers writers,
+      final int partitionsCount,
+      final DeploymentDistributionCommandSender deploymentDistributionCommandSender,
+      final KeyGenerator keyGenerator) {
+
+    final var processor =
+        new ResumeBatchActivityProcessor(
+            zeebeState,
+            bpmnBehaviors,
+            partitionsCount,
+            writers,
+            deploymentDistributionCommandSender,
+            keyGenerator);
+    typedRecordProcessors.onCommand(
+        ValueType.RESUME_BATCH_ACTIVITY, ResumeBatchActivityIntent.RESUME, processor);
   }
 
   private static void addDeploymentRelatedProcessorAndServices(

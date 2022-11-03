@@ -18,7 +18,7 @@ public final class BrokerResumeBatchActivityRequest
   private final ResumeBatchActivityRecord requestDto = new ResumeBatchActivityRecord();
 
   public BrokerResumeBatchActivityRequest(final String jobType) {
-    super(ValueType.RESUME_BATCH_ACTIVITY, ResumeBatchActivityIntent.RESUME_AFTER_FINISH);
+    super(ValueType.RESUME_BATCH_ACTIVITY, ResumeBatchActivityIntent.RESUME);
     requestDto.setBpmnProcessId(jobType);
   }
 

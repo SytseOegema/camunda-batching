@@ -13,6 +13,7 @@ import io.camunda.zeebe.broker.transport.AsyncApiRequestHandler.RequestReader;
 import io.camunda.zeebe.broker.transport.RequestReaderException;
 import io.camunda.zeebe.msgpack.UnpackedObject;
 import io.camunda.zeebe.protocol.impl.record.RecordMetadata;
+import io.camunda.zeebe.protocol.impl.record.value.batch.ResumeBatchActivityRecord;
 import io.camunda.zeebe.protocol.impl.record.value.deployment.DeploymentRecord;
 import io.camunda.zeebe.protocol.impl.record.value.incident.IncidentRecord;
 import io.camunda.zeebe.protocol.impl.record.value.job.JobBatchRecord;
@@ -43,6 +44,7 @@ public class CommandApiRequestReader implements RequestReader<ExecuteCommandRequ
     RECORDS_BY_TYPE.put(ValueType.PROCESS_INSTANCE_CREATION, new ProcessInstanceCreationRecord());
     RECORDS_BY_TYPE.put(
         ValueType.PROCESS_INSTANCE_MODIFICATION, new ProcessInstanceModificationRecord());
+    RECORDS_BY_TYPE.put(ValueType.RESUME_BATCH_ACTIVITY, new ResumeBatchActivityRecord());
   }
 
   private UnpackedObject event;

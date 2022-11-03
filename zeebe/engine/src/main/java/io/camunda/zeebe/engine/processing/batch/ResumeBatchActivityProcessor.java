@@ -5,7 +5,7 @@
  * Licensed under the Zeebe Community License 1.1. You may not use this file
  * except in compliance with the Zeebe Community License 1.1.
  */
-package io.camunda.zeebe.engine.processing.deployment;
+package io.camunda.zeebe.engine.processing.batch;
 
 import static io.camunda.zeebe.engine.state.instance.TimerInstance.NO_ELEMENT_INSTANCE;
 
@@ -34,10 +34,10 @@ import io.camunda.zeebe.engine.state.immutable.TimerInstanceState;
 import io.camunda.zeebe.engine.state.immutable.ZeebeState;
 import io.camunda.zeebe.engine.state.instance.TimerInstance;
 import io.camunda.zeebe.model.bpmn.util.time.Timer;
+import io.camunda.zeebe.protocol.impl.record.value.batch.ResumeBatchActivityRecord;
 import io.camunda.zeebe.protocol.impl.record.value.deployment.DeploymentRecord;
 import io.camunda.zeebe.protocol.impl.record.value.deployment.ProcessMetadata;
-import io.camunda.zeebe.protocol.record.RejectionType;
-import io.camunda.zeebe.protocol.record.intent.DeploymentIntent;
+import io.camunda.zeebe.protocol.record.intent.ResumeBatchActivityIntent;
 import io.camunda.zeebe.util.Either;
 import java.util.List;
 import java.util.function.Consumer;
@@ -45,7 +45,8 @@ import org.agrona.DirectBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class DeploymentCreateProcessor implements TypedRecordProcessor<DeploymentRecord> {
+public final class ResumeBatchActivityProcessor
+    implements TypedRecordProcessor<ResumeBatchActivityRecord> {
 
   private static final String COULD_NOT_CREATE_TIMER_MESSAGE =
       "Expected to create timer for start event, but encountered the following error: %s";
@@ -59,18 +60,22 @@ public final class DeploymentCreateProcessor implements TypedRecordProcessor<Dep
   private final KeyGenerator keyGenerator;
   private final ExpressionProcessor expressionProcessor;
   private final StateWriter stateWriter;
-  private final MessageStartEventSubscriptionManager messageStartEventSubscriptionManager;
   private final DeploymentDistributionBehavior deploymentDistributionBehavior;
   private final TypedRejectionWriter rejectionWriter;
   private final TypedResponseWriter responseWriter;
 
-  public DeploymentCreateProcessor(
+  public ResumeBatchActivityProcessor(
       final ZeebeState zeebeState,
       final BpmnBehaviors bpmnBehaviors,
       final int partitionsCount,
       final Writers writers,
       final DeploymentDistributionCommandSender deploymentDistributionCommandSender,
       final KeyGenerator keyGenerator) {
+
+    final Logger logger =
+        LoggerFactory.getLogger("io.camunda.zeebe.engine.ResumeBatchActivityProcessor");
+    logger.info("ResumeBatchActivityProcessor()");
+
     processState = zeebeState.getProcessState();
     timerInstanceState = zeebeState.getTimerState();
     this.keyGenerator = keyGenerator;
@@ -81,59 +86,67 @@ public final class DeploymentCreateProcessor implements TypedRecordProcessor<Dep
     expressionProcessor = bpmnBehaviors.expressionBehavior();
     deploymentTransformer =
         new DeploymentTransformer(stateWriter, zeebeState, expressionProcessor, keyGenerator);
-    messageStartEventSubscriptionManager =
-        new MessageStartEventSubscriptionManager(
-            processState, zeebeState.getMessageStartEventSubscriptionState(), keyGenerator);
     deploymentDistributionBehavior =
         new DeploymentDistributionBehavior(
             writers, partitionsCount, deploymentDistributionCommandSender);
-
-    final Logger logger = LoggerFactory.getLogger("DeploymentCreateProcessor");
-    logger.info("DeploymentCreateProcessor()");
   }
 
   @Override
   public void processRecord(
-      final TypedRecord<DeploymentRecord> command, final Consumer<SideEffectProducer> sideEffect) {
+      final TypedRecord<ResumeBatchActivityRecord> command,
+      final Consumer<SideEffectProducer> sideEffect) {
 
-    final Logger logger = LoggerFactory.getLogger("DeploymentCreateProcessor");
-    logger.info("processRecord()");
+    final Logger logger =
+        LoggerFactory.getLogger("io.camunda.zeebe.engine.ResumeBatchActivityProcessor");
+    logger.info("ResumeBatchActivityProcessor.processRecord()");
 
+    logger.info("well in processRecord van ResumeBatchActivityProcessor");
     sideEffect.accept(sideEffects);
+    logger.info("1");
+    final ResumeBatchActivityRecord resumeEvent = command.getValue();
+    logger.info("2");
+    // resumeEvent.setBpmnProcessId("joh dit werkt als een tiet!");
+    logger.info("3");
 
-    final DeploymentRecord deploymentEvent = command.getValue();
+    final long key = keyGenerator.nextKey();
+    logger.info("4");
+    responseWriter.writeEventOnCommand(
+        key, ResumeBatchActivityIntent.RESUMED, resumeEvent, command);
 
-    final boolean accepted = deploymentTransformer.transform(deploymentEvent);
-    if (accepted) {
-      final long key = keyGenerator.nextKey();
+    stateWriter.appendFollowUpEvent(key, ResumeBatchActivityIntent.RESUMED, resumeEvent);
 
-      try {
-        createTimerIfTimerStartEvent(command, sideEffects);
-      } catch (final RuntimeException e) {
-        final String reason = String.format(COULD_NOT_CREATE_TIMER_MESSAGE, e.getMessage());
-        responseWriter.writeRejectionOnCommand(command, RejectionType.PROCESSING_ERROR, reason);
-        rejectionWriter.appendRejection(command, RejectionType.PROCESSING_ERROR, reason);
-        return;
-      }
+    logger.info("5");
 
-      responseWriter.writeEventOnCommand(key, DeploymentIntent.CREATED, deploymentEvent, command);
-
-      stateWriter.appendFollowUpEvent(key, DeploymentIntent.CREATED, deploymentEvent);
-
-      deploymentDistributionBehavior.distributeDeployment(deploymentEvent, key);
-      messageStartEventSubscriptionManager.tryReOpenMessageStartEventSubscription(
-          deploymentEvent, stateWriter);
-
-    } else {
-      responseWriter.writeRejectionOnCommand(
-          command,
-          deploymentTransformer.getRejectionType(),
-          deploymentTransformer.getRejectionReason());
-      rejectionWriter.appendRejection(
-          command,
-          deploymentTransformer.getRejectionType(),
-          deploymentTransformer.getRejectionReason());
-    }
+    // final boolean accepted = deploymentTransformer.transform(deploymentEvent);
+    // if (accepted) {
+    //   final long key = keyGenerator.nextKey();
+    //
+    //   try {
+    //     createTimerIfTimerStartEvent(command, sideEffects);
+    //   } catch (final RuntimeException e) {
+    //     final String reason = String.format(COULD_NOT_CREATE_TIMER_MESSAGE, e.getMessage());
+    //     responseWriter.writeRejectionOnCommand(command, RejectionType.PROCESSING_ERROR, reason);
+    //     rejectionWriter.appendRejection(command, RejectionType.PROCESSING_ERROR, reason);
+    //     return;
+    //   }
+    //
+    //   responseWriter.writeEventOnCommand(key, DeploymentIntent.CREATED, deploymentEvent,
+    // command);
+    //
+    //   stateWriter.appendFollowUpEvent(key, DeploymentIntent.CREATED, deploymentEvent);
+    //
+    //   deploymentDistributionBehavior.distributeDeployment(deploymentEvent, key);
+    //
+    // } else {
+    //   responseWriter.writeRejectionOnCommand(
+    //       command,
+    //       deploymentTransformer.getRejectionType(),
+    //       deploymentTransformer.getRejectionReason());
+    //   rejectionWriter.appendRejection(
+    //       command,
+    //       deploymentTransformer.getRejectionType(),
+    //       deploymentTransformer.getRejectionReason());
+    // }
   }
 
   private void createTimerIfTimerStartEvent(
