@@ -16,8 +16,8 @@
 package io.camunda.zeebe.protocol.record.intent;
 
 public enum ResumeBatchActivityIntent implements Intent {
-  RESUME_AT_START((short) 0),
-  RESUME_AFTER_FINISH((short) 1);
+  RESUME((short) 0),
+  RESUMED((short) 1);
 
   private final short value;
 
@@ -32,9 +32,9 @@ public enum ResumeBatchActivityIntent implements Intent {
   public static Intent from(final short value) {
     switch (value) {
       case 0:
-        return RESUME_AT_START;
+        return RESUME;
       case 1:
-        return RESUME_AFTER_FINISH;
+        return RESUMED;
       default:
         return Intent.UNKNOWN;
     }

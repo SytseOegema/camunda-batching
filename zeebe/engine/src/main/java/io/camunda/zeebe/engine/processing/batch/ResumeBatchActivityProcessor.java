@@ -37,7 +37,6 @@ import io.camunda.zeebe.model.bpmn.util.time.Timer;
 import io.camunda.zeebe.protocol.impl.record.value.batch.ResumeBatchActivityRecord;
 import io.camunda.zeebe.protocol.impl.record.value.deployment.DeploymentRecord;
 import io.camunda.zeebe.protocol.impl.record.value.deployment.ProcessMetadata;
-import io.camunda.zeebe.protocol.record.intent.ResumeBatchActivityIntent;
 import io.camunda.zeebe.util.Either;
 import java.util.List;
 import java.util.function.Consumer;
@@ -110,10 +109,10 @@ public final class ResumeBatchActivityProcessor
 
     final long key = keyGenerator.nextKey();
     logger.info("4");
-    responseWriter.writeEventOnCommand(
-        key, ResumeBatchActivityIntent.RESUMED, resumeEvent, command);
-
-    stateWriter.appendFollowUpEvent(key, ResumeBatchActivityIntent.RESUMED, resumeEvent);
+    // responseWriter.writeEventOnCommand(
+    //     key, ResumeBatchActivityIntent.RESUMED, resumeEvent, command);
+    //
+    // stateWriter.appendFollowUpEvent(key, ResumeBatchActivityIntent.RESUMED, resumeEvent);
 
     logger.info("5");
 
