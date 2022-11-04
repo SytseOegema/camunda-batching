@@ -21,6 +21,8 @@ import io.camunda.zeebe.protocol.impl.record.UnifiedRecordValue;
 import io.camunda.zeebe.protocol.record.RejectionType;
 import io.camunda.zeebe.protocol.record.intent.Intent;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Decorates a command processor with simple accept and reject logic.
@@ -71,24 +73,42 @@ public final class CommandProcessorImpl<T extends UnifiedRecordValue>
   public void processRecord(
       final TypedRecord<T> command, final Consumer<SideEffectProducer> sideEffect) {
 
+    final Logger logger = LoggerFactory.getLogger("CommandProcessor()");
+
+    logger.info("processRecord()");
+
     entityKey = command.getKey();
+    logger.info("processRecord()");
 
     sideEffect.accept(sideEffectQueue);
     sideEffectQueue.clear();
+    logger.info("processRecord()");
 
     final boolean shouldRespond = wrappedProcessor.onCommand(command, this, sideEffectQueue::add);
+    logger.info("processRecord()");
+
+    logger.info(String.valueOf(shouldRespond));
+    logger.info(String.valueOf(command.hasRequestMetadata()));
 
     final boolean respond = shouldRespond && command.hasRequestMetadata();
+    logger.info("processRecord()");
 
     if (isAccepted) {
+      logger.info("isAccepted");
       stateWriter.appendFollowUpEvent(entityKey, newState, updatedValue);
+      logger.info("isAccepted");
       wrappedProcessor.afterAccept(commandWriter, stateWriter, entityKey, newState, updatedValue);
+      logger.info("isAccepted");
       if (respond) {
+        logger.info("is respond");
         responseWriter.writeEventOnCommand(entityKey, newState, updatedValue, command);
       }
     } else {
+      logger.info("not accepted");
       rejectionWriter.appendRejection(command, rejectionType, rejectionReason);
+      logger.info("not accepted");
       if (respond) {
+        logger.info("is respond");
         responseWriter.writeRejectionOnCommand(command, rejectionType, rejectionReason);
       }
     }

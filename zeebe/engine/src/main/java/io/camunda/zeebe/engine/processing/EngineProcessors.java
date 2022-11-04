@@ -195,12 +195,7 @@ public final class EngineProcessors {
 
     final var processor =
         new ResumeBatchActivityProcessor(
-            zeebeState,
-            bpmnBehaviors,
-            partitionsCount,
-            writers,
-            deploymentDistributionCommandSender,
-            keyGenerator);
+            zeebeState.getProcessState(), keyGenerator, writers, bpmnBehaviors);
     typedRecordProcessors.onCommand(
         ValueType.RESUME_BATCH_ACTIVITY, ResumeBatchActivityIntent.RESUME, processor);
   }

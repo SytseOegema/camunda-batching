@@ -274,11 +274,15 @@ public final class ProcessingStateMachine {
       zeebeDbTransaction.run(
           () -> {
             if (currentProcessor != null) {
+              LOG.info("7a");
               currentProcessingResult =
                   currentProcessor.process(typedCommand, processingResultBuilder);
+              LOG.info("7b");
             }
 
+            LOG.info("7c");
             lastProcessedPositionState.markAsProcessed(position);
+            LOG.info("7d");
           });
 
       LOG.info("8");

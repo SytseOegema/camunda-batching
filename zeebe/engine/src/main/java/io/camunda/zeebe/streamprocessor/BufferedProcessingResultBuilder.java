@@ -27,6 +27,8 @@ import io.camunda.zeebe.util.Either;
 import io.camunda.zeebe.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@code ProcessingResultBuilder} that buffers the processing results. After
@@ -53,25 +55,37 @@ final class BufferedProcessingResultBuilder implements ProcessingResultBuilder {
       final String rejectionReason,
       final RecordValue value) {
 
+    final Logger logger = LoggerFactory.getLogger("BufferedProcessingResultBuilder");
+
+    logger.info("buf 1");
+
     final ValueType valueType = TYPE_REGISTRY.get(value.getClass());
+    logger.info("buf 2");
     if (valueType == null) {
+      logger.info("buf 2a");
       // usually happens when the record is not registered at the TypedStreamEnvironment
       throw new IllegalStateException("Missing value type mapping for record: " + value.getClass());
     }
 
+    logger.info("buf 3");
     if (value instanceof UnifiedRecordValue unifiedRecordValue) {
+      logger.info("buf 3a");
       final var either =
           mutableRecordBatch.appendRecord(
               key, -1, type, intent, rejectionType, rejectionReason, valueType, unifiedRecordValue);
+      logger.info("buf 3b");
       if (either.isLeft()) {
+        logger.info("buf 3ba");
         return Either.left(either.getLeft());
       }
     } else {
+      logger.info("buf 3c");
       throw new IllegalStateException(
           String.format(
               "The record value %s is not a UnifiedRecordValue",
               StringUtil.limitString(value.toString(), 1024)));
     }
+    logger.info("buf 4");
 
     return Either.right(this);
   }
@@ -96,13 +110,19 @@ final class BufferedProcessingResultBuilder implements ProcessingResultBuilder {
 
   @Override
   public ProcessingResultBuilder appendPostCommitTask(final PostCommitTask task) {
+    final Logger logger = LoggerFactory.getLogger("ResumeBatchActivityProcessor");
+    logger.info("appendPostCommitTask()");
     postCommitTasks.add(task);
+    logger.info("appendPostCommitTask()");
     return this;
   }
 
   @Override
   public ProcessingResultBuilder resetPostCommitTasks() {
+    final Logger logger = LoggerFactory.getLogger("ResumeBatchActivityProcessor");
+    logger.info("resetPostCommitTasks()");
     postCommitTasks.clear();
+    logger.info("resetPostCommitTasks()");
     return this;
   }
 
