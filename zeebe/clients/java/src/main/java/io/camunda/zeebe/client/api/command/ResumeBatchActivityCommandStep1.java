@@ -26,7 +26,18 @@ public interface ResumeBatchActivityCommandStep1 {
    * @param bpmnProcessId the BPMN process id of the process
    * @return the builder for this command
    */
-  ResumeBatchActivityCommandStep2 bpmnProcessId(String bpmnProcessId);
+  ResumeBatchActivityCommandStep2 isBatchExecuted(final boolean isBatchExecuted);
+
+  ResumeBatchActivityCommandStep2 addProcessInstance(
+      final long processInstanceKey,
+      final String bpmnProcessId,
+      final int processVersion,
+      final long processDefinitionKey,
+      final String elementId,
+      final String bpmnElementType,
+      final Long flowScopeKey);
+
+  ResumeBatchActivityCommandStep2 variables(final String variables);
 
   interface ResumeBatchActivityCommandStep2
       extends ResumeBatchActivityCommandStep1, FinalCommandStep<ResumeBatchActivityResponse> {

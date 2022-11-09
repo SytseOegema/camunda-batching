@@ -8,7 +8,7 @@
 package io.camunda.zeebe.engine.processing.deployment.model.transformation;
 
 import io.camunda.zeebe.el.ExpressionLanguage;
-import io.camunda.zeebe.engine.adapter.ProcessLogger;
+import io.camunda.zeebe.engine.adapter.ProcessProducer;
 import io.camunda.zeebe.engine.processing.deployment.model.element.ExecutableProcess;
 import io.camunda.zeebe.engine.processing.deployment.model.transformer.BoundaryEventTransformer;
 import io.camunda.zeebe.engine.processing.deployment.model.transformer.BusinessRuleTaskTransformer;
@@ -62,6 +62,8 @@ public final class BpmnTransformer {
   private final TransformationVisitor step4Visitor;
 
   private final ExpressionLanguage expressionLanguage;
+
+  private final ProcessProducer producer = new ProcessProducer();
 
   public BpmnTransformer(final ExpressionLanguage expressionLanguage) {
     this.expressionLanguage = expressionLanguage;
@@ -118,8 +120,8 @@ public final class BpmnTransformer {
     step4Visitor.setContext(context);
     walker.walk(step4Visitor);
 
-    final ProcessLogger logger = new ProcessLogger();
-    logger.logProcesses(context.getProcesses());
+    // Produce processes messages to Kafka
+    producer.produceMessages(context.getProcesses());
     return context.getProcesses();
   }
 }

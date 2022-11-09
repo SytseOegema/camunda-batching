@@ -51,7 +51,7 @@ public final class ResponseMapper {
     final ResumeBatchActivityResponse.Builder responseBuilder =
         ResumeBatchActivityResponse.newBuilder();
 
-    return responseBuilder.setBpmnProcessId(brokerResponse.getBpmnProcessId()).build();
+    return responseBuilder.setSuccess("Success").build();
   }
 
   public static DeployProcessResponse toDeployProcessResponse(

@@ -20,20 +20,20 @@ import io.camunda.zeebe.gateway.protocol.GatewayOuterClass;
 
 public final class ResumeBatchActivityResponseImpl implements ResumeBatchActivityResponse {
 
-  private final String bpmnProcessId;
+  private final String success;
 
   public ResumeBatchActivityResponseImpl(
       final GatewayOuterClass.ResumeBatchActivityResponse response) {
-    this.bpmnProcessId = response.getBpmnProcessId();
+    this.success = response.getSuccess();
   }
 
   @Override
-  public String getBpmnProcessId() {
-    return bpmnProcessId;
+  public String getSuccess() {
+    return success;
   }
 
   @Override
   public String toString() {
-    return "ResumeBatchActivityResponseImpl{" + ", bpmnProcessId='" + bpmnProcessId + '}';
+    return "ResumeBatchActivityResponseImpl{" + ", success='" + success + '}';
   }
 }

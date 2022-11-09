@@ -43,8 +43,59 @@
             "fields": [
               {
                 "id": 1,
+                "name": "processInstances",
+                "type": "ProcessInstance",
+                "is_repeated": true
+              },
+              {
+                "id": 2,
+                "name": "isBatchExecuted",
+                "type": "bool"
+              },
+              {
+                "id": 3,
+                "name": "variables",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "name": "ProcessInstance",
+            "fields": [
+              {
+                "id": 1,
+                "name": "processInstanceKey",
+                "type": "int64"
+              },
+              {
+                "id": 2,
                 "name": "bpmnProcessId",
                 "type": "string"
+              },
+              {
+                "id": 3,
+                "name": "processVersion",
+                "type": "int32"
+              },
+              {
+                "id": 4,
+                "name": "processDefinitionKey",
+                "type": "int64"
+              },
+              {
+                "id": 5,
+                "name": "elementId",
+                "type": "string"
+              },
+              {
+                "id": 6,
+                "name": "bpmnElementType",
+                "type": "string"
+              },
+              {
+                "id": 7,
+                "name": "flowScopeKey",
+                "type": "int64"
               }
             ]
           },
@@ -53,7 +104,7 @@
             "fields": [
               {
                 "id": 1,
-                "name": "bpmnProcessId",
+                "name": "success",
                 "type": "string"
               }
             ]

@@ -32,7 +32,10 @@ public enum ProcessInstanceIntent implements ProcessInstanceRelatedIntent {
 
   ACTIVATE_ELEMENT((short) 8),
   COMPLETE_ELEMENT((short) 9),
-  TERMINATE_ELEMENT((short) 10);
+  TERMINATE_ELEMENT((short) 10),
+
+  RESUME_ELEMENT((short) 11),
+  ELEMENT_PAUSED((short) 12);
 
   private static final Set<ProcessInstanceIntent> PROCESS_INSTANCE_COMMANDS = EnumSet.of(CANCEL);
   private static final Set<ProcessInstanceIntent> BPMN_ELEMENT_COMMANDS =
@@ -78,6 +81,10 @@ public enum ProcessInstanceIntent implements ProcessInstanceRelatedIntent {
         return COMPLETE_ELEMENT;
       case 10:
         return TERMINATE_ELEMENT;
+      case 11:
+        return RESUME_ELEMENT;
+      case 12:
+        return ELEMENT_PAUSED;
       default:
         return Intent.UNKNOWN;
     }

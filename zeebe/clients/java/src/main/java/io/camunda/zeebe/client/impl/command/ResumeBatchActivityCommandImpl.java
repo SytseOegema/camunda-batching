@@ -25,10 +25,13 @@ import io.camunda.zeebe.client.impl.RetriableClientFutureImpl;
 import io.camunda.zeebe.client.impl.response.ResumeBatchActivityResponseImpl;
 import io.camunda.zeebe.gateway.protocol.GatewayGrpc.GatewayStub;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ProcessInstance;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResumeBatchActivityRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResumeBatchActivityRequest.Builder;
 import io.grpc.stub.StreamObserver;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
@@ -36,10 +39,12 @@ public final class ResumeBatchActivityCommandImpl
     implements ResumeBatchActivityCommandStep1, ResumeBatchActivityCommandStep2 {
 
   private static final Duration DEADLINE_OFFSET = Duration.ofSeconds(10);
+  private final List<ProcessInstance> instanceList = new ArrayList<>();
   private final GatewayStub asyncStub;
   private final JsonMapper jsonMapper;
   private final Predicate<Throwable> retryPredicate;
   private final Builder builder;
+  private final ProcessInstance.Builder processInstanceBuilder;
   private Duration requestTimeout;
 
   public ResumeBatchActivityCommandImpl(
@@ -52,6 +57,7 @@ public final class ResumeBatchActivityCommandImpl
     this.requestTimeout = requestTimeout;
     this.retryPredicate = retryPredicate;
     builder = ResumeBatchActivityRequest.newBuilder();
+    processInstanceBuilder = ProcessInstance.newBuilder();
   }
 
   @Override
@@ -62,13 +68,42 @@ public final class ResumeBatchActivityCommandImpl
   }
 
   @Override
-  public ResumeBatchActivityCommandStep2 bpmnProcessId(final String bpmnProcessId) {
-    builder.setBpmnProcessId(bpmnProcessId);
+  public ResumeBatchActivityCommandStep2 isBatchExecuted(final boolean isBatchExecuted) {
+    builder.setIsBatchExecuted(isBatchExecuted);
+    return this;
+  }
+
+  @Override
+  public ResumeBatchActivityCommandStep2 addProcessInstance(
+      final long processInstanceKey,
+      final String bpmnProcessId,
+      final int processVersion,
+      final long processDefinitionKey,
+      final String elementId,
+      final String bpmnElementType,
+      final Long flowScopeKey) {
+    processInstanceBuilder.setProcessInstanceKey(processInstanceKey);
+    processInstanceBuilder.setBpmnProcessId(bpmnProcessId);
+    processInstanceBuilder.setProcessVersion(processVersion);
+    processInstanceBuilder.setProcessDefinitionKey(processDefinitionKey);
+    processInstanceBuilder.setElementId(elementId);
+    processInstanceBuilder.setBpmnElementType(bpmnElementType);
+    processInstanceBuilder.setFlowScopeKey(flowScopeKey);
+
+    instanceList.add(processInstanceBuilder.build());
+
+    return this;
+  }
+
+  @Override
+  public ResumeBatchActivityCommandStep2 variables(final String variables) {
+    builder.setVariables(variables);
     return this;
   }
 
   @Override
   public ZeebeFuture<ResumeBatchActivityResponse> send() {
+    builder.addAllProcessInstances(instanceList);
     final ResumeBatchActivityRequest request = builder.build();
 
     final RetriableClientFutureImpl<

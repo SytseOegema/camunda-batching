@@ -13,25 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.camunda.zeebe.protocol.record.value;
+package io.camunda.zeebe.protocol.record.value.batch;
 
 import io.camunda.zeebe.protocol.record.ImmutableProtocol;
-import io.camunda.zeebe.protocol.record.RecordValueWithVariables;
-import io.camunda.zeebe.protocol.record.value.batch.ProcessInstance;
-import java.util.List;
+import io.camunda.zeebe.protocol.record.value.BpmnElementType;
+import org.agrona.DirectBuffer;
 import org.immutables.value.Value;
 
+/** Represents a single deployment resource. */
 @Value.Immutable
-@ImmutableProtocol(builder = ImmutableResumeBatchActivityRecordValue.Builder.class)
-public interface ResumeBatchActivityRecordValue extends RecordValueWithVariables {
-  /**
-   * @return the BPMN process instance keys that where in the bach.
-   */
-  List<ProcessInstance> getProcessInstances();
-  /**
-   * @return the boolean whether or not the batch has been executed
-   */
-  boolean getIsBatchExecuted();
+@ImmutableProtocol(builder = ImmutableProcessInstance.Builder.class)
+public interface ProcessInstance {
 
-  public boolean hasProcessInstances();
+  public long getProcessInstanceKey();
+
+  public String getBpmnProcessId();
+
+  public DirectBuffer getBpmnProcessIdBuffer();
+
+  public int getProcessVersion();
+
+  public long getProcessDefinitionKey();
+
+  public String getElementId();
+
+  public BpmnElementType getBpmnElementType();
+
+  public String getBpmnElementTypeDescription();
+
+  public long getFlowScopeKey();
 }

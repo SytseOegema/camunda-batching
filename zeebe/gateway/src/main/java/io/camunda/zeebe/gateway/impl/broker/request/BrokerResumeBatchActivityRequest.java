@@ -17,9 +17,38 @@ public final class BrokerResumeBatchActivityRequest
 
   private final ResumeBatchActivityRecord requestDto = new ResumeBatchActivityRecord();
 
-  public BrokerResumeBatchActivityRequest(final String jobType) {
+  public BrokerResumeBatchActivityRequest() {
     super(ValueType.RESUME_BATCH_ACTIVITY, ResumeBatchActivityIntent.RESUME);
-    requestDto.setBpmnProcessId(jobType);
+  }
+
+  public BrokerResumeBatchActivityRequest setIsBatchExecuted(final boolean isBatchExecuted) {
+    requestDto.setIsBatchExecuted(isBatchExecuted);
+    return this;
+  }
+
+  public BrokerResumeBatchActivityRequest setVariables(final DirectBuffer variables) {
+    requestDto.setVariables(variables);
+    return this;
+  }
+
+  public BrokerResumeBatchActivityRequest addProcessInstance(
+      final long processInstanceKey,
+      final String bpmnProcessId,
+      final int processVersion,
+      final long processDefinitionKey,
+      final String elementId,
+      final String bpmnElementType,
+      final Long flowScopeKey) {
+    // hier dit toepassen op requestDto;
+    requestDto.addProcessInstance(
+        processInstanceKey,
+        bpmnProcessId,
+        processVersion,
+        processDefinitionKey,
+        elementId,
+        bpmnElementType,
+        flowScopeKey);
+    return this;
   }
 
   @Override

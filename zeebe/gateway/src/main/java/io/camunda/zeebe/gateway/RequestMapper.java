@@ -33,6 +33,7 @@ import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.DeployProcessRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.DeployResourceRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.FailJobRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ModifyProcessInstanceRequest;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ProcessInstance;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ProcessRequestObject;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.PublishMessageRequest;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.ResolveIncidentRequest;
@@ -50,8 +51,22 @@ public final class RequestMapper {
 
   public static BrokerResumeBatchActivityRequest toResumeBatchActivityRequest(
       final ResumeBatchActivityRequest grpcRequest) {
-    final BrokerResumeBatchActivityRequest brokerRequest =
-        new BrokerResumeBatchActivityRequest(grpcRequest.getBpmnProcessId());
+    final BrokerResumeBatchActivityRequest brokerRequest = new BrokerResumeBatchActivityRequest();
+    brokerRequest
+        .setIsBatchExecuted(grpcRequest.getIsBatchExecuted())
+        .setVariables(ensureJsonSet(grpcRequest.getVariables()));
+
+    for (final ProcessInstance instance : grpcRequest.getProcessInstancesList()) {
+      brokerRequest.addProcessInstance(
+          instance.getProcessInstanceKey(),
+          instance.getBpmnProcessId(),
+          instance.getProcessVersion(),
+          instance.getProcessDefinitionKey(),
+          instance.getElementId(),
+          instance.getBpmnElementType(),
+          instance.getFlowScopeKey());
+    }
+
     return brokerRequest;
   }
 

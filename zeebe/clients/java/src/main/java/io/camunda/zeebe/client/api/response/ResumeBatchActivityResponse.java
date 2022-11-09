@@ -18,5 +18,5 @@ package io.camunda.zeebe.client.api.response;
 public interface ResumeBatchActivityResponse {
 
   /** BPMN process id of the process which this instance was created for */
-  String getBpmnProcessId();
+  String getSuccess();
 }
