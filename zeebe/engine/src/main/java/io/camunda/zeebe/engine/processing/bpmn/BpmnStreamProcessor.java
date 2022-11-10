@@ -177,13 +177,19 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
     LOGGER.info("element instance key element to put in client terminal: ");
     String logLine = "";
     logLine += context.getElementInstanceKey();
+    logLine += " ";
     logLine += bufferAsString(context.getBpmnProcessId());
+    logLine += " ";
     logLine += context.getProcessVersion();
+    logLine += " ";
     logLine += context.getProcessDefinitionKey();
+    logLine += " ";
     logLine += bufferAsString(context.getElementId());
+    logLine += " ";
     final Optional<String> type = context.getBpmnElementType().getElementTypeName();
     if (type.isPresent()) {
       logLine += type.get();
+      logLine += " ";
     }
     logLine += context.getFlowScopeKey();
     LOGGER.info(logLine);

@@ -43,4 +43,6 @@ public interface ProcessInstance extends RecordValueWithVariables {
   public String getBpmnElementTypeDescription();
 
   public long getFlowScopeKey();
+
+  public DirectBuffer getVariablesBuffer();
 }

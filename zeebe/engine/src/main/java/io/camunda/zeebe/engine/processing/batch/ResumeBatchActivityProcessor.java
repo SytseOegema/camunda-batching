@@ -23,7 +23,10 @@ import io.camunda.zeebe.engine.processing.streamprocessor.writers.Writers;
 import io.camunda.zeebe.engine.processing.variable.VariableBehavior;
 import io.camunda.zeebe.engine.state.KeyGenerator;
 import io.camunda.zeebe.engine.state.deployment.DeployedProcess;
+import io.camunda.zeebe.engine.state.immutable.ElementInstanceState;
 import io.camunda.zeebe.engine.state.immutable.ProcessState;
+import io.camunda.zeebe.engine.state.instance.ElementInstance;
+import io.camunda.zeebe.msgpack.spec.MsgpackReaderException;
 import io.camunda.zeebe.protocol.impl.record.value.batch.ResumeBatchActivityRecord;
 import io.camunda.zeebe.protocol.impl.record.value.processinstance.ProcessInstanceRecord;
 import io.camunda.zeebe.protocol.record.RejectionType;
@@ -47,6 +50,7 @@ public final class ResumeBatchActivityProcessor
 
   private final ProcessState processState;
   private final VariableBehavior variableBehavior;
+  private final ElementInstanceState elementInstanceState;
 
   private final KeyGenerator keyGenerator;
   private final TypedCommandWriter commandWriter;
@@ -57,11 +61,13 @@ public final class ResumeBatchActivityProcessor
 
   public ResumeBatchActivityProcessor(
       final ProcessState processState,
+      final ElementInstanceState elementInstanceState,
       final KeyGenerator keyGenerator,
       final Writers writers,
       final BpmnBehaviors bpmnBehaviors) {
     this.processState = processState;
     variableBehavior = bpmnBehaviors.variableBehavior();
+    this.elementInstanceState = elementInstanceState;
     this.keyGenerator = keyGenerator;
     commandWriter = writers.command();
     rejectionWriter = writers.rejection();
@@ -129,10 +135,17 @@ public final class ResumeBatchActivityProcessor
           ProcessInstanceIntent.COMPLETE_ELEMENT,
           processInstance);
     } else {
-      commandWriter.appendFollowUpCommand(
-          instance.getProcessInstanceKey(),
-          ProcessInstanceIntent.ACTIVATE_ELEMENT,
-          processInstance);
+      updateVariableDocument(instance)
+          .ifRightOrLeft(
+              instanceRetValue ->
+                  commandWriter.appendFollowUpCommand(
+                      instanceRetValue.getProcessInstanceKey(),
+                      ProcessInstanceIntent.RESUME_ELEMENT,
+                      processInstance),
+              rejection ->
+                  controller.reject(
+                      RejectionType.INVALID_STATE,
+                      "Could not update variables:" + instance.getProcessInstanceKey()));
     }
   }
 
@@ -208,6 +221,40 @@ public final class ResumeBatchActivityProcessor
     newProcessInstance.setElementId(processInstance.getElementId());
     newProcessInstance.setFlowScopeKey(processInstance.getFlowScopeKey());
     return newProcessInstance;
+  }
+
+  private Either<Rejection, ProcessInstance> updateVariableDocument(
+      final ProcessInstance processInstance) {
+    final ElementInstance scope =
+        elementInstanceState.getInstance(processInstance.getFlowScopeKey());
+    if (scope == null || scope.isTerminating() || scope.isInFinalState()) {
+      final String reason =
+          String.format(
+              "Expected to update variables for element with key '%d', but no such element was found",
+              processInstance.getFlowScopeKey());
+      return Either.left(new Rejection(RejectionType.NOT_FOUND, reason));
+    }
+
+    final long processDefinitionKey = scope.getValue().getProcessDefinitionKey();
+    final long processInstanceKey = scope.getValue().getProcessInstanceKey();
+    final DirectBuffer bpmnProcessId = scope.getValue().getBpmnProcessIdBuffer();
+    try {
+      variableBehavior.mergeDocument(
+          scope.getKey(),
+          processDefinitionKey,
+          processInstanceKey,
+          bpmnProcessId,
+          processInstance.getVariablesBuffer());
+    } catch (final MsgpackReaderException e) {
+      final String reason =
+          String.format(
+              "Expected document to be valid msgpack, but it could not be read: '%s'",
+              e.getMessage());
+      return Either.left(new Rejection(RejectionType.INVALID_STATE, reason));
+    }
+
+    final long key = keyGenerator.nextKey();
+    return Either.right(processInstance);
   }
 
   private record Rejection(RejectionType type, String reason) {}

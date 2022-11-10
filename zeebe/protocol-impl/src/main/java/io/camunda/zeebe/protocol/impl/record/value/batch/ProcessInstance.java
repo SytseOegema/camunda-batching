@@ -96,6 +96,7 @@ public final class ProcessInstance extends UnpackedObject
   }
 
   @JsonIgnore
+  @Override
   public DirectBuffer getVariablesBuffer() {
     return variablesProperty.getValue();
   }
