@@ -128,7 +128,6 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
         if (!isActivity(pausedContext.getBpmnElementType())) {
           processEvent(ProcessInstanceIntent.RESUME_ELEMENT, processor, element);
         } else {
-          // final long variableScopeKey = getVariableScopeKey(pausedContext);
           final String variables =
               MsgPackConverter.convertToJson(
                   variableState.getVariablesAsDocument(pausedContext.getFlowScopeKey()));

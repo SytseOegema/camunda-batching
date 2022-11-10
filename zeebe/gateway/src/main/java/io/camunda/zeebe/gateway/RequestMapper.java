@@ -52,9 +52,7 @@ public final class RequestMapper {
   public static BrokerResumeBatchActivityRequest toResumeBatchActivityRequest(
       final ResumeBatchActivityRequest grpcRequest) {
     final BrokerResumeBatchActivityRequest brokerRequest = new BrokerResumeBatchActivityRequest();
-    brokerRequest
-        .setIsBatchExecuted(grpcRequest.getIsBatchExecuted())
-        .setVariables(ensureJsonSet(grpcRequest.getVariables()));
+    brokerRequest.setIsBatchExecuted(grpcRequest.getIsBatchExecuted());
 
     for (final ProcessInstance instance : grpcRequest.getProcessInstancesList()) {
       brokerRequest.addProcessInstance(
@@ -64,7 +62,8 @@ public final class RequestMapper {
           instance.getProcessDefinitionKey(),
           instance.getElementId(),
           instance.getBpmnElementType(),
-          instance.getFlowScopeKey());
+          instance.getFlowScopeKey(),
+          ensureJsonSet(instance.getVariables()));
     }
 
     return brokerRequest;

@@ -26,11 +26,6 @@ public final class BrokerResumeBatchActivityRequest
     return this;
   }
 
-  public BrokerResumeBatchActivityRequest setVariables(final DirectBuffer variables) {
-    requestDto.setVariables(variables);
-    return this;
-  }
-
   public BrokerResumeBatchActivityRequest addProcessInstance(
       final long processInstanceKey,
       final String bpmnProcessId,
@@ -38,7 +33,8 @@ public final class BrokerResumeBatchActivityRequest
       final long processDefinitionKey,
       final String elementId,
       final String bpmnElementType,
-      final Long flowScopeKey) {
+      final Long flowScopeKey,
+      final DirectBuffer variables) {
     // hier dit toepassen op requestDto;
     requestDto.addProcessInstance(
         processInstanceKey,
@@ -47,7 +43,8 @@ public final class BrokerResumeBatchActivityRequest
         processDefinitionKey,
         elementId,
         bpmnElementType,
-        flowScopeKey);
+        flowScopeKey,
+        variables);
     return this;
   }
 

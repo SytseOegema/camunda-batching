@@ -16,6 +16,7 @@
 package io.camunda.zeebe.protocol.record.value.batch;
 
 import io.camunda.zeebe.protocol.record.ImmutableProtocol;
+import io.camunda.zeebe.protocol.record.RecordValueWithVariables;
 import io.camunda.zeebe.protocol.record.value.BpmnElementType;
 import org.agrona.DirectBuffer;
 import org.immutables.value.Value;
@@ -23,7 +24,7 @@ import org.immutables.value.Value;
 /** Represents a single deployment resource. */
 @Value.Immutable
 @ImmutableProtocol(builder = ImmutableProcessInstance.Builder.class)
-public interface ProcessInstance {
+public interface ProcessInstance extends RecordValueWithVariables {
 
   public long getProcessInstanceKey();
 

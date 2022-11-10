@@ -7,12 +7,16 @@
  */
 package io.camunda.zeebe.protocol.impl.record.value.batch;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.camunda.zeebe.msgpack.UnpackedObject;
+import io.camunda.zeebe.msgpack.property.DocumentProperty;
 import io.camunda.zeebe.msgpack.property.IntegerProperty;
 import io.camunda.zeebe.msgpack.property.LongProperty;
 import io.camunda.zeebe.msgpack.property.StringProperty;
+import io.camunda.zeebe.protocol.impl.encoding.MsgPackConverter;
 import io.camunda.zeebe.protocol.record.value.BpmnElementType;
 import io.camunda.zeebe.util.buffer.BufferUtil;
+import java.util.Map;
 import org.agrona.DirectBuffer;
 
 public final class ProcessInstance extends UnpackedObject
@@ -27,6 +31,7 @@ public final class ProcessInstance extends UnpackedObject
   private final StringProperty elementIdProperty = new StringProperty("elementId", "");
   private final StringProperty bpmnElementTypeProperty = new StringProperty("bpmnElementType", "");
   private final LongProperty flowScopeKeyProperty = new LongProperty("flowScopeKey", -1);
+  private final DocumentProperty variablesProperty = new DocumentProperty("variables");
 
   public ProcessInstance() {
     declareProperty(processInstanceKeyProperty)
@@ -35,7 +40,8 @@ public final class ProcessInstance extends UnpackedObject
         .declareProperty(processDefinitionKeyProperty)
         .declareProperty(elementIdProperty)
         .declareProperty(bpmnElementTypeProperty)
-        .declareProperty(flowScopeKeyProperty);
+        .declareProperty(flowScopeKeyProperty)
+        .declareProperty(variablesProperty);
   }
 
   @Override
@@ -84,6 +90,16 @@ public final class ProcessInstance extends UnpackedObject
     return flowScopeKeyProperty.getValue();
   }
 
+  @Override
+  public Map<String, Object> getVariables() {
+    return MsgPackConverter.convertToMap(getVariablesBuffer());
+  }
+
+  @JsonIgnore
+  public DirectBuffer getVariablesBuffer() {
+    return variablesProperty.getValue();
+  }
+
   public ProcessInstance setProcessInstanceKey(long key) {
     processInstanceKeyProperty.setValue(key);
     return this;
@@ -116,6 +132,11 @@ public final class ProcessInstance extends UnpackedObject
 
   public ProcessInstance setFlowScopeKey(long key) {
     flowScopeKeyProperty.setValue(key);
+    return this;
+  }
+
+  public ProcessInstance setVariables(final DirectBuffer variables) {
+    variablesProperty.setValue(variables);
     return this;
   }
 }

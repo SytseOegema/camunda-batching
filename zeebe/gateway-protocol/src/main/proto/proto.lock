@@ -51,11 +51,6 @@
                 "id": 2,
                 "name": "isBatchExecuted",
                 "type": "bool"
-              },
-              {
-                "id": 3,
-                "name": "variables",
-                "type": "string"
               }
             ]
           },
@@ -96,6 +91,11 @@
                 "id": 7,
                 "name": "flowScopeKey",
                 "type": "int64"
+              },
+              {
+                "id": 8,
+                "name": "variables",
+                "type": "string"
               }
             ]
           },

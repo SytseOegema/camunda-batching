@@ -16,14 +16,14 @@
 package io.camunda.zeebe.protocol.record.value;
 
 import io.camunda.zeebe.protocol.record.ImmutableProtocol;
-import io.camunda.zeebe.protocol.record.RecordValueWithVariables;
+import io.camunda.zeebe.protocol.record.RecordValue;
 import io.camunda.zeebe.protocol.record.value.batch.ProcessInstance;
 import java.util.List;
 import org.immutables.value.Value;
 
 @Value.Immutable
 @ImmutableProtocol(builder = ImmutableResumeBatchActivityRecordValue.Builder.class)
-public interface ResumeBatchActivityRecordValue extends RecordValueWithVariables {
+public interface ResumeBatchActivityRecordValue extends RecordValue {
   /**
    * @return the BPMN process instance keys that where in the bach.
    */

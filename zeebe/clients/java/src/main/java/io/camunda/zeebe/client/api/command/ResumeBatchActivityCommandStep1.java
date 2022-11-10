@@ -35,9 +35,8 @@ public interface ResumeBatchActivityCommandStep1 {
       final long processDefinitionKey,
       final String elementId,
       final String bpmnElementType,
-      final Long flowScopeKey);
-
-  ResumeBatchActivityCommandStep2 variables(final String variables);
+      final Long flowScopeKey,
+      final String variables);
 
   interface ResumeBatchActivityCommandStep2
       extends ResumeBatchActivityCommandStep1, FinalCommandStep<ResumeBatchActivityResponse> {

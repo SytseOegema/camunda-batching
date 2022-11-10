@@ -81,7 +81,8 @@ public final class ResumeBatchActivityCommandImpl
       final long processDefinitionKey,
       final String elementId,
       final String bpmnElementType,
-      final Long flowScopeKey) {
+      final Long flowScopeKey,
+      final String variables) {
     processInstanceBuilder.setProcessInstanceKey(processInstanceKey);
     processInstanceBuilder.setBpmnProcessId(bpmnProcessId);
     processInstanceBuilder.setProcessVersion(processVersion);
@@ -89,15 +90,9 @@ public final class ResumeBatchActivityCommandImpl
     processInstanceBuilder.setElementId(elementId);
     processInstanceBuilder.setBpmnElementType(bpmnElementType);
     processInstanceBuilder.setFlowScopeKey(flowScopeKey);
-
+    processInstanceBuilder.setVariables(variables);
     instanceList.add(processInstanceBuilder.build());
 
-    return this;
-  }
-
-  @Override
-  public ResumeBatchActivityCommandStep2 variables(final String variables) {
-    builder.setVariables(variables);
     return this;
   }
 
