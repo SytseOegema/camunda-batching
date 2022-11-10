@@ -62,6 +62,9 @@ public final class ProcessInstanceStateTransitionGuard {
           ProcessInstanceIntent.ELEMENT_ACTIVATING,
           ProcessInstanceIntent.ELEMENT_ACTIVATED,
           ProcessInstanceIntent.ELEMENT_COMPLETING);
+      case RESUME_ELEMENT -> hasElementInstanceWithState(
+              context, ProcessInstanceIntent.ELEMENT_ACTIVATING)
+          .flatMap(ok -> hasActiveFlowScopeInstance(context));
       default -> Either.left(
           String.format(
               "Expected the check of the preconditions of a command with intent [activate,complete,terminate] but the intent was '%s'",

@@ -96,14 +96,12 @@ final class BufferedProcessingResultBuilder implements ProcessingResultBuilder {
 
   @Override
   public ProcessingResultBuilder appendPostCommitTask(final PostCommitTask task) {
-    final Logger logger = LoggerFactory.getLogger("ResumeBatchActivityProcessor");
     postCommitTasks.add(task);
     return this;
   }
 
   @Override
   public ProcessingResultBuilder resetPostCommitTasks() {
-    final Logger logger = LoggerFactory.getLogger("ResumeBatchActivityProcessor");
     postCommitTasks.clear();
     return this;
   }

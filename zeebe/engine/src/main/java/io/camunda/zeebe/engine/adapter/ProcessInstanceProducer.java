@@ -18,7 +18,7 @@ import io.camunda.batching.messaging.MessageProducer;
 import io.camunda.batching.messaging.messages.ActivityType;
 import io.camunda.batching.messaging.messages.ProcessInstanceDTO;
 import io.camunda.batching.messaging.serialization.ProcessInstanceSerializer;
-import io.camunda.zeebe.engine.processing.bpmn.BpmnElementContextImpl;
+import io.camunda.zeebe.engine.processing.bpmn.BpmnElementContext;
 import io.camunda.zeebe.protocol.record.value.BpmnElementType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class ProcessInstanceProducer {
     logger.info("ProcessInstanceProducer()");
   }
 
-  public void produceMessage(BpmnElementContextImpl context, String variables) {
+  public void produceMessage(BpmnElementContext context, String variables) {
     logger.info("variables: " + variables);
     logInstance(context);
     final ProcessInstanceDTO message =
@@ -50,7 +50,7 @@ public class ProcessInstanceProducer {
     producer.sendMessage(String.valueOf(context.getProcessInstanceKey()), message);
   }
 
-  private void logInstance(BpmnElementContextImpl context) {
+  private void logInstance(BpmnElementContext context) {
     logger.info("ProcessInstanceLogger new instance");
     logger.info("getProcessInstanceKey: " + String.valueOf(context.getProcessInstanceKey()));
     logger.info("getProcessDefinitionKey: " + String.valueOf(context.getProcessDefinitionKey()));

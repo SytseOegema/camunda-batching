@@ -253,8 +253,7 @@ public final class ProcessingStateMachine {
               .findFirst()
               .orElse(null);
 
-      if (currentProcessor == null) {
-      }
+      if (currentProcessor == null) {}
       zeebeDbTransaction = transactionContext.getCurrentTransaction();
       zeebeDbTransaction.run(
           () -> {

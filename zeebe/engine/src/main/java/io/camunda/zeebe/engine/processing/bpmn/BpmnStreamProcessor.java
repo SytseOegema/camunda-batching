@@ -40,6 +40,7 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
   private static final Logger LOGGER = Loggers.PROCESS_PROCESSOR_LOGGER;
   private final ProcessInstanceProducer messageProducer = new ProcessInstanceProducer();
   private final BpmnElementContextImpl context = new BpmnElementContextImpl();
+  private BpmnElementContext activatingContext = null;
 
   private final SideEffectQueue sideEffectQueue;
   private final ProcessState processState;
@@ -105,9 +106,12 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
               LOGGER.trace("Process process instance event [context: {}]", context);
               processEvent(intent, processor, element);
             },
-            violation ->
-                rejectionWriter.appendRejection(
-                    record, RejectionType.INVALID_STATE, violation.getMessage()));
+            violation -> {
+              LOGGER.info("violation: " + violation.getMessage());
+              rejectionWriter.appendRejection(
+                record, RejectionType.INVALID_STATE, violation.getMessage());
+            }
+        );
   }
 
   private void processEvent(
@@ -118,22 +122,19 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
     switch (intent) {
       case ACTIVATE_ELEMENT:
         LOGGER.info("ACTIVATE_ELEMENT");
-        final BpmnElementContext pausedContext =
-            stateTransitionBehavior.transitionToPaused(context);
-
-        logLineForContext(pausedContext);
+        activatingContext = stateTransitionBehavior.transitionToActivating(context);
+        logLineForContext(activatingContext);
 
         // if this is not an activity activate the element straightaway.
         // otherwise pause the element.
-        if (!isActivity(pausedContext.getBpmnElementType())) {
+        if (!isActivity(activatingContext.getBpmnElementType())) {
           processEvent(ProcessInstanceIntent.RESUME_ELEMENT, processor, element);
         } else {
           final String variables =
               MsgPackConverter.convertToJson(
-                  variableState.getVariablesAsDocument(pausedContext.getFlowScopeKey()));
-          messageProducer.produceMessage(context, variables);
+                  variableState.getVariablesAsDocument(activatingContext.getFlowScopeKey()));
+          messageProducer.produceMessage(activatingContext, variables);
         }
-
         break;
       case COMPLETE_ELEMENT:
         final var completingContext = stateTransitionBehavior.transitionToCompleting(context);
@@ -145,7 +146,9 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
         break;
       case RESUME_ELEMENT:
         LOGGER.info("RESUME_ELEMENT");
-        final var activatingContext = stateTransitionBehavior.transitionToActivating(context);
+        if (activatingContext == null) {
+          activatingContext = context;
+        }
         logLineForContext(activatingContext);
 
         stateTransitionBehavior
@@ -153,6 +156,8 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
             .ifRightOrLeft(
                 ok -> processor.onActivate(element, activatingContext),
                 failure -> incidentBehavior.createIncident(failure, activatingContext));
+
+        activatingContext = null;
         break;
       default:
         throw new BpmnProcessingException(

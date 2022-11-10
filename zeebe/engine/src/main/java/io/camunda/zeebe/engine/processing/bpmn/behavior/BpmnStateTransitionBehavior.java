@@ -106,12 +106,6 @@ public final class BpmnStateTransitionBehavior {
     return transitionedContext;
   }
 
-  public BpmnElementContext transitionToPaused(final BpmnElementContext context) {
-    final BpmnElementContext transitionedContext =
-        transitionTo(context, ProcessInstanceIntent.ELEMENT_PAUSED);
-    return transitionedContext;
-  }
-
   /**
    * @return context with updated intent
    */

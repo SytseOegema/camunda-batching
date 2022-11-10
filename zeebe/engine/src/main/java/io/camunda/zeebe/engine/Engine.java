@@ -123,13 +123,14 @@ public class Engine implements RecordProcessor {
         LOG.error(ERROR_MESSAGE_PROCESSOR_NOT_FOUND, typedCommand, e);
       }
 
-
       if (currentProcessor == null) {
+        LOG.info("currentProcessor == null");
         return EmptyProcessingResult.INSTANCE;
       }
 
       final boolean isNotOnBlacklist = !zeebeState.getBlackListState().isOnBlacklist(typedCommand);
       if (isNotOnBlacklist) {
+        LOG.info("not on black list");
         currentProcessor.processRecord(
             record,
             (sep) -> {
@@ -137,6 +138,7 @@ public class Engine implements RecordProcessor {
               processingResultBuilder.appendPostCommitTask(sep::flush);
             });
       }
+      LOG.info("maybe on black list??");
     }
     return processingResultBuilder.build();
   }

@@ -39,7 +39,7 @@ public enum ProcessInstanceIntent implements ProcessInstanceRelatedIntent {
 
   private static final Set<ProcessInstanceIntent> PROCESS_INSTANCE_COMMANDS = EnumSet.of(CANCEL);
   private static final Set<ProcessInstanceIntent> BPMN_ELEMENT_COMMANDS =
-      EnumSet.of(ACTIVATE_ELEMENT, COMPLETE_ELEMENT, TERMINATE_ELEMENT);
+      EnumSet.of(ACTIVATE_ELEMENT, COMPLETE_ELEMENT, TERMINATE_ELEMENT, RESUME_ELEMENT);
 
   private final short value;
   private final boolean shouldBlacklist;
