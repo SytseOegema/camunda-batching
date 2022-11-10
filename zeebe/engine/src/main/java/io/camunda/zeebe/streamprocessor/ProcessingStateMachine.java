@@ -200,14 +200,11 @@ public final class ProcessingStateMachine {
     }
 
     if (shouldProcessNext.getAsBoolean() && hasNext && !inProcessing) {
-      LOG.info("in readNextEvent()");
       currentRecord = logStreamReader.next();
 
       if (eventFilter.applies(currentRecord)) {
-        LOG.info("exportEvent()");
         processCommand(currentRecord);
       } else {
-        LOG.info("skipRecord()");
         skipRecord();
       }
     }
@@ -227,7 +224,6 @@ public final class ProcessingStateMachine {
   private void processCommand(final LoggedEvent command) {
     // we have to mark ourself has inProcessing to not interfere with readNext calls, which
     // are triggered from commit listener
-    LOG.info("processCommand()");
     inProcessing = true;
 
     currentProcessingResult = EmptyProcessingResult.INSTANCE;
@@ -241,25 +237,16 @@ public final class ProcessingStateMachine {
     final var processingStartTime = ActorClock.currentTimeMillis();
     processingTimer = metrics.startProcessingDurationTimer(metadata.getRecordType());
 
-    LOG.info("try{");
     try {
-      LOG.info("1");
       final var value = recordValues.readRecordValue(command, metadata.getValueType());
-      LOG.info("2");
       typedCommand.wrap(command, metadata, value);
 
-      LOG.info("value type: " + typedCommand.getValueType().toString());
-
-      LOG.info("3");
       final long position = typedCommand.getPosition();
-      LOG.info("4");
       final ProcessingResultBuilder processingResultBuilder =
           new BufferedProcessingResultBuilder(logStreamBatchWriter::canWriteAdditionalEvent);
 
-      LOG.info("5");
       metrics.processingLatency(command.getTimestamp(), processingStartTime);
 
-      LOG.info("6");
       currentProcessor =
           recordProcessors.stream()
               .filter(p -> p.accepts(typedCommand.getValueType()))
@@ -267,34 +254,25 @@ public final class ProcessingStateMachine {
               .orElse(null);
 
       if (currentProcessor == null) {
-        LOG.info("de processor is null");
       }
-      LOG.info("7");
       zeebeDbTransaction = transactionContext.getCurrentTransaction();
       zeebeDbTransaction.run(
           () -> {
             if (currentProcessor != null) {
-              LOG.info("7a");
               currentProcessingResult =
                   currentProcessor.process(typedCommand, processingResultBuilder);
-              LOG.info("7b");
             }
 
-            LOG.info("7c");
             lastProcessedPositionState.markAsProcessed(position);
-            LOG.info("7d");
           });
 
-      LOG.info("8");
       metrics.commandsProcessed();
 
       if (EmptyProcessingResult.INSTANCE == currentProcessingResult) {
-        LOG.info("skiprecord()");
         skipRecord();
         return;
       }
 
-      LOG.info("writeRecords()");
       writeRecords();
     } catch (final RecoverableException recoverableException) {
       // recoverable

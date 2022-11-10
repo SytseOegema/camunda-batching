@@ -123,17 +123,13 @@ public class Engine implements RecordProcessor {
         LOG.error(ERROR_MESSAGE_PROCESSOR_NOT_FOUND, typedCommand, e);
       }
 
-      LOG.info("Engine executed");
 
       if (currentProcessor == null) {
-        LOG.info("Engine currentProcessor null");
         return EmptyProcessingResult.INSTANCE;
       }
-      LOG.info("Engine balcklist");
 
       final boolean isNotOnBlacklist = !zeebeState.getBlackListState().isOnBlacklist(typedCommand);
       if (isNotOnBlacklist) {
-        LOG.info("Engine not on balcklist");
         currentProcessor.processRecord(
             record,
             (sep) -> {
@@ -142,7 +138,6 @@ public class Engine implements RecordProcessor {
             });
       }
     }
-    LOG.info("Engine return build()");
     return processingResultBuilder.build();
   }
 
