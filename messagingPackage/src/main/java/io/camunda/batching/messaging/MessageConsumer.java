@@ -42,7 +42,7 @@ public abstract class MessageConsumer<T> {
     try (KafkaConsumer<String, T> consumer = new KafkaConsumer<String, T>(properties)) {
       consumer.subscribe(Arrays.asList(topic));
       while (true) {
-        ConsumerRecords<String, T> messages = consumer.poll(100);
+        ConsumerRecords<String, T> messages = consumer.poll(20000);
         for (ConsumerRecord<String, T> message : messages) {
           handleMessage(message.value());
         }

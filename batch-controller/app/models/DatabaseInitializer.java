@@ -48,11 +48,13 @@ public class DatabaseInitializer {
     tables.add("process");
     tables.add("process_activity");
     tables.add("activity");
+    tables.add("process_instance");
     String sql = "SELECT tablename FROM pg_tables " +
       "where tablename in ("  +
       "'process'," +
       "'process_activity'," +
       "'activity'" +
+      "'process_instance'" +
       ")";
 
     try {
@@ -77,6 +79,8 @@ public class DatabaseInitializer {
           case "process_activity":
               createProcessActivitiesTable(connection);
             break;
+          case "process_instance":
+              createProcessInstancesTable(connection);
           default:
             break;
         }
@@ -125,4 +129,25 @@ public class DatabaseInitializer {
       e.printStackTrace();
     }
   }
+
+  private void createProcessInstancesTable(Connection connection) {
+    String sql = "CREATE TABLE process_instance " +
+      "(process_instance_key BIGINT not NULL, " +
+      " element_instance_key BIGINT not NULL, " +
+      " bpmn_process_id VARCHAR(255), " +
+      " process_version INT, " +
+      " process_definition_key BIGINT, " +
+      " element_id VARCHAR(255), " +
+      " element_type VARCHAR(255), " +
+      " flow_scope_key BIGINT, " +
+      " variables TEXT, " +
+      " PRIMARY KEY ( element_instance_key ))";
+    try {
+      Statement st = connection.createStatement();
+      st.executeQuery(sql);
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
 }

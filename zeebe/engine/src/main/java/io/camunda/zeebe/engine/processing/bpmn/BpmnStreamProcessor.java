@@ -109,9 +109,8 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
             violation -> {
               LOGGER.info("violation: " + violation.getMessage());
               rejectionWriter.appendRejection(
-                record, RejectionType.INVALID_STATE, violation.getMessage());
-            }
-        );
+                  record, RejectionType.INVALID_STATE, violation.getMessage());
+            });
   }
 
   private void processEvent(
@@ -137,10 +136,12 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
         }
         break;
       case COMPLETE_ELEMENT:
+        LOGGER.info("COMPLETE_ELEMENT");
         final var completingContext = stateTransitionBehavior.transitionToCompleting(context);
         processor.onComplete(element, completingContext);
         break;
       case TERMINATE_ELEMENT:
+        LOGGER.info("TERMINATE_ELEMENT");
         final var terminatingContext = stateTransitionBehavior.transitionToTerminating(context);
         processor.onTerminate(element, terminatingContext);
         break;
@@ -181,6 +182,8 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
   private void logLineForContext(BpmnElementContext context) {
     LOGGER.info("element instance key element to put in client terminal: ");
     String logLine = "";
+    logLine += context.getProcessInstanceKey();
+    logLine += " ";
     logLine += context.getElementInstanceKey();
     logLine += " ";
     logLine += bufferAsString(context.getBpmnProcessId());

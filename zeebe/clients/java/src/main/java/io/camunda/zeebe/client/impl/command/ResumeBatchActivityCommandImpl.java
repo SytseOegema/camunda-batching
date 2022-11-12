@@ -76,6 +76,7 @@ public final class ResumeBatchActivityCommandImpl
   @Override
   public ResumeBatchActivityCommandStep2 addProcessInstance(
       final long processInstanceKey,
+      final long elementInstanceKey,
       final String bpmnProcessId,
       final int processVersion,
       final long processDefinitionKey,
@@ -84,6 +85,7 @@ public final class ResumeBatchActivityCommandImpl
       final Long flowScopeKey,
       final String variables) {
     processInstanceBuilder.setProcessInstanceKey(processInstanceKey);
+    processInstanceBuilder.setElementInstanceKey(elementInstanceKey);
     processInstanceBuilder.setBpmnProcessId(bpmnProcessId);
     processInstanceBuilder.setProcessVersion(processVersion);
     processInstanceBuilder.setProcessDefinitionKey(processDefinitionKey);

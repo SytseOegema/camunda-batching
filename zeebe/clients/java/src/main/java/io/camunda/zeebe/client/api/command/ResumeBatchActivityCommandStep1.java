@@ -30,6 +30,7 @@ public interface ResumeBatchActivityCommandStep1 {
 
   ResumeBatchActivityCommandStep2 addProcessInstance(
       final long processInstanceKey,
+      final long elementInstanceKey,
       final String bpmnProcessId,
       final int processVersion,
       final long processDefinitionKey,

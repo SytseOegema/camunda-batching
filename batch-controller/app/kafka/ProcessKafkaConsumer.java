@@ -12,11 +12,11 @@ import models.ProcessRepository;
 @Singleton
 public class ProcessKafkaConsumer extends MessageConsumer<ProcessDTO> {
   private ProcessRepository repository;
-  private KafkaExecutionContext executionContext;
+  private KafkaProcessExecutionContext executionContext;
 
   @Inject
-  public ProcessKafkaConsumer(ProcessRepository repository, KafkaExecutionContext executionContext) {
-    super("kafka:9092", "test", new ProcessDeserializer());
+  public ProcessKafkaConsumer(ProcessRepository repository, KafkaProcessExecutionContext executionContext) {
+    super("kafka:9092", "processes", new ProcessDeserializer());
     this.repository = repository;
     this.executionContext = executionContext;
 

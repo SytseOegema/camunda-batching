@@ -28,6 +28,7 @@ public final class BrokerResumeBatchActivityRequest
 
   public BrokerResumeBatchActivityRequest addProcessInstance(
       final long processInstanceKey,
+      final long elementInstanceKey,
       final String bpmnProcessId,
       final int processVersion,
       final long processDefinitionKey,
@@ -38,6 +39,7 @@ public final class BrokerResumeBatchActivityRequest
     // hier dit toepassen op requestDto;
     requestDto.addProcessInstance(
         processInstanceKey,
+        elementInstanceKey,
         bpmnProcessId,
         processVersion,
         processDefinitionKey,

@@ -40,6 +40,7 @@ public class ProcessInstanceProducer {
     final ProcessInstanceDTO message =
         new ProcessInstanceDTO(
             context.getProcessInstanceKey(),
+            context.getElementInstanceKey(),
             bufferAsString(context.getBpmnProcessId()),
             context.getProcessVersion(),
             context.getProcessDefinitionKey(),
@@ -47,7 +48,7 @@ public class ProcessInstanceProducer {
             identifyType(context.getBpmnElementType()),
             context.getFlowScopeKey(),
             variables);
-    producer.sendMessage(String.valueOf(context.getProcessInstanceKey()), message);
+    producer.sendMessage(String.valueOf(context.getElementInstanceKey()), message);
   }
 
   private void logInstance(BpmnElementContext context) {

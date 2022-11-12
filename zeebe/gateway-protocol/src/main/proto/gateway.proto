@@ -18,24 +18,26 @@ message ResumeBatchActivityRequest {
 message ProcessInstance {
   // the process instance key
   int64 processInstanceKey = 1;
+  // the element instance key
+  int64 elementInstanceKey = 2;
   // the bpmn process ID of the process
-  string bpmnProcessId = 2;
+  string bpmnProcessId = 3;
   // the version of the process definition
-  int32 processVersion = 3;
+  int32 processVersion = 4;
   // the key of the process definition
-  int64 processDefinitionKey = 4;
+  int64 processDefinitionKey = 5;
   // the associated element ID
-  string elementId = 5;
+  string elementId = 6;
   // the associated element type
-  string bpmnElementType = 6;
+  string bpmnElementType = 7;
   // the flowscope key
-  int64 flowScopeKey = 7;
+  int64 flowScopeKey = 8;
   // JSON document that will instantiate the variables for the root variable scope of the
   // process instance; it must be a JSON object, as variables will be mapped in a
   // key-value fashion. e.g. { "a": 1, "b": 2 } will create two variables, named "a" and
   // "b" respectively, with their associated values. [{ "a": 1, "b": 2 }] would not be a
   // valid argument, as the root of the JSON document is an array and not an object.
-  string variables = 8;
+  string variables = 9;
 }
 
 

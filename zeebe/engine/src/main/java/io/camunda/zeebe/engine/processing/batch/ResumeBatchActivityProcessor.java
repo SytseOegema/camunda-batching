@@ -87,17 +87,24 @@ public final class ResumeBatchActivityProcessor
 
     if (record.hasProcessInstances()) {
       for (ProcessInstance instance : record.getProcessInstances()) {
-        logger.info("instance key: " + instance.getProcessInstanceKey());
+        logger.info("instance key: " + instance.getElementInstanceKey());
         logger.info("element id: " + instance.getElementId());
 
         getProcess(instance)
             .ifRightOrLeft(
                 process ->
-                    resumeProcessFlow(controller, process, instance, record.getIsBatchExecuted()),
-                rejection ->
-                    controller.reject(
-                        RejectionType.INVALID_STATE,
-                        "No process found for instance:" + instance.getProcessInstanceKey()));
+                    resumeProcessFlow(
+                        controller,
+                        process,
+                        instance,
+                        instance.getElementInstanceKey(),
+                        record.getIsBatchExecuted()),
+                rejection -> {
+                  logger.info("No process found for instance:" + instance.getElementInstanceKey());
+                  controller.reject(
+                      RejectionType.INVALID_STATE,
+                      "No process found for instance:" + instance.getElementInstanceKey());
+                });
       }
       controller.accept(ResumeBatchActivityIntent.RESUMED, record);
     } else {
@@ -126,26 +133,23 @@ public final class ResumeBatchActivityProcessor
       final CommandControl<ResumeBatchActivityRecord> controller,
       final DeployedProcess process,
       final ProcessInstance instance,
+      final long elementInstanceKey,
       final boolean isBatchExecuted) {
     final var processInstance = initProcessInstanceRecord(instance);
 
     if (isBatchExecuted) {
       commandWriter.appendFollowUpCommand(
-          instance.getProcessInstanceKey(),
-          ProcessInstanceIntent.COMPLETE_ELEMENT,
-          processInstance);
+          elementInstanceKey, ProcessInstanceIntent.COMPLETE_ELEMENT, processInstance);
     } else {
       updateVariableDocument(instance)
           .ifRightOrLeft(
               instanceRetValue ->
                   commandWriter.appendFollowUpCommand(
-                      instanceRetValue.getProcessInstanceKey(),
-                      ProcessInstanceIntent.RESUME_ELEMENT,
-                      processInstance),
+                      elementInstanceKey, ProcessInstanceIntent.RESUME_ELEMENT, processInstance),
               rejection ->
                   controller.reject(
                       RejectionType.INVALID_STATE,
-                      "Could not update variables:" + instance.getProcessInstanceKey()));
+                      "Could not update variables:" + elementInstanceKey));
     }
   }
 

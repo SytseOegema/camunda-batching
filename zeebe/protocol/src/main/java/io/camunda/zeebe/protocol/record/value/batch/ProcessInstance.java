@@ -28,6 +28,8 @@ public interface ProcessInstance extends RecordValueWithVariables {
 
   public long getProcessInstanceKey();
 
+  public long getElementInstanceKey();
+
   public String getBpmnProcessId();
 
   public DirectBuffer getBpmnProcessIdBuffer();

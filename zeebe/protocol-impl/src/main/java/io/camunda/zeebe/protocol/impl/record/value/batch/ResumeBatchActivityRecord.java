@@ -36,6 +36,7 @@ public final class ResumeBatchActivityRecord extends UnifiedRecordValue
     for (final ProcessInstance instance : processInstancesProperty) {
       final ProcessInstance copiedInstance = new ProcessInstance();
       copiedInstance.setProcessInstanceKey(instance.getProcessInstanceKey());
+      copiedInstance.setElementInstanceKey(instance.getElementInstanceKey());
       copiedInstance.setBpmnProcessId(instance.getBpmnProcessId());
       copiedInstance.setProcessVersion(instance.getProcessVersion());
       copiedInstance.setProcessDefinitionKey(instance.getProcessDefinitionKey());
@@ -55,6 +56,7 @@ public final class ResumeBatchActivityRecord extends UnifiedRecordValue
 
   public ResumeBatchActivityRecord addProcessInstance(
       final long processInstanceKey,
+      final long elementInstanceKey,
       final String bpmnProcessId,
       final int processVersion,
       final long processDefinitionKey,
@@ -65,6 +67,7 @@ public final class ResumeBatchActivityRecord extends UnifiedRecordValue
     processInstancesProperty
         .add()
         .setProcessInstanceKey(processInstanceKey)
+        .setElementInstanceKey(elementInstanceKey)
         .setBpmnProcessId(bpmnProcessId)
         .setProcessVersion(processVersion)
         .setProcessDefinitionKey(processDefinitionKey)

@@ -24,6 +24,8 @@ public final class ProcessInstance extends UnpackedObject
 
   private final LongProperty processInstanceKeyProperty =
       new LongProperty("processInstanceKey", -1);
+  private final LongProperty elementInstanceKeyProperty =
+      new LongProperty("elementInstanceKey", -1);
   private final StringProperty bpmnProcessIdProperty = new StringProperty("bpmnProcessId", "");
   private final IntegerProperty processVersionProperty = new IntegerProperty("processVersion", -1);
   private final LongProperty processDefinitionKeyProperty =
@@ -35,6 +37,7 @@ public final class ProcessInstance extends UnpackedObject
 
   public ProcessInstance() {
     declareProperty(processInstanceKeyProperty)
+        .declareProperty(elementInstanceKeyProperty)
         .declareProperty(bpmnProcessIdProperty)
         .declareProperty(processVersionProperty)
         .declareProperty(processDefinitionKeyProperty)
@@ -47,6 +50,11 @@ public final class ProcessInstance extends UnpackedObject
   @Override
   public long getProcessInstanceKey() {
     return processInstanceKeyProperty.getValue();
+  }
+
+  @Override
+  public long getElementInstanceKey() {
+    return elementInstanceKeyProperty.getValue();
   }
 
   @Override
@@ -103,6 +111,11 @@ public final class ProcessInstance extends UnpackedObject
 
   public ProcessInstance setProcessInstanceKey(long key) {
     processInstanceKeyProperty.setValue(key);
+    return this;
+  }
+
+  public ProcessInstance setElementInstanceKey(long key) {
+    elementInstanceKeyProperty.setValue(key);
     return this;
   }
 

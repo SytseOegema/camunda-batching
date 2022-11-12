@@ -57,6 +57,7 @@ public final class RequestMapper {
     for (final ProcessInstance instance : grpcRequest.getProcessInstancesList()) {
       brokerRequest.addProcessInstance(
           instance.getProcessInstanceKey(),
+          instance.getElementInstanceKey(),
           instance.getBpmnProcessId(),
           instance.getProcessVersion(),
           instance.getProcessDefinitionKey(),

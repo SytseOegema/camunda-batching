@@ -64,36 +64,41 @@
               },
               {
                 "id": 2,
+                "name": "elementInstanceKey",
+                "type": "int64"
+              },
+              {
+                "id": 3,
                 "name": "bpmnProcessId",
                 "type": "string"
               },
               {
-                "id": 3,
+                "id": 4,
                 "name": "processVersion",
                 "type": "int32"
               },
               {
-                "id": 4,
+                "id": 5,
                 "name": "processDefinitionKey",
                 "type": "int64"
               },
               {
-                "id": 5,
+                "id": 6,
                 "name": "elementId",
                 "type": "string"
               },
               {
-                "id": 6,
+                "id": 7,
                 "name": "bpmnElementType",
                 "type": "string"
               },
               {
-                "id": 7,
+                "id": 8,
                 "name": "flowScopeKey",
                 "type": "int64"
               },
               {
-                "id": 8,
+                "id": 9,
                 "name": "variables",
                 "type": "string"
               }
