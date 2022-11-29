@@ -12,3 +12,6 @@ GET     /processes     controllers.ProcessController.get
 
 GET     /process-instances     controllers.ProcessInstanceController.get
 POST     /process-instances/:id/resume-flow     controllers.ProcessInstanceController.resumeFlow(id: Long)
+
+GET /batch-activity controllers.BatchActivityConnectorController.get
+POST /batch-activity controllers.BatchActivityConnectorController.post(request: Request)

@@ -49,12 +49,16 @@ public class DatabaseInitializer {
     tables.add("process_activity");
     tables.add("activity");
     tables.add("process_instance");
+    tables.add("batch_activity_connector");
+    tables.add("batch_activity_connector_condition");
     String sql = "SELECT tablename FROM pg_tables " +
       "where tablename in ("  +
       "'process'," +
       "'process_activity'," +
-      "'activity'" +
-      "'process_instance'" +
+      "'activity'," +
+      "'process_instance'," +
+      "'batch_activity_connector'" +
+      "'batch_activity_connector_condition'" +
       ")";
 
     try {
@@ -81,6 +85,10 @@ public class DatabaseInitializer {
             break;
           case "process_instance":
               createProcessInstancesTable(connection);
+          case "batch_activity_connector":
+              createBatchActivityConnectorTable(connection);
+          case "batch_activity_connector_condition":
+              createBatchActivityConnectorConditionTable(connection);
           default:
             break;
         }
@@ -150,4 +158,36 @@ public class DatabaseInitializer {
     }
   }
 
+  private void createBatchActivityConnectorTable(Connection connection) {
+    String sql = "CREATE TABLE batch_activity_connector " +
+      "(connector_id SERIAL not NULL, " +
+      " active BOOLEAN, " +
+      " validity TIMESTAMP, " +
+      " activity_id VARCHAR(255), " +
+      " batchModel_id INT, " +
+      " PRIMARY KEY ( connector_id ))";
+    try {
+      Statement st = connection.createStatement();
+      st.executeQuery(sql);
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void createBatchActivityConnectorConditionTable(Connection connection) {
+    String sql = "CREATE TABLE batch_activity_connector_condition " +
+      "(condition_id SERIAL not NULL, " +
+      " connector_id INT, " +
+      " field_name VARCHAR(255), " +
+      " field_type VARCHAR(255), " +
+      " compare_operator VARCHAR(255), " +
+      " compare_value VARCHAR(255), " +
+      " PRIMARY KEY ( condition_id ))";
+    try {
+      Statement st = connection.createStatement();
+      st.executeQuery(sql);
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+  }
 }
