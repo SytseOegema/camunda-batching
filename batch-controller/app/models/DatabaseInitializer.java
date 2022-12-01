@@ -51,14 +51,18 @@ public class DatabaseInitializer {
     tables.add("process_instance");
     tables.add("batch_activity_connector");
     tables.add("batch_activity_connector_condition");
+    tables.add("batch_model");
+    tables.add("batch_model_group_by");
     String sql = "SELECT tablename FROM pg_tables " +
       "where tablename in ("  +
       "'process'," +
       "'process_activity'," +
       "'activity'," +
       "'process_instance'," +
-      "'batch_activity_connector'" +
-      "'batch_activity_connector_condition'" +
+      "'batch_activity_connector'," +
+      "'batch_activity_connector_condition'," +
+      "'batch_model'" +
+      "'batch_model_group_by'" +
       ")";
 
     try {
@@ -89,6 +93,10 @@ public class DatabaseInitializer {
               createBatchActivityConnectorTable(connection);
           case "batch_activity_connector_condition":
               createBatchActivityConnectorConditionTable(connection);
+          case "batch_model":
+              createBatchModelTable(connection);
+          case "batch_model_group_by":
+              createBatchModelGroupByTable(connection);
           default:
             break;
         }
@@ -183,6 +191,37 @@ public class DatabaseInitializer {
       " compare_operator VARCHAR(255), " +
       " compare_value VARCHAR(255), " +
       " PRIMARY KEY ( condition_id ))";
+    try {
+      Statement st = connection.createStatement();
+      st.executeQuery(sql);
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void createBatchModelTable(Connection connection) {
+    String sql = "CREATE TABLE batch_model " +
+      "(batch_model_id SERIAL not NULL, " +
+      " max_batch_size INT, " +
+      " execute_parallel BOOLEAN, " +
+      " activation_threshold_cases INT, " +
+      " activation_threshold_time INT, " +
+      " batch_executor_URI VARCHAR(255), " +
+      " PRIMARY KEY ( batch_model_id ))";
+    try {
+      Statement st = connection.createStatement();
+      st.executeQuery(sql);
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void createBatchModelGroupByTable(Connection connection) {
+    String sql = "CREATE TABLE batch_model_group_by " +
+      "(group_by_id SERIAL not NULL, " +
+      " batch_model_id INT, " +
+      " field_name VARCHAR(255), " +
+      " PRIMARY KEY ( group_by_id ))";
     try {
       Statement st = connection.createStatement();
       st.executeQuery(sql);

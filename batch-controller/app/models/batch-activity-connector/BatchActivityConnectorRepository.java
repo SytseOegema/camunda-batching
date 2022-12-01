@@ -1,4 +1,6 @@
-package models;
+package models.BatchActivityConnector;
+
+import models.DatabaseExecutionContext;
 
 import com.google.inject.AbstractModule;
 
@@ -45,10 +47,6 @@ public class BatchActivityConnectorRepository {
       + " FROM batch_activity_connector"
       + " LEFT JOIN batch_activity_connector_condition ON"
       + " batch_activity_connector_condition.connector_id = batch_activity_connector.connector_id";
-
-      // TODO make join in query such that also connection properties are returned
-      // then use a hashset to get the unique connectors and therafter add the
-      // conditions to the connectors in the hashset.
 
     return CompletableFuture.supplyAsync(
       () -> {
