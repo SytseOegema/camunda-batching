@@ -48,7 +48,6 @@ public class BatchActivityConnectorController extends Controller {
 
   public CompletionStage<Result> post(Http.Request request) {
     JsonNode json = request.body().asJson();
-    System.out.println(json.get("conditions").toString());
     try {
       BatchActivityConnectorModel connector = new BatchActivityConnectorModel(
         0,
@@ -65,6 +64,75 @@ public class BatchActivityConnectorController extends Controller {
           return ok("Connector created");
         }
         return internalServerError("Server could not create connector.");
+      });
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+    return CompletableFuture.supplyAsync(() ->
+      internalServerError("Server Error - Oops something went wrong"));
+  }
+
+  public CompletionStage<Result> put(int connectorId, Http.Request request) {
+    JsonNode json = request.body().asJson();
+    try {
+      BatchActivityConnectorModel connector = new BatchActivityConnectorModel(
+        connectorId,
+        json.get("active").asBoolean(),
+        json.get("validity").asText(),
+        new ArrayList<BatchActivityConnectorConditionModel>(),
+        json.get("activityId").asText(),
+        json.get("batchModelId").asInt());
+
+      return repository
+      .update(connector)
+      .thenApplyAsync(success -> {
+        if (success) {
+          return ok("Connector updated");
+        }
+        return internalServerError("Server could not update connector.");
+      });
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+    return CompletableFuture.supplyAsync(() ->
+      internalServerError("Server Error - Oops something went wrong"));
+  }
+
+  public CompletionStage<Result> putCondition(int connectorId, Http.Request request) {
+    JsonNode json = request.body().asJson();
+    try {
+      BatchActivityConnectorConditionModel condition = new BatchActivityConnectorConditionModel(
+        json.get("conditionId").asInt(),
+        connectorId,
+        json.get("fieldName").asText(),
+        json.get("fieldType").asText(),
+        json.get("compareOperator").asText(),
+        json.get("compareValue").asText());
+
+      return repository
+      .updateConditions(condition)
+      .thenApplyAsync(success -> {
+        if (success) {
+          return ok("Condition updated");
+        }
+        return internalServerError("Server could not update condition.");
+      });
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+    return CompletableFuture.supplyAsync(() ->
+      internalServerError("Server Error - Oops something went wrong"));
+  }
+
+  public CompletionStage<Result> delete(int connectorId) {
+    try {
+      return repository
+      .delete(connectorId)
+      .thenApplyAsync(success -> {
+        if (success) {
+          return ok("Connector deleted");
+        }
+        return internalServerError("Server could not delete connector.");
       });
     } catch(Exception e) {
       e.printStackTrace();

@@ -15,3 +15,6 @@ POST     /process-instances/:id/resume-flow     controllers.ProcessInstanceContr
 
 GET /batch-activity controllers.BatchActivityConnectorController.get
 POST /batch-activity controllers.BatchActivityConnectorController.post(request: Request)
+PUT /batch-activity/:id controllers.BatchActivityConnectorController.put(id: Integer, request: Request)
+PUT /batch-activity/:id/condition controllers.BatchActivityConnectorController.putCondition(id: Integer, request: Request)
+DELETE /batch-activity/:id controllers.BatchActivityConnectorController.delete(id: Integer)

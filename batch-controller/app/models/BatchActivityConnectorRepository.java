@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Optional;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -31,12 +32,19 @@ public class BatchActivityConnectorRepository {
 
   public CompletionStage<Optional<List<BatchActivityConnectorModel>>> list() {
     final String sql = "SELECT "
-      + "connector_id ,"
-      + "active ,"
-      + "validity, "
-      + "activity_id, "
-      + "batchModel_id "
-      + " FROM batch_activity_connector";
+      + "batch_activity_connector_condition.condition_id, "
+      + "batch_activity_connector_condition.field_name, "
+      + "batch_activity_connector_condition.field_type, "
+      + "batch_activity_connector_condition.compare_operator, "
+      + "batch_activity_connector_condition.compare_value, "
+      + "batch_activity_connector.connector_id, "
+      + "batch_activity_connector.active, "
+      + "batch_activity_connector.validity, "
+      + "batch_activity_connector.activity_id, "
+      + "batch_activity_connector.batchModel_id "
+      + " FROM batch_activity_connector"
+      + " LEFT JOIN batch_activity_connector_condition ON"
+      + " batch_activity_connector_condition.connector_id = batch_activity_connector.connector_id";
 
       // TODO make join in query such that also connection properties are returned
       // then use a hashset to get the unique connectors and therafter add the
@@ -49,9 +57,10 @@ public class BatchActivityConnectorRepository {
           Statement st = connection.createStatement();
           ResultSet rs = st.executeQuery(sql);
 
-          List<BatchActivityConnectorModel> connectors = new ArrayList<BatchActivityConnectorModel>();
+          HashMap<Integer, BatchActivityConnectorModel> map = new HashMap<Integer, BatchActivityConnectorModel>();
+          List<BatchActivityConnectorConditionModel> conditions = new ArrayList<BatchActivityConnectorConditionModel>();
           while(rs.next()) {
-            connectors.add(
+            map.putIfAbsent(rs.getInt("connector_id"),
               new BatchActivityConnectorModel(
                 rs.getInt("connector_id"),
                 rs.getBoolean("active"),
@@ -59,10 +68,32 @@ public class BatchActivityConnectorRepository {
                   .toString(),
                 new ArrayList<BatchActivityConnectorConditionModel>(),
                 rs.getString("activity_id"),
-                rs.getInt("batchModel_id")));
+                rs.getInt("batchModel_id")
+              )
+            );
+
+            if (rs.getInt("condition_id") != 0) {
+              conditions.add(
+                new BatchActivityConnectorConditionModel(
+                  rs.getInt("condition_id"),
+                  rs.getInt("connector_id"),
+                  rs.getString("field_name"),
+                  rs.getString("field_type"),
+                  rs.getString("compare_operator"),
+                  rs.getString("compare_value")
+                )
+              );
+            }
           }
+
+          for (BatchActivityConnectorConditionModel condition: conditions) {
+            BatchActivityConnectorModel connector = map.get(condition.connectorId);
+            connector.conditions.add(condition);
+            map.replace(condition.connectorId, connector);
+          }
+
           connection.close();
-          return Optional.of(connectors);
+          return Optional.of(new ArrayList<BatchActivityConnectorModel>(map.values()));
         } catch(SQLException e) {
           e.printStackTrace();
         }
@@ -80,13 +111,11 @@ public class BatchActivityConnectorRepository {
     query += "batchModel_id ";
     query += ") VALUES ('%b', '%s', '%s', '%d') ";
     query += "RETURNING connector_id";
-    final String sql = String.format(
-      query,
+    final String sql = String.format(query,
       connector.active,
       connector.validity,
       connector.activityId,
       connector.batchModelId);
-    System.out.println(sql);
 
     return CompletableFuture.supplyAsync(
       () -> {
@@ -95,7 +124,6 @@ public class BatchActivityConnectorRepository {
           final Statement st = connection.createStatement();
           ResultSet rs = st.executeQuery(sql);
           while(rs.next()) {
-            System.out.println("jajaajajaja " + rs.getInt("connector_id"));
             addConditions(
               connection,
               rs.getInt("connector_id"),
@@ -121,7 +149,7 @@ public class BatchActivityConnectorRepository {
     for (BatchActivityConnectorConditionModel condition : conditions) {
       sql += String.format(
         values,
-        condition.connectorId,
+        connectorId,
         condition.fieldName,
         condition.fieldType.value(),
         condition.compareOperator.value(),
@@ -130,13 +158,106 @@ public class BatchActivityConnectorRepository {
     }
     // remove last ',' behind the final values from the query
     sql = sql.substring(0, sql.length() - 1);
-    System.out.println(sql);
-
     try {
       Statement st = connection.createStatement();
       st.executeUpdate(sql);
     } catch(SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  public CompletionStage<Boolean> update(BatchActivityConnectorModel connector) {
+    String query = "UPDATE batch_activity_connector ";
+    query += "SET active = %b, ";
+    query += "validity = '%s', ";
+    query += "activity_id = '%s', ";
+    query += "batchModel_id = %d ";
+    query += "WHERE connector_id = %d";
+    final String sql = String.format(
+      query,
+      connector.active,
+      connector.validity,
+      connector.activityId,
+      connector.batchModelId,
+      connector.connectorId);
+
+    return CompletableFuture.supplyAsync(
+      () -> {
+        try {
+          Connection connection = db.getConnection();
+          final Statement st = connection.createStatement();
+          st.executeUpdate(sql);
+          connection.close();
+          return true;
+        } catch(SQLException e) {
+          e.printStackTrace();
+          System.out.println("Error: " + e.getSQLState());
+        }
+        return false;
+      },
+      executionContext
+    );
+  }
+
+  public CompletionStage<Boolean> updateConditions(BatchActivityConnectorConditionModel condition) {
+    String query = "UPDATE batch_activity_connector_condition ";
+    query += "SET field_name = '%s', ";
+    query += "field_type = '%s', ";
+    query += "compare_operator = '%s', ";
+    query += "compare_value = '%s' ";
+    query += "WHERE condition_id = %d";
+    final String sql = String.format(
+      query,
+      condition.fieldName,
+      condition.fieldType,
+      condition.compareOperator,
+      condition.compareValue,
+      condition.conditionId);
+
+    return CompletableFuture.supplyAsync(
+      () -> {
+        try {
+          Connection connection = db.getConnection();
+          final Statement st = connection.createStatement();
+          st.executeUpdate(sql);
+          connection.close();
+          return true;
+        } catch(SQLException e) {
+          e.printStackTrace();
+          System.out.println("Error: " + e.getSQLState());
+        }
+        return false;
+      },
+      executionContext
+    );
+  }
+
+  public CompletionStage<Boolean> delete(int connectorId) {
+    String query = "DELETE FROM batch_activity_connector_condition ";
+    query += "WHERE connector_id = %d";
+    final String sql1 = String.format(query, connectorId);
+
+    String query2 = "DELETE FROM batch_activity_connector ";
+    query2 += "WHERE connector_id = %d";
+    final String sql2 = String.format(query2, connectorId);
+
+
+    return CompletableFuture.supplyAsync(
+      () -> {
+        try {
+          Connection connection = db.getConnection();
+          final Statement st = connection.createStatement();
+          st.executeUpdate(sql1);
+          st.executeUpdate(sql2);
+          connection.close();
+          return true;
+        } catch(SQLException e) {
+          e.printStackTrace();
+          System.out.println("Error: " + e.getSQLState());
+        }
+        return false;
+      },
+      executionContext
+    );
   }
 }
