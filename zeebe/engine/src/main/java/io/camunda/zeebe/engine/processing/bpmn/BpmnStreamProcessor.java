@@ -118,6 +118,11 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
       final BpmnElementProcessor<ExecutableFlowElement> processor,
       final ExecutableFlowElement element) {
 
+    final String variables =
+        MsgPackConverter.convertToJson(
+            variableState.getVariablesAsDocument(context.getFlowScopeKey()));
+    messageProducer.produceMessage(context, variables, intent);
+
     switch (intent) {
       case ACTIVATE_ELEMENT:
         LOGGER.info("ACTIVATE_ELEMENT");
@@ -128,11 +133,6 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
         // otherwise pause the element.
         if (!isActivity(activatingContext.getBpmnElementType())) {
           processEvent(ProcessInstanceIntent.RESUME_ELEMENT, processor, element);
-        } else {
-          final String variables =
-              MsgPackConverter.convertToJson(
-                  variableState.getVariablesAsDocument(activatingContext.getFlowScopeKey()));
-          messageProducer.produceMessage(activatingContext, variables);
         }
         break;
       case COMPLETE_ELEMENT:

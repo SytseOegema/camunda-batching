@@ -138,8 +138,15 @@ public final class ResumeBatchActivityProcessor
     final var processInstance = initProcessInstanceRecord(instance);
 
     if (isBatchExecuted) {
-      commandWriter.appendFollowUpCommand(
-          elementInstanceKey, ProcessInstanceIntent.COMPLETE_ELEMENT, processInstance);
+      updateVariableDocument(instance)
+          .ifRightOrLeft(
+              instanceRetValue ->
+                  commandWriter.appendFollowUpCommand(
+                      elementInstanceKey, ProcessInstanceIntent.COMPLETE_ELEMENT, processInstance),
+              rejection ->
+                  controller.reject(
+                      RejectionType.INVALID_STATE,
+                      "Could not update variables:" + elementInstanceKey));
     } else {
       updateVariableDocument(instance)
           .ifRightOrLeft(

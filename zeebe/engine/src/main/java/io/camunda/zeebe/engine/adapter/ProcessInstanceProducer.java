@@ -17,6 +17,7 @@ import static io.camunda.zeebe.util.buffer.BufferUtil.bufferAsString;
 import io.camunda.batching.messaging.MessageProducer;
 import io.camunda.batching.messaging.messages.ActivityType;
 import io.camunda.batching.messaging.messages.ProcessInstanceDTO;
+import io.camunda.batching.messaging.messages.ProcessInstanceIntent;
 import io.camunda.batching.messaging.serialization.ProcessInstanceSerializer;
 import io.camunda.zeebe.engine.processing.bpmn.BpmnElementContext;
 import io.camunda.zeebe.protocol.record.value.BpmnElementType;
@@ -34,7 +35,10 @@ public class ProcessInstanceProducer {
     logger.info("ProcessInstanceProducer()");
   }
 
-  public void produceMessage(BpmnElementContext context, String variables) {
+  public void produceMessage(
+      BpmnElementContext context,
+      String variables,
+      final io.camunda.zeebe.protocol.record.intent.ProcessInstanceIntent intent) {
     logger.info("variables: " + variables);
     logInstance(context);
     final ProcessInstanceDTO message =
@@ -47,7 +51,9 @@ public class ProcessInstanceProducer {
             bufferAsString(context.getElementId()),
             identifyType(context.getBpmnElementType()),
             context.getFlowScopeKey(),
-            variables);
+            variables,
+            identifyIntent(intent));
+
     producer.sendMessage(String.valueOf(context.getElementInstanceKey()), message);
   }
 
@@ -95,5 +101,31 @@ public class ProcessInstanceProducer {
         break;
     }
     return type;
+  }
+
+  private ProcessInstanceIntent identifyIntent(
+      final io.camunda.zeebe.protocol.record.intent.ProcessInstanceIntent bpmnIntent) {
+    ProcessInstanceIntent intent = ProcessInstanceIntent.UNSPECIFIED;
+    switch (bpmnIntent) {
+      case ACTIVATE_ELEMENT:
+        intent = ProcessInstanceIntent.READY_ELEMENT;
+        break;
+      case COMPLETE_ELEMENT:
+        intent = ProcessInstanceIntent.COMPLETE_ELEMENT;
+        break;
+      case TERMINATE_ELEMENT:
+        intent = ProcessInstanceIntent.TERMINATE_ELEMENT;
+        break;
+      case RESUME_ELEMENT:
+        intent = ProcessInstanceIntent.RESUME_ELEMENT;
+        break;
+      default:
+        intent = ProcessInstanceIntent.UNSPECIFIED;
+        break;
+    }
+
+    logger.info("identifyIntent()");
+    logger.info("intent: " + intent.getValue());
+    return intent;
   }
 }

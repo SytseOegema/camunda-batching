@@ -18,6 +18,7 @@ public class ProcessInstanceDTO {
   public ActivityType elementType;
   public long flowScopeKey;
   public String variables;
+  public ProcessInstanceIntent intent;
 
   @JsonCreator
   public ProcessInstanceDTO(
@@ -29,7 +30,8 @@ public class ProcessInstanceDTO {
       @JsonProperty("elementId") String elementId,
       @JsonProperty("elementType") ActivityType elementType,
       @JsonProperty("flowScopeKey") long flowScopeKey,
-      @JsonProperty("variables") String variables
+      @JsonProperty("variables") String variables,
+      @JsonProperty("intent") ProcessInstanceIntent intent
   ) {
     this.processInstanceKey = processInstanceKey;
     this.elementInstanceKey = elementInstanceKey;
@@ -40,5 +42,6 @@ public class ProcessInstanceDTO {
     this.elementType = elementType;
     this.flowScopeKey = flowScopeKey;
     this.variables = variables;
+    this.intent = intent;
   }
 }

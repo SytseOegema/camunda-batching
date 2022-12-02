@@ -38,7 +38,8 @@ public class ProcessInstanceRepository {
       + "element_id ,"
       + "element_type ,"
       + "flow_scope_key ,"
-      + "variables "
+      + "variables, "
+      + "intent "
       + " FROM process_instance";
 
     return CompletableFuture.supplyAsync(
@@ -60,7 +61,9 @@ public class ProcessInstanceRepository {
                 rs.getString("element_id"),
                 rs.getString("element_type"),
                 rs.getLong("flow_scope_key"),
-                rs.getString("variables")));
+                rs.getString("variables"),
+                rs.getString("intent"))
+            );
           }
           connection.close();
           return Optional.of(processes);
@@ -83,7 +86,8 @@ public class ProcessInstanceRepository {
       + "element_id ,"
       + "element_type ,"
       + "flow_scope_key ,"
-      + "variables "
+      + "variables, "
+      + "intent "
       + " FROM process_instance"
       + " WHERE element_instance_key = " + elementInstanceKey;
 
@@ -105,7 +109,8 @@ public class ProcessInstanceRepository {
               rs.getString("element_id"),
               rs.getString("element_type"),
               rs.getLong("flow_scope_key"),
-              rs.getString("variables"));
+              rs.getString("variables"),
+              rs.getString("intent"));
           }
           connection.close();
           return Optional.of(instance);
@@ -119,6 +124,11 @@ public class ProcessInstanceRepository {
   }
 
   public CompletionStage<Void> add(ProcessInstanceDTO processInstance) {
+
+    System.out.println(processInstance.intent == null);
+    System.out.println(processInstance.intent);
+
+
     String query = "INSERT INTO process_instance  (";
     query += "process_instance_key ,";
     query += "element_instance_key ,";
@@ -128,8 +138,9 @@ public class ProcessInstanceRepository {
     query += "element_id ,";
     query += "element_type ,";
     query += "flow_scope_key ,";
-    query += "variables ";
-    query += ") VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')";
+    query += "variables, ";
+    query += "intent ";
+    query += ") VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')";
     final String sql = String.format(
       query,
       processInstance.processInstanceKey,
@@ -140,7 +151,8 @@ public class ProcessInstanceRepository {
       processInstance.elementId,
       processInstance.elementType.getElementTypeName(),
       processInstance.flowScopeKey,
-      processInstance.variables);
+      processInstance.variables,
+      processInstance.intent.getValue());
     System.out.println(sql);
 
     return CompletableFuture.runAsync(

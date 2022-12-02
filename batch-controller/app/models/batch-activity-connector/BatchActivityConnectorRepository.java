@@ -43,7 +43,7 @@ public class BatchActivityConnectorRepository {
       + "batch_activity_connector.active, "
       + "batch_activity_connector.validity, "
       + "batch_activity_connector.activity_id, "
-      + "batch_activity_connector.batchModel_id "
+      + "batch_activity_connector.batch_model_id "
       + " FROM batch_activity_connector"
       + " LEFT JOIN batch_activity_connector_condition ON"
       + " batch_activity_connector_condition.connector_id = batch_activity_connector.connector_id";
@@ -66,7 +66,77 @@ public class BatchActivityConnectorRepository {
                   .toString(),
                 new ArrayList<BatchActivityConnectorConditionModel>(),
                 rs.getString("activity_id"),
-                rs.getInt("batchModel_id")
+                rs.getInt("batch_model_id")
+              )
+            );
+
+            if (rs.getInt("condition_id") != 0) {
+              conditions.add(
+                new BatchActivityConnectorConditionModel(
+                  rs.getInt("condition_id"),
+                  rs.getInt("connector_id"),
+                  rs.getString("field_name"),
+                  rs.getString("field_type"),
+                  rs.getString("compare_operator"),
+                  rs.getString("compare_value")
+                )
+              );
+            }
+          }
+
+          for (BatchActivityConnectorConditionModel condition: conditions) {
+            BatchActivityConnectorModel connector = map.get(condition.connectorId);
+            connector.conditions.add(condition);
+            map.replace(condition.connectorId, connector);
+          }
+
+          connection.close();
+          return Optional.of(new ArrayList<BatchActivityConnectorModel>(map.values()));
+        } catch(SQLException e) {
+          e.printStackTrace();
+        }
+        return Optional.empty();
+      },
+      executionContext
+    );
+  }
+
+  public CompletableFuture<Optional<List<BatchActivityConnectorModel>>> listByActivityId(String activityId) {
+    final String sql = "SELECT "
+      + "batch_activity_connector_condition.condition_id, "
+      + "batch_activity_connector_condition.field_name, "
+      + "batch_activity_connector_condition.field_type, "
+      + "batch_activity_connector_condition.compare_operator, "
+      + "batch_activity_connector_condition.compare_value, "
+      + "batch_activity_connector.connector_id, "
+      + "batch_activity_connector.active, "
+      + "batch_activity_connector.validity, "
+      + "batch_activity_connector.activity_id, "
+      + "batch_activity_connector.batch_model_id "
+      + " FROM batch_activity_connector"
+      + " LEFT JOIN batch_activity_connector_condition ON"
+      + " batch_activity_connector_condition.connector_id = batch_activity_connector.connector_id"
+      + " WHERE batch_activity_connector.activity_id = '%s'";
+
+    return CompletableFuture.supplyAsync(
+      () -> {
+        try {
+          Connection connection = db.getConnection();
+          Statement st = connection.createStatement();
+          ResultSet rs = st.executeQuery(String.format(sql, activityId));
+
+          HashMap<Integer, BatchActivityConnectorModel> map = new HashMap<Integer, BatchActivityConnectorModel>();
+          List<BatchActivityConnectorConditionModel> conditions = new ArrayList<BatchActivityConnectorConditionModel>();
+          while(rs.next()) {
+            map.putIfAbsent(rs.getInt("connector_id"),
+              new BatchActivityConnectorModel(
+                rs.getInt("connector_id"),
+                rs.getBoolean("active"),
+                rs.getObject("validity",LocalDateTime.class)
+                  .toString(),
+                new ArrayList<BatchActivityConnectorConditionModel>(),
+                rs.getString("activity_id"),
+                rs.getInt("batch_model_id")
               )
             );
 
@@ -106,7 +176,7 @@ public class BatchActivityConnectorRepository {
     query += "active ,";
     query += "validity, ";
     query += "activity_id, ";
-    query += "batchModel_id ";
+    query += "batch_model_id ";
     query += ") VALUES ('%b', '%s', '%s', '%d') ";
     query += "RETURNING connector_id";
     final String sql = String.format(query,
@@ -169,7 +239,7 @@ public class BatchActivityConnectorRepository {
     query += "SET active = %b, ";
     query += "validity = '%s', ";
     query += "activity_id = '%s', ";
-    query += "batchModel_id = %d ";
+    query += "batch_model_id = %d ";
     query += "WHERE connector_id = %d";
     final String sql = String.format(
       query,

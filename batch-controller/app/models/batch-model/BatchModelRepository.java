@@ -90,6 +90,67 @@ public class BatchModelRepository {
     );
   }
 
+  public CompletionStage<Optional<BatchModelModel>> get(int batchModelId) {
+    final String sql = "SELECT "
+      + "batch_model.batch_model_id, "
+      + "batch_model.max_batch_size, "
+      + "batch_model.execute_parallel, "
+      + "batch_model.activation_threshold_cases, "
+      + "batch_model.activation_threshold_time, "
+      + "batch_model.batch_executor_URI, "
+      + "batch_model_group_by.group_by_id, "
+      + "batch_model_group_by.field_name "
+      + " FROM batch_model"
+      + " LEFT JOIN batch_model_group_by"
+      + " ON batch_model_group_by.batch_model_id = batch_model.batch_model_id"
+      + " WHERE batch_model.batch_model_id = '%d'";
+
+    return CompletableFuture.supplyAsync(
+      () -> {
+        try {
+          Connection connection = db.getConnection();
+          Statement st = connection.createStatement();
+          ResultSet rs = st.executeQuery(String.format(sql, batchModelId));
+
+          HashMap<Integer, BatchModelModel> map = new HashMap<Integer, BatchModelModel>();
+          BatchModelModel model;
+          while(rs.next()) {
+            int id = rs.getInt("batch_model_id");
+            if(map.containsKey(id)) {
+              model = map.get(id);
+            } else {
+              model = new BatchModelModel(
+                id,
+                rs.getInt("max_batch_size"),
+                rs.getBoolean("execute_parallel"),
+                rs.getInt("activation_threshold_cases"),
+                rs.getInt("activation_threshold_time"),
+                rs.getString("batch_executor_URI"),
+                new ArrayList<String>()
+              );
+            }
+
+            if (rs.getInt("group_by_id") != 0) {
+              model.groupBy.add(rs.getString("field_name"));
+            }
+
+            if (map.containsKey(id)) {
+              map.replace(id, model);
+            } else {
+              map.put(id, model);
+            }
+          }
+          connection.close();
+          return Optional.of(map.get(batchModelId));
+        } catch(SQLException e) {
+          e.printStackTrace();
+        }
+        return Optional.empty();
+      },
+      executionContext
+    );
+  }
+
   public CompletionStage<Boolean> add(BatchModelModel model) {
     String query = "INSERT INTO batch_model  (";
     query += "max_batch_size ,";

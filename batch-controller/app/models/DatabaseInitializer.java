@@ -53,6 +53,8 @@ public class DatabaseInitializer {
     tables.add("batch_activity_connector_condition");
     tables.add("batch_model");
     tables.add("batch_model_group_by");
+    tables.add("batch_cluster");
+    tables.add("batch_cluster_instance");
     String sql = "SELECT tablename FROM pg_tables " +
       "where tablename in ("  +
       "'process'," +
@@ -63,6 +65,8 @@ public class DatabaseInitializer {
       "'batch_activity_connector_condition'," +
       "'batch_model'" +
       "'batch_model_group_by'" +
+      "'batch_cluster'" +
+      "'batch_cluster_instance'" +
       ")";
 
     try {
@@ -97,6 +101,10 @@ public class DatabaseInitializer {
               createBatchModelTable(connection);
           case "batch_model_group_by":
               createBatchModelGroupByTable(connection);
+          case "batch_cluster":
+              createBatchClusterTable(connection);
+          case "batch_cluster_instance":
+              createBatchClusterInstanceTable(connection);
           default:
             break;
         }
@@ -148,7 +156,8 @@ public class DatabaseInitializer {
 
   private void createProcessInstancesTable(Connection connection) {
     String sql = "CREATE TABLE process_instance " +
-      "(process_instance_key BIGINT not NULL, " +
+      "(id SERIAL, " +
+      " process_instance_key BIGINT not NULL, " +
       " element_instance_key BIGINT not NULL, " +
       " bpmn_process_id VARCHAR(255), " +
       " process_version INT, " +
@@ -157,7 +166,8 @@ public class DatabaseInitializer {
       " element_type VARCHAR(255), " +
       " flow_scope_key BIGINT, " +
       " variables TEXT, " +
-      " PRIMARY KEY ( element_instance_key ))";
+      " intent VARCHAR(255), " +
+      " PRIMARY KEY ( id ))";
     try {
       Statement st = connection.createStatement();
       st.executeQuery(sql);
@@ -172,7 +182,7 @@ public class DatabaseInitializer {
       " active BOOLEAN, " +
       " validity TIMESTAMP, " +
       " activity_id VARCHAR(255), " +
-      " batchModel_id INT, " +
+      " batch_model_id INT, " +
       " PRIMARY KEY ( connector_id ))";
     try {
       Statement st = connection.createStatement();
@@ -229,4 +239,32 @@ public class DatabaseInitializer {
       e.printStackTrace();
     }
   }
+
+  private void createBatchClusterTable(Connection connection) {
+    String sql = "CREATE TABLE batch_cluster " +
+      "(batch_cluster_id SERIAL not NULL, " +
+      " batch_model_id INT, " +
+      " created_at TIMESTAMP, " +
+      " PRIMARY KEY ( batch_cluster_id ))";
+    try {
+      Statement st = connection.createStatement();
+      st.executeQuery(sql);
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+
+    private void createBatchClusterInstanceTable(Connection connection) {
+      String sql = "CREATE TABLE batch_cluster_instance " +
+        " (batch_cluster_id INT, " +
+        " process_instance_key BIGINT, " +
+        " PRIMARY KEY ( batch_cluster_id, process_instance_key ))";
+      try {
+        Statement st = connection.createStatement();
+        st.executeQuery(sql);
+      } catch(SQLException e) {
+        e.printStackTrace();
+      }
+    }
 }
