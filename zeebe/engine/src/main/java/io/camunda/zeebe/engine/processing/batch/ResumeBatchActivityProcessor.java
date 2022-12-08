@@ -58,6 +58,7 @@ public final class ResumeBatchActivityProcessor
   private final TypedResponseWriter responseWriter;
 
   private final ElementActivationBehavior elementActivationBehavior;
+  private final Logger logger;
 
   public ResumeBatchActivityProcessor(
       final ProcessState processState,
@@ -73,6 +74,7 @@ public final class ResumeBatchActivityProcessor
     rejectionWriter = writers.rejection();
     responseWriter = writers.response();
     elementActivationBehavior = bpmnBehaviors.elementActivationBehavior();
+    logger = LoggerFactory.getLogger("batch.ResumeBatchActivityProcessor");
   }
 
   @Override
@@ -80,8 +82,9 @@ public final class ResumeBatchActivityProcessor
       final TypedRecord<ResumeBatchActivityRecord> command,
       final CommandControl<ResumeBatchActivityRecord> controller) {
 
-    final Logger logger = LoggerFactory.getLogger("ResumeBatchActivityProcessor");
     sideEffectQueue.clear();
+
+    logger.info("ResumebatchActivtyProcessor - resuming a batch activity")
 
     final ResumeBatchActivityRecord record = command.getValue();
 
@@ -89,6 +92,7 @@ public final class ResumeBatchActivityProcessor
       for (ProcessInstance instance : record.getProcessInstances()) {
         logger.info("instance key: " + instance.getElementInstanceKey());
         logger.info("element id: " + instance.getElementId());
+        logger.info("is batch executed: " + record.getIsBatchExecuted());
 
         getProcess(instance)
             .ifRightOrLeft(
@@ -138,6 +142,7 @@ public final class ResumeBatchActivityProcessor
     final var processInstance = initProcessInstanceRecord(instance);
 
     if (isBatchExecuted) {
+      logger.info("Continue flow by trying to complete current activity");
       updateVariableDocument(instance)
           .ifRightOrLeft(
               instanceRetValue ->
@@ -148,6 +153,7 @@ public final class ResumeBatchActivityProcessor
                       RejectionType.INVALID_STATE,
                       "Could not update variables:" + elementInstanceKey));
     } else {
+      logger.info("Resume flow by trying to activate current activity");
       updateVariableDocument(instance)
           .ifRightOrLeft(
               instanceRetValue ->

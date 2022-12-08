@@ -25,7 +25,6 @@ public class ProcessKafkaConsumer extends MessageConsumer<ProcessDTO> {
 
   @Override
   public void handleMessage(ProcessDTO message) {
-    logger.info("Received message with process name: " + message.name);
     repository.add(message);
   }
 }

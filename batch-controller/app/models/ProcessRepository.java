@@ -122,7 +122,6 @@ public class ProcessRepository {
     }
     // remove last ',' behind the final values from the query
     sql = sql.substring(0, sql.length() - 1);
-    System.out.println(sql);
 
     try {
       Statement st = connection.createStatement();

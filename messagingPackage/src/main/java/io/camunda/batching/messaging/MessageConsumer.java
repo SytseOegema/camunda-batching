@@ -22,8 +22,7 @@ public abstract class MessageConsumer<T> {
   private String topic;
 
   public MessageConsumer(String bootstrapServers, String topic, AbstractDeserializer<T> valueDeserializer) {
-    this.logger = LoggerFactory.getLogger("io.camunda.zeebe.engine.adapter");
-    logger.info("Logger constructed for MessageConsumer");
+    this.logger = LoggerFactory.getLogger("messagingPackage.Consumer[" + topic + "]");
     this.properties = new Properties();
     this.properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     this.properties.setProperty(

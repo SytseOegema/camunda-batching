@@ -108,11 +108,6 @@ public class Engine implements RecordProcessor {
       TypedRecordProcessor<?> currentProcessor = null;
 
       final var typedCommand = (TypedRecord<?>) record;
-
-      LOG.info("Hallo mensen we krijgen berichten binnen hoor!");
-      LOG.info(String.valueOf(typedCommand.getRecordType().value()));
-      LOG.info(String.valueOf(typedCommand.getValueType().value()));
-
       try {
         currentProcessor =
             recordProcessorMap.get(
@@ -123,14 +118,8 @@ public class Engine implements RecordProcessor {
         LOG.error(ERROR_MESSAGE_PROCESSOR_NOT_FOUND, typedCommand, e);
       }
 
-      if (currentProcessor == null) {
-        LOG.info("currentProcessor == null");
-        return EmptyProcessingResult.INSTANCE;
-      }
-
       final boolean isNotOnBlacklist = !zeebeState.getBlackListState().isOnBlacklist(typedCommand);
       if (isNotOnBlacklist) {
-        LOG.info("not on black list");
         currentProcessor.processRecord(
             record,
             (sep) -> {
@@ -138,7 +127,6 @@ public class Engine implements RecordProcessor {
               processingResultBuilder.appendPostCommitTask(sep::flush);
             });
       }
-      LOG.info("maybe on black list??");
     }
     return processingResultBuilder.build();
   }

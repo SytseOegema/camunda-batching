@@ -24,19 +24,13 @@ import io.camunda.zeebe.engine.processing.deployment.model.element.ExecutablePro
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ProcessProducer {
-  private Logger logger;
   private final String topic = "processes";
   private ProcessSerializer serializer = new ProcessSerializer();
   private MessageProducer producer = new MessageProducer("kafka:9092", topic, serializer);
 
-  public ProcessProducer() {
-    logger = LoggerFactory.getLogger("ProcessProducer");
-    logger.info("ProcessProducer()");
-  }
+  public ProcessProducer() {}
 
   public void produceMessages(List<ExecutableProcess> processes) {
     for (ExecutableProcess process : processes) {
@@ -64,11 +58,6 @@ public class ProcessProducer {
 
   private boolean isTask(AbstractFlowElement element) {
     final Optional<String> elementType = element.getElementType().getElementTypeName();
-    if (elementType.isPresent()) {
-      logger.info("type: " + elementType.get());
-    } else {
-      logger.info("type unkown...");
-    }
 
     boolean isTask = false;
     switch (element.getElementType()) {

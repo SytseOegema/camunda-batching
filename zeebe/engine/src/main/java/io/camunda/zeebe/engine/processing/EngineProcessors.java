@@ -40,8 +40,6 @@ import io.camunda.zeebe.protocol.record.intent.DeploymentIntent;
 import io.camunda.zeebe.protocol.record.intent.ResumeBatchActivityIntent;
 import io.camunda.zeebe.util.FeatureFlags;
 import java.util.function.Consumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class EngineProcessors {
 
@@ -54,10 +52,6 @@ public final class EngineProcessors {
       final DeploymentDistributionCommandSender deploymentDistributionCommandSender,
       final Consumer<String> onJobsAvailableCallback,
       final FeatureFlags featureFlags) {
-
-    final Logger logger =
-        LoggerFactory.getLogger("io.camunda.zeebe.engine.ResumeBatchActivityProcessor");
-    logger.info("createEngineProcessors()");
 
     final MutableZeebeState zeebeState = typedRecordProcessorContext.getZeebeState();
     final var writers = typedRecordProcessorContext.getWriters();
@@ -136,12 +130,6 @@ public final class EngineProcessors {
                 RecordType.COMMAND,
                 ValueType.RESUME_BATCH_ACTIVITY,
                 ResumeBatchActivityIntent.RESUME.value());
-
-    if (processor == null) {
-      logger.info("och nee null");
-    } else {
-      logger.info("toch wel success");
-    }
 
     return typedRecordProcessors;
   }

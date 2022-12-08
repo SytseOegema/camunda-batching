@@ -51,7 +51,6 @@ public class ProcessInstanceKafkaConsumer extends MessageConsumer<ProcessInstanc
 
   @Override
   public void handleMessage(ProcessInstanceDTO message) {
-    logger.info("Received message with process instance key: " + message.processInstanceKey);
     processInstanceRepository.add(message);
 
     if (!isActivity(message)) {

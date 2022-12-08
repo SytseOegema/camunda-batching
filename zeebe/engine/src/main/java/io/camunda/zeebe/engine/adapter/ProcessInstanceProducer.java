@@ -32,15 +32,13 @@ public class ProcessInstanceProducer {
 
   public ProcessInstanceProducer() {
     logger = LoggerFactory.getLogger("ProcessInstanceProducer");
-    logger.info("ProcessInstanceProducer()");
   }
 
   public void produceMessage(
       BpmnElementContext context,
       String variables,
       final io.camunda.zeebe.protocol.record.intent.ProcessInstanceIntent intent) {
-    logger.info("variables: " + variables);
-    logInstance(context);
+    // logInstance(context);
     final ProcessInstanceDTO message =
         new ProcessInstanceDTO(
             context.getProcessInstanceKey(),
@@ -124,8 +122,6 @@ public class ProcessInstanceProducer {
         break;
     }
 
-    logger.info("identifyIntent()");
-    logger.info("intent: " + intent.getValue());
     return intent;
   }
 }

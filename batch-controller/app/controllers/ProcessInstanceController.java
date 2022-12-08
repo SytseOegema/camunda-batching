@@ -6,8 +6,6 @@ import play.mvc.*;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.ZeebeClientBuilder;
 import io.camunda.zeebe.client.api.response.ResumeBatchActivityResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.concurrent.CompletionStage;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,8 +58,6 @@ public class ProcessInstanceController extends Controller {
       .usePlaintext();
 
     try (final ZeebeClient client = clientBuilder.build()) {
-
-      System.out.println("Creating process instance");
 
       final ResumeBatchActivityResponse response =
         client

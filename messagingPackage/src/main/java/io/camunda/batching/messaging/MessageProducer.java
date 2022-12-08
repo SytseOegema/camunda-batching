@@ -20,8 +20,7 @@ public class MessageProducer<T> {
   private String topic;
 
   public MessageProducer(String bootstrapServers, String topic, AbstractSerializer<T> valueSerializer) {
-    this.logger = LoggerFactory.getLogger("io.camunda.zeebe.engine.adapter");
-    logger.info("jojojo dit is topic " + topic);
+    this.logger = LoggerFactory.getLogger("messagingPackage.Producer[" + topic + "]");
     this.properties = new Properties();
     this.properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     this.properties.setProperty(
@@ -32,11 +31,10 @@ public class MessageProducer<T> {
   }
 
   public void sendMessage(String key, T value) {
-    logger.info("gaat dit well goed");
+    logger.info("sendMessage()");
     try (KafkaProducer<String, T> producer = new KafkaProducer<>(properties)) {
-      logger.info("Message with key " + key + " sent ! in topic " + topic);
       producer.send(new ProducerRecord<String, T>(topic, key, value));
-      logger.info("Message with key " + key + " sent ! in topic " + topic);
+      logger.info("Message produced on topic " + topic + " with key " + key);
     } catch (Exception e) {
       e.printStackTrace();
     }

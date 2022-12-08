@@ -103,7 +103,6 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
         .isValidStateTransition(context, element)
         .ifRightOrLeft(
             ok -> {
-              LOGGER.trace("Process process instance event [context: {}]", context);
               processEvent(intent, processor, element);
             },
             violation -> {
