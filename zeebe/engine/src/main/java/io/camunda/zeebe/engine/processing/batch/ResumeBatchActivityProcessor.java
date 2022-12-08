@@ -84,7 +84,7 @@ public final class ResumeBatchActivityProcessor
 
     sideEffectQueue.clear();
 
-    logger.info("ResumebatchActivtyProcessor - resuming a batch activity")
+    logger.info("ResumebatchActivtyProcessor - resuming a batch activity");
 
     final ResumeBatchActivityRecord record = command.getValue();
 
