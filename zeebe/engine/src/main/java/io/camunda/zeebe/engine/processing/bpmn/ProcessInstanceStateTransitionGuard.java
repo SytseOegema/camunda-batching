@@ -55,6 +55,7 @@ public final class ProcessInstanceStateTransitionGuard {
       hasElementInstanceWithState(
               context,
               ProcessInstanceIntent.ELEMENT_ACTIVATED,
+              ProcessInstanceIntent.ELEMENT_ACTIVATING,
               ProcessInstanceIntent.ELEMENT_COMPLETING)
           .flatMap(ok -> hasActiveFlowScopeInstance(context));
       case TERMINATE_ELEMENT -> hasElementInstanceWithState(
