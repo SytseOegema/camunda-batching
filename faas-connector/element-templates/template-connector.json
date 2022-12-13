@@ -20,10 +20,6 @@
   },
   "groups": [
     {
-      "id": "authentication",
-      "label": "Authentication"
-    },
-    {
       "id": "compose",
       "label": "Compose"
     },
@@ -42,34 +38,6 @@
       "value": "io.camunda:template:1",
       "binding": {
         "type": "zeebe:taskDefinition:type"
-      }
-    },
-    {
-      "label": "Username",
-      "description": "The username for authentication.",
-      "group": "authentication",
-      "type": "String",
-      "feel": "optional",
-      "binding": {
-        "type": "zeebe:input",
-        "name": "authentication.user"
-      },
-      "constraints": {
-        "notEmpty": true
-      }
-    },
-    {
-      "label": "Token",
-      "description": "The token for authentication.",
-      "group": "authentication",
-      "type": "String",
-      "feel": "optional",
-      "binding": {
-        "type": "zeebe:input",
-        "name": "authentication.token"
-      },
-      "constraints": {
-        "notEmpty": true
       }
     },
     {

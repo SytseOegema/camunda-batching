@@ -11,7 +11,7 @@ public final class ProcessInstanceCreator {
     final ZeebeClientBuilder clientBuilder;
 
 
-    final String bpmnProcessId = "Eten2";
+    final String bpmnProcessId = "con_test";
     if (args.length > 0) {
       final String resourcePath = args[0];
     }

@@ -12,11 +12,6 @@ public class MyConnectorRequest {
   @NotEmpty
   private String message;
 
-  @Valid
-  @NotNull
-  @Secret
-  private Authentication authentication;
-
   public String getMessage() {
     return message;
   }
@@ -25,17 +20,9 @@ public class MyConnectorRequest {
     this.message = message;
   }
 
-  public Authentication getAuthentication() {
-    return authentication;
-  }
-
-  public void setAuthentication(Authentication authentication) {
-    this.authentication = authentication;
-  }
-
   @Override
   public int hashCode() {
-    return Objects.hash(authentication, message);
+    return Objects.hash(message);
   }
 
   @Override
@@ -44,12 +31,11 @@ public class MyConnectorRequest {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     MyConnectorRequest other = (MyConnectorRequest) obj;
-    return Objects.equals(authentication, other.authentication)
-        && Objects.equals(message, other.message);
+    return Objects.equals(message, other.message);
   }
 
   @Override
   public String toString() {
-    return "MyConnectorRequest [message=" + message + ", authentication=" + authentication + "]";
+    return "MyConnectorRequest [message=" + message + "]";
   }
 }

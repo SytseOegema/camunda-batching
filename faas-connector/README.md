@@ -11,6 +11,13 @@
 > ...and delete this hint.
 
 
+Maybe we need to change this such that it is a runtime service on its own.
+See:
+
+- https://github.com/camunda/connector-sdk/tree/main/runtime-util
+- https://docs.camunda.io/docs/apis-clients/java-client-examples/job-worker-open/
+- and looking into the zeebe/client options 
+
 # Connector Template
 
 Camunda Connector Template
@@ -32,10 +39,10 @@ This will create the following artifacts:
 
 You can use the `maven-shade-plugin` defined in the [Maven configuration](./pom.xml) to relocate common dependencies
 that are used in other Connectors and the [Connector Runtime](https://github.com/camunda-community-hub/spring-zeebe/tree/master/connector-runtime#building-connector-runtime-bundles).
-This helps avoiding classpath conflicts when the Connector is executed. 
+This helps avoiding classpath conflicts when the Connector is executed.
 
 Use the `relocations` configuration in the Maven Shade plugin to define the dependencies that should be shaded.
-The [Maven Shade documentation](https://maven.apache.org/plugins/maven-shade-plugin/examples/class-relocation.html) 
+The [Maven Shade documentation](https://maven.apache.org/plugins/maven-shade-plugin/examples/class-relocation.html)
 provides more details on relocations.
 
 ## API
