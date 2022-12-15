@@ -28,7 +28,7 @@ import java.util.Optional;
 public class ProcessProducer {
   private final String topic = "processes";
   private ProcessSerializer serializer = new ProcessSerializer();
-  private MessageProducer producer = new MessageProducer("kafka:9092", topic, serializer);
+  private MessageProducer producer = new MessageProducer("kafka-camunda:9092", topic, serializer);
 
   public ProcessProducer() {}
 

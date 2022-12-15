@@ -28,7 +28,7 @@ public class ProcessInstanceProducer {
   private Logger logger;
   private final String topic = "process_instances";
   private ProcessInstanceSerializer serializer = new ProcessInstanceSerializer();
-  private MessageProducer producer = new MessageProducer("kafka:9092", topic, serializer);
+  private MessageProducer producer = new MessageProducer("kafka-camunda:9092", topic, serializer);
 
   public ProcessInstanceProducer() {
     logger = LoggerFactory.getLogger("ProcessInstanceProducer");

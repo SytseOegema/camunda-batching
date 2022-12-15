@@ -49,7 +49,6 @@
     <module>dmn</module>
     <module>snapshot</module>
     <module>journal</module>
-    <module>qa</module>
     <module>benchmarks/project</module>
     <module>scheduler</module>
     <module>backup</module>
