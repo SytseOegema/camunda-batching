@@ -10,8 +10,8 @@ useCoursier := false
 scalaVersion := "2.13.10"
 
 libraryDependencies += guice
-libraryDependencies += "io.camunda.batching.messaging" % "messaging-package" % "1.0" exclude ("com.fasterxml.jackson.core", "jackson-databind")
-libraryDependencies += "io.camunda" % "zeebe-client-java" % "8.1.0-sytse-local" exclude ("com.fasterxml.jackson.core", "jackson-databind")
+libraryDependencies += "batching.extension" % "messaging-package" % "1.0" exclude ("com.fasterxml.jackson.core", "jackson-databind")
+libraryDependencies += "io.camunda" % "zeebe-client-java" % "8.1.0-extension-local" exclude ("com.fasterxml.jackson.core", "jackson-databind")
 
 // https://mvnrepository.com/artifact/org.postgresql/postgresql
 libraryDependencies += "org.postgresql" % "postgresql" % "42.5.0"

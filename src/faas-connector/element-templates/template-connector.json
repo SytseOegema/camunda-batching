@@ -24,6 +24,10 @@
       "label": "Compose"
     },
     {
+      "id": "input",
+      "label": "Input Mapping"
+    },
+    {
       "id": "output",
       "label": "Output Mapping"
     },
@@ -41,16 +45,57 @@
       }
     },
     {
-      "label": "Message",
+      "label": "Host",
+      "description": "Address of the Openwhisk API",
       "group": "compose",
       "type": "Text",
       "feel": "optional",
       "binding": {
         "type": "zeebe:input",
-        "name": "message"
+        "name": "host"
       },
       "constraints": {
         "notEmpty": true
+      }
+    },
+    {
+      "label": "Package",
+      "description": "Name of the function's Openwhisk package",
+      "group": "compose",
+      "type": "Text",
+      "feel": "optional",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "package"
+      },
+      "constraints": {
+        "notEmpty": true
+      }
+    },
+    {
+      "label": "Function Name",
+      "description": "Name of the function",
+      "group": "compose",
+      "type": "Text",
+      "feel": "optional",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "fucntionName"
+      },
+      "constraints": {
+        "notEmpty": true
+      }
+    },
+
+    {
+      "label": "Function Body Parameters",
+      "description": "The body parameters send to the Openwhisk function",
+      "group": "input",
+      "type": "Text",
+      "feel": "required",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "body"
       }
     },
     {

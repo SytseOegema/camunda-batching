@@ -10,19 +10,42 @@ import java.util.Objects;
 public class MyConnectorRequest {
 
   @NotEmpty
-  private String message;
+  private String host;
 
-  public String getMessage() {
-    return message;
+  @NotEmpty
+  private String package;
+
+  @NotEmpty
+  private String functionName;
+
+  public String getHost() {
+    return host;
   }
 
-  public void setMessage(String message) {
-    this.message = message;
+  public void setHost(String host) {
+    this.host = host;
+  }
+
+  public String getPackage() {
+    return package;
+  }
+
+  public void setPackage(String package) {
+    this.package = package;
+  }
+
+
+  public String getFunctionName() {
+    return functionName;
+  }
+
+  public void setFunctionName(String functionName) {
+    this.functionName = functionName;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message);
+    return Objects.hash(package + host + functionName);
   }
 
   @Override
@@ -36,6 +59,12 @@ public class MyConnectorRequest {
 
   @Override
   public String toString() {
-    return "MyConnectorRequest [message=" + message + "]";
+    return "MyConnectorRequest [host="
+      + host
+      + " - package="
+      + package
+      + " - functionName="
+      + functionName
+      + "]";
   }
 }

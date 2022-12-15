@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.camunda</groupId>
     <artifactId>zeebe-bom</artifactId>
-    <version>8.1.0</version>
+    <version>8.1.0-extension-local</version>
     <relativePath>../bom/pom.xml</relativePath>
   </parent>
 
@@ -184,7 +184,7 @@
     <dependencies>
       <!-- Batching Module -->
       <dependency>
-        <groupId>io.camunda.batching.messaging</groupId>
+        <groupId>batching.extension</groupId>
         <artifactId>messaging-package</artifactId>
         <version>1.0</version>
       </dependency>

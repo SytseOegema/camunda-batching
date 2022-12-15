@@ -17,7 +17,7 @@
 services:
 
   zeebe: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#zeebe
-    image: sytse/zeebe
+    image: batching-extension/zeebe
     container_name: zeebe
     ports:
       - "26500:26500"
@@ -168,6 +168,16 @@ services:
     networks:
       - camunda-platform
 
+  faas-connector:
+    image: batching-extension/faas-connector
+    container_name: faas-connector
+    environment:
+      - ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS=zeebe:26500
+      - ZEEBE_CLIENT_SECURITY_PLAINTEXT=true
+    depends_on:
+      -zeebe:
+    networks:
+      - camunda-platform
 
 volumes:
   zeebe:
