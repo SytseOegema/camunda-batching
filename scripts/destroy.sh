@@ -7,6 +7,6 @@ make destroy
 echo "Destroy camunda batch"
 cd ../camunda-platform/
 pwd
-docker-compose rm -f
+docker-compose down -v
 
 cd ../../scripts
