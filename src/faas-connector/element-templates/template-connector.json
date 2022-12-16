@@ -66,7 +66,7 @@
       "feel": "optional",
       "binding": {
         "type": "zeebe:input",
-        "name": "package"
+        "name": "packageName"
       },
       "constraints": {
         "notEmpty": true
@@ -80,7 +80,7 @@
       "feel": "optional",
       "binding": {
         "type": "zeebe:input",
-        "name": "fucntionName"
+        "name": "functionName"
       },
       "constraints": {
         "notEmpty": true

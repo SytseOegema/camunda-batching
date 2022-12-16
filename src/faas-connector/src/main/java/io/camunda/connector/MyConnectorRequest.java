@@ -4,7 +4,7 @@ import io.camunda.connector.api.annotation.Secret;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
+import org.json.JSONObject;
 import java.util.Objects;
 
 public class MyConnectorRequest {
@@ -13,10 +13,12 @@ public class MyConnectorRequest {
   private String host;
 
   @NotEmpty
-  private String package;
+  private String packageName;
 
   @NotEmpty
   private String functionName;
+
+  private JSONObject body;
 
   public String getHost() {
     return host;
@@ -26,14 +28,13 @@ public class MyConnectorRequest {
     this.host = host;
   }
 
-  public String getPackage() {
-    return package;
+  public String getPackageName() {
+    return packageName;
   }
 
-  public void setPackage(String package) {
-    this.package = package;
+  public void setPackageName(String packageName) {
+    this.packageName = packageName;
   }
-
 
   public String getFunctionName() {
     return functionName;
@@ -43,9 +44,17 @@ public class MyConnectorRequest {
     this.functionName = functionName;
   }
 
+  public void setBody(JSONObject body) {
+    this.body = body;
+  }
+
+  public String getBody() {
+    return body.toString();
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(package + host + functionName);
+    return Objects.hash(packageName + host + functionName + body);
   }
 
   @Override
@@ -54,15 +63,15 @@ public class MyConnectorRequest {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     MyConnectorRequest other = (MyConnectorRequest) obj;
-    return Objects.equals(message, other.message);
+    return Objects.equals(hashCode(), other.hashCode());
   }
 
   @Override
   public String toString() {
     return "MyConnectorRequest [host="
       + host
-      + " - package="
-      + package
+      + " - packageName="
+      + packageName
       + " - functionName="
       + functionName
       + "]";

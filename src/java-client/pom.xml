@@ -29,7 +29,7 @@
     <dependency>
         <groupId>io.camunda</groupId>
         <artifactId>zeebe-client-java</artifactId>
-        <version>8.1.0-sytse-local</version>
+        <version>8.1.0-extension-local</version>
     </dependency>
   </dependencies>
 

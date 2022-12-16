@@ -16,7 +16,7 @@ public class ProcessKafkaConsumer extends MessageConsumer<ProcessDTO> {
 
   @Inject
   public ProcessKafkaConsumer(ProcessRepository repository, KafkaProcessExecutionContext executionContext) {
-    super("kafka:9092", "processes", new ProcessDeserializer());
+    super("kafka-camunda:9092", "processes", new ProcessDeserializer());
     this.repository = repository;
     this.executionContext = executionContext;
 

@@ -4,6 +4,8 @@ import io.camunda.connector.api.annotation.OutboundConnector;
 import io.camunda.connector.api.error.ConnectorException;
 import io.camunda.connector.api.outbound.OutboundConnectorContext;
 import io.camunda.connector.api.outbound.OutboundConnectorFunction;
+import kong.unirest.Unirest;
+import kong.unirest.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +28,33 @@ public class MyConnectorFunction implements OutboundConnectorFunction {
   }
 
   private MyConnectorResult executeConnector(final MyConnectorRequest connectorRequest) {
-    // TODO: implement connector logic
     LOGGER.info("Executing my connector with request {}", connectorRequest);
-    String message = connectorRequest.getHost();
-    if (message != null && message.toLowerCase().startsWith("fail")) {
-      throw new ConnectorException("FAIL", "My property started with 'fail', was: " + message);
+    // always uses Openwhisk namespace 'guest'
+    String url = connectorRequest.getHost()
+      + "/api/v1/web/guest/"
+      + connectorRequest.getPackageName()
+      + "/"
+      + connectorRequest.getFunctionName()
+      + ".json";
+
+    try {
+      Unirest.config().verifySsl(false);
+      HttpResponse<String> response = Unirest.post(url)
+        .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
+        .header("Content-Type", "application/json")
+        .body(connectorRequest.getBody())
+        .asString();
+      System.out.println(response.getBody());
+      var result = new MyConnectorResult();
+      result.setMyProperty(response.getBody());
+      LOGGER.info("Result {}", result);
+      return result;
     }
-    var result = new MyConnectorResult();
-    result.setMyProperty("Message received: " + message);
-    return result;
+    catch (Exception e) {
+      LOGGER.error(e.getMessage());
+      var result = new MyConnectorResult();
+      result.setMyProperty("Something went wrong");
+      return result;
+    }
   }
 }

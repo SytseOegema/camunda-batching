@@ -39,7 +39,7 @@ public class ProcessInstanceKafkaConsumer extends MessageConsumer<ProcessInstanc
       ProcessInstanceRepository processInstanceRepository,
       KafkaProcessInstanceExecutionContext executionContext
   ) {
-    super("kafka:9092", "process_instances", new ProcessInstanceDeserializer());
+    super("kafka-camunda:9092", "process_instances", new ProcessInstanceDeserializer());
     this.batchActivityConnectorRepository = batchActivityConnectorRepository;
     this.batchClusterRepository = batchClusterRepository;
     this.batchModelRepository = batchModelRepository;

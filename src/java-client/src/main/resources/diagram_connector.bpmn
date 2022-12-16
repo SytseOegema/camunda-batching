@@ -1,48 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1nowvmy" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.4.1" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.1.0">
-  <bpmn:process id="con_test" name="Connector Test" isExecutable="true">
-    <bpmn:extensionElements />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ojf8du" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.4.1" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.1.0">
+  <bpmn:process id="con_test" isExecutable="true">
+    <bpmn:extensionElements>
+      <zeebe:userTaskForm id="userTaskForm_3fh0ssc">{
+  "components": [
+    {
+      "values": [
+        {
+          "label": "My awesome test value",
+          "value": "My awesome test value"
+        },
+        {
+          "label": "You genious",
+          "value": "You genious"
+        }
+      ],
+      "label": "What is the value of test-variable",
+      "type": "select",
+      "id": "Field_0zsjxq8",
+      "key": "test-variable",
+      "description": "test-variable",
+      "defaultValue": "My awesome test value"
+    }
+  ],
+  "type": "default",
+  "id": "Form-FaaS-Test",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.1.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.4.1"
+  },
+  "schemaVersion": 5
+}</zeebe:userTaskForm>
+    </bpmn:extensionElements>
     <bpmn:startEvent id="StartEvent_1">
-      <bpmn:outgoing>Flow_0xrny1j</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0xf6jw8</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:intermediateThrowEvent id="Event_12wz6sx">
-      <bpmn:incoming>Flow_1mf465f</bpmn:incoming>
-    </bpmn:intermediateThrowEvent>
-    <bpmn:sequenceFlow id="Flow_0xrny1j" sourceRef="StartEvent_1" targetRef="Activity_00Connector" />
-    <bpmn:serviceTask id="Activity_00Connector" name="Connector" zeebe:modelerTemplate="io.camunda.connector.Template.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2218%22%20width%3D%2218%22%20viewBox%3D%220%200%2010%2010%22%20shape-rendering%3D%22geometricPrecision%22%3E%3Ctitle%3ESlack%3C%2Ftitle%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M0%2C0%20L0%2C10%20L10%2C10%20L10%2C0%20z%22%20fill%3D%22%23ecb12f%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+    <bpmn:serviceTask id="Activity_0pbt1om" zeebe:modelerTemplate="io.camunda.connector.Template.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2218%22%20width%3D%2218%22%20viewBox%3D%220%200%2010%2010%22%20shape-rendering%3D%22geometricPrecision%22%3E%3Ctitle%3ESlack%3C%2Ftitle%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M0%2C0%20L0%2C10%20L10%2C10%20L10%2C0%20z%22%20fill%3D%22%23ecb12f%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="io.camunda:template:1" />
         <zeebe:ioMapping>
-          <zeebe:input source="Jo mattie, connector hier" target="message" />
+          <zeebe:input source="https://openwhisk_apigateway_1" target="host" />
+          <zeebe:input source="test" target="package" />
+          <zeebe:input source="myTestFunction" target="fucntionName" />
+          <zeebe:input source="={ &#34;testVariable&#34;: test-variable }" target="body" />
+          <zeebe:input source="test" target="packageName" />
+          <zeebe:input source="myTestFunction" target="functionName" />
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
-          <zeebe:header key="resultExpression" value="={&#34;myProperty&#34;: myProperty}" />
+          <zeebe:header key="resultVariable" value="openwhisk" />
         </zeebe:taskHeaders>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0xrny1j</bpmn:incoming>
-      <bpmn:outgoing>Flow_1mf465f</bpmn:outgoing>
+      <bpmn:incoming>Flow_1s4qfcm</bpmn:incoming>
+      <bpmn:outgoing>Flow_1b26bwz</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1mf465f" sourceRef="Activity_00Connector" targetRef="Event_12wz6sx" />
+    <bpmn:userTask id="Activity_form-faas-test" name="FaaS variable set">
+      <bpmn:extensionElements>
+        <zeebe:formDefinition formKey="camunda-forms:bpmn:userTaskForm_3fh0ssc" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0xf6jw8</bpmn:incoming>
+      <bpmn:outgoing>Flow_1s4qfcm</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0xf6jw8" sourceRef="StartEvent_1" targetRef="Activity_form-faas-test" />
+    <bpmn:sequenceFlow id="Flow_1s4qfcm" sourceRef="Activity_form-faas-test" targetRef="Activity_0pbt1om" />
+    <bpmn:endEvent id="Event_0on3w90">
+      <bpmn:incoming>Flow_1b26bwz</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1b26bwz" sourceRef="Activity_0pbt1om" targetRef="Event_0on3w90" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="con_test">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="152" y="102" width="36" height="36" />
+        <dc:Bounds x="152" y="79" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_12wz6sx_di" bpmnElement="Event_12wz6sx">
-        <dc:Bounds x="1142" y="102" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_0kohcbt_di" bpmnElement="Activity_0pbt1om">
+        <dc:Bounds x="790" y="57" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0r2pmx2_di" bpmnElement="Activity_00Connector">
-        <dc:Bounds x="650" y="80" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_1b8zuxm_di" bpmnElement="Activity_form-faas-test">
+        <dc:Bounds x="360" y="57" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_0xrny1j_di" bpmnElement="Flow_0xrny1j">
-        <di:waypoint x="188" y="120" />
-        <di:waypoint x="650" y="120" />
+      <bpmndi:BPMNShape id="Event_0on3w90_di" bpmnElement="Event_0on3w90">
+        <dc:Bounds x="1062" y="79" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0xf6jw8_di" bpmnElement="Flow_0xf6jw8">
+        <di:waypoint x="188" y="97" />
+        <di:waypoint x="360" y="97" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1mf465f_di" bpmnElement="Flow_1mf465f">
-        <di:waypoint x="750" y="120" />
-        <di:waypoint x="1142" y="120" />
+      <bpmndi:BPMNEdge id="Flow_1s4qfcm_di" bpmnElement="Flow_1s4qfcm">
+        <di:waypoint x="460" y="97" />
+        <di:waypoint x="790" y="97" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1b26bwz_di" bpmnElement="Flow_1b26bwz">
+        <di:waypoint x="890" y="97" />
+        <di:waypoint x="1062" y="97" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

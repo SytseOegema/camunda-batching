@@ -108,7 +108,7 @@ services:
     networks:
       - camunda-platform
 
-  zookeeper:
+  zookeeper-camunda:
     image: docker.io/bitnami/zookeeper:3.8
     container_name: zookeeper-camunda
     expose:
@@ -120,7 +120,7 @@ services:
     networks:
       - camunda-platform
 
-  kafka:
+  kafka-camunda:
     image: docker.io/bitnami/kafka:3.3
     container_name: kafka-camunda
     ports:
@@ -132,7 +132,7 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
     depends_on:
-      - zookeeper
+      - zookeeper-camunda
     networks:
       - camunda-platform
 
@@ -155,16 +155,8 @@ services:
     ports:
       - "900:9000"
     depends_on:
-      - kafka
+      - kafka-camunda
       - postgres
-    networks:
-      - camunda-platform
-
-  kafka-test:
-    image: kafka-test
-    container_name: kafka-test
-    depends_on:
-      - kafka
     networks:
       - camunda-platform
 
@@ -175,7 +167,7 @@ services:
       - ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS=zeebe:26500
       - ZEEBE_CLIENT_SECURITY_PLAINTEXT=true
     depends_on:
-      -zeebe:
+      - zeebe
     networks:
       - camunda-platform
 

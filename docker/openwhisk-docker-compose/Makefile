@@ -75,14 +75,14 @@ add-catalog: download-catalog init-catalog
 
 .PHONY: show-wsk-command
 show-wsk-command:
-	echo "\n\n\n\n\n\n\n"
+	printf "\n\n\n\n\n\n\n"
 	echo "-------------------------------------------------------------------------------------------------------------------"
 	echo "Make sure to set these properties in your wsk cli"
 	echo "--auth `cat $(OPENWHISK_PROJECT_HOME)/ansible/files/auth.guest` --apihost https://$(DOCKER_HOST_IP) -i"
 	echo "use command : wsk property set"
 	echo "-------------------------------------------------------------------------------------------------------------------"
 	echo "script continues in 30 seconds"
-	echo "\n\n\n\n\n\n\n"
+	printf "\n\n\n\n\n\n\n"
 	sleep 30
 
 .PHONY: download-src
