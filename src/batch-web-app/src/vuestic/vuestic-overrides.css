@@ -1,0 +1,7 @@
+:root {
+  --va-font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+.va-dropdown__content {
+  font-family: var(--va-font-family);
+}

@@ -48,6 +48,7 @@ public class BatchModelController extends Controller {
     try {
       BatchModelModel model = new BatchModelModel(
         0,
+        json.get("name").asText(),
         json.get("maxBatchSize").asInt(),
         json.get("executeParallel").asBoolean(),
         json.get("activationThresholdCases").asInt(),
@@ -76,6 +77,7 @@ public class BatchModelController extends Controller {
     try {
       BatchModelModel model = new BatchModelModel(
         batchModelId,
+        json.get("name").asText(),
         json.get("maxBatchSize").asInt(),
         json.get("executeParallel").asBoolean(),
         json.get("activationThresholdCases").asInt(),

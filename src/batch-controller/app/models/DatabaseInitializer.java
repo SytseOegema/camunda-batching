@@ -212,6 +212,7 @@ public class DatabaseInitializer {
   private void createBatchModelTable(Connection connection) {
     String sql = "CREATE TABLE batch_model " +
       "(batch_model_id SERIAL not NULL, " +
+      " name VARCHAR(255), " +
       " max_batch_size INT, " +
       " execute_parallel BOOLEAN, " +
       " activation_threshold_cases INT, " +

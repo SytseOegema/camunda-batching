@@ -32,6 +32,7 @@ public class BatchModelRepository {
   public CompletionStage<Optional<List<BatchModelModel>>> list() {
     final String sql = "SELECT "
       + "batch_model.batch_model_id, "
+      + "batch_model.name, "
       + "batch_model.max_batch_size, "
       + "batch_model.execute_parallel, "
       + "batch_model.activation_threshold_cases, "
@@ -60,6 +61,7 @@ public class BatchModelRepository {
             } else {
               model = new BatchModelModel(
                 id,
+                rs.getString("name"),
                 rs.getInt("max_batch_size"),
                 rs.getBoolean("execute_parallel"),
                 rs.getInt("activation_threshold_cases"),
@@ -93,6 +95,7 @@ public class BatchModelRepository {
   public CompletionStage<Optional<BatchModelModel>> get(int batchModelId) {
     final String sql = "SELECT "
       + "batch_model.batch_model_id, "
+      + "batch_model.name, "
       + "batch_model.max_batch_size, "
       + "batch_model.execute_parallel, "
       + "batch_model.activation_threshold_cases, "
@@ -121,6 +124,7 @@ public class BatchModelRepository {
             } else {
               model = new BatchModelModel(
                 id,
+                rs.getString("name"),
                 rs.getInt("max_batch_size"),
                 rs.getBoolean("execute_parallel"),
                 rs.getInt("activation_threshold_cases"),
@@ -153,14 +157,16 @@ public class BatchModelRepository {
 
   public CompletionStage<Boolean> add(BatchModelModel model) {
     String query = "INSERT INTO batch_model  (";
+    query += "name ,";
     query += "max_batch_size ,";
     query += "execute_parallel, ";
     query += "activation_threshold_cases, ";
     query += "activation_threshold_time, ";
     query += "batch_executor_URI ";
-    query += ") VALUES ('%d', '%b', '%d', '%d', '%s') ";
+    query += ") VALUES ('%s', '%d', '%b', '%d', '%d', '%s') ";
     query += "RETURNING batch_model_id";
     final String sql = String.format(query,
+      model.name,
       model.maxBatchSize,
       model.executeParallel,
       model.activationThresholdCases,
@@ -215,7 +221,8 @@ public class BatchModelRepository {
 
   public CompletionStage<Boolean> update(BatchModelModel model) {
     String query = "UPDATE batch_model ";
-    query += "SET max_batch_size = %d, ";
+    query += "SET name = %s, ";
+    query += "max_batch_size = %d, ";
     query += "execute_parallel = %b, ";
     query += "activation_threshold_cases = %d, ";
     query += "activation_threshold_time = %d, ";
@@ -223,6 +230,7 @@ public class BatchModelRepository {
     query += "WHERE batch_model_id = %d";
     final String sql = String.format(
       query,
+      model.name,
       model.maxBatchSize,
       model.executeParallel,
       model.activationThresholdCases,

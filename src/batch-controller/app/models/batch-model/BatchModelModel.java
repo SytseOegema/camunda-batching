@@ -8,6 +8,7 @@ import java.util.List;
 
 public class BatchModelModel {
   public int batchModelId;
+  public String name;
   public int maxBatchSize;
   public boolean executeParallel;
   public int activationThresholdCases;
@@ -19,6 +20,7 @@ public class BatchModelModel {
   @JsonCreator
   public BatchModelModel(
       @JsonProperty("batchModelId") int batchModelId,
+      @JsonProperty("name") String name,
       @JsonProperty("maxBatchSize") int maxBatchSize,
       @JsonProperty("executeParallel") boolean executeParallel,
       @JsonProperty("activationThresholdCases") int activationThresholdCases,
@@ -26,6 +28,7 @@ public class BatchModelModel {
       @JsonProperty("batchExecutorURI") String batchExecutorURI,
       @JsonProperty("groupBy") List<String> groupBy) {
     this.batchModelId = batchModelId;
+    this.name = name;
     this.maxBatchSize = maxBatchSize;
     this.executeParallel = executeParallel;
     this.activationThresholdCases = activationThresholdCases;
@@ -44,6 +47,7 @@ public class BatchModelModel {
     }
     new BatchModelModel(
       object.batchModelId,
+      object.name,
       object.maxBatchSize,
       object.executeParallel,
       object.activationThresholdCases,

@@ -9,17 +9,18 @@ GET     /                           controllers.HomeController.index()
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 GET     /processes     controllers.ProcessController.get
+POST     /processes     controllers.ProcessController.post(request: Request)
 
 GET     /process-instances     controllers.ProcessInstanceController.get
 POST     /process-instances/:id/resume-flow     controllers.ProcessInstanceController.resumeFlow(id: Long)
 
-GET /batch-activity controllers.BatchActivityConnectorController.get
-POST /batch-activity controllers.BatchActivityConnectorController.post(request: Request)
-PUT /batch-activity/:id controllers.BatchActivityConnectorController.put(id: Integer, request: Request)
-PUT /batch-activity/:id/condition controllers.BatchActivityConnectorController.putCondition(id: Integer, request: Request)
-DELETE /batch-activity/:id controllers.BatchActivityConnectorController.delete(id: Integer)
+GET /batch-activity-connectors controllers.BatchActivityConnectorController.get
+POST /batch-activity-connectors controllers.BatchActivityConnectorController.post(request: Request)
+PUT /batch-activity-connectors/:id controllers.BatchActivityConnectorController.put(id: Integer, request: Request)
+PUT /batch-activity-connectors/:id/condition controllers.BatchActivityConnectorController.putCondition(id: Integer, request: Request)
+DELETE /batch-activity-connectors/:id controllers.BatchActivityConnectorController.delete(id: Integer)
 
-GET /batch-model controllers.BatchModelController.get
-POST /batch-model controllers.BatchModelController.post(request: Request)
-PUT /batch-model/:id controllers.BatchModelController.put(id: Integer, request: Request)
-DELETE /batch-model/:id controllers.BatchModelController.delete(id: Integer)
+GET /batch-models controllers.BatchModelController.get
+POST /batch-models controllers.BatchModelController.post(request: Request)
+PUT /batch-models/:id controllers.BatchModelController.put(id: Integer, request: Request)
+DELETE /batch-models/:id controllers.BatchModelController.delete(id: Integer)
