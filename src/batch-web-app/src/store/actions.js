@@ -103,7 +103,7 @@ const actions = {
   },
   createBatchActivityConnectors(context, data) {
     return axios({
-      method: 'get',
+      method: 'post',
       url: `${process.env.VUE_APP_BATCH_CONTROLLER_API}/batch-activity-connectors`,
       data,
     })

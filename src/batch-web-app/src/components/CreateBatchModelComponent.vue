@@ -82,6 +82,7 @@ const data = ref({
 });
 
 function submitForm() {
+  data.value.executeParallel = data.value.executeParallel.value;
   store.dispatch('createBatchModel', data.value)
     .then(() => {
       init({

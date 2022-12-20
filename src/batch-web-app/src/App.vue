@@ -47,9 +47,11 @@
 </template>
 
 <script setup>
-import { computed } from "vue"
+import { computed, onMounted } from "vue"
 import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 
+const store = useStore();
 const route = useRoute ();
 const router = useRouter ();
 
@@ -59,6 +61,12 @@ const goToRoute = (name) => {
   router.push({name});
 }
 
+onMounted(() => {
+  store.dispatch('getProcesses');
+  store.dispatch('getProcessInstances');
+  store.dispatch('getBatchModels');
+  store.dispatch('getBatchActivityConnectors');
+})
 
 </script>
 

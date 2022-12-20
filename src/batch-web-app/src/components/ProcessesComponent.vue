@@ -32,15 +32,11 @@
 import CreateProcessComponent from "./CreateProcessComponent.vue";
 import ProcessComponent from "./ProcessComponent.vue";
 import { useStore } from "vuex";
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 
 const store = useStore();
 
 const processes = computed(() => store.getters['getProcesses']);
-
-onMounted(() => {
-  store.dispatch('getProcesses');
-})
 
 const showModal = ref(false);
 

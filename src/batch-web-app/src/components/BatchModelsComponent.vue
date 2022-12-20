@@ -37,17 +37,13 @@
 <script setup>
 import CreateBatchModelComponent from "./CreateBatchModelComponent.vue";
 import BatchModelComponent from "./BatchModelComponent.vue";
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useStore } from "vuex";
 import { useToast } from 'vuestic-ui'
 
 const { init } = useToast();
 
 const store = useStore();
-
-onMounted(() => {
-  store.dispatch('getBatchModels');
-})
 
 const batchModels = computed(() => store.getters['getBatchModels']);
 

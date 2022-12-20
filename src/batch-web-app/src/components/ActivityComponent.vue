@@ -20,8 +20,38 @@
             Add Batch Model
           </va-button>
         </div>
-        <div>
-          {{ connectors }}
+      </div>
+      <div class="row">
+        <div class="flex md12" v-for="connector in connectors" :key="connector.id">
+          <div class="row">
+            <div class="va-title mr-4 mt-3">
+              {{ getBatchModelName(connector.batchModelId) }}
+            </div>
+
+            <va-chip squared outline v-if="connector.active">
+              active
+            </va-chip>
+            <va-chip squared outline v-else color="secondary">
+              not active
+            </va-chip>
+
+            <va-button
+              icon="delete"
+              color="danger"
+              round class="ml-auto"
+              @click="deleteConnector(connector.connectorId)"
+            />
+            <div>
+              Valid till:
+              <va-badge
+                class="mr-4"
+                :text="connector.validity"
+                color="info"
+              />
+              Conditions:
+              {{ connector.conditions }}
+            </div>
+          </div>
         </div>
       </div>
     </va-card-content>
@@ -44,31 +74,44 @@
     </template>
   </va-modal>
 
-
-
   <va-modal v-model="showConnectorModal" blur>
-    <template #content="{ }">
-      <div class="row">
-        Here goes the connector form
-      </div>
+    <template #content="{ ok }">
+      <CreateBatchActivityConnectorComponent
+        @finished="ok"
+        :batchModelId="connectorBatchModelId"
+        :activityId="activity.id"
+      />
     </template>
   </va-modal>
-
 </template>
 
 <script setup>
+import CreateBatchActivityConnectorComponent from "./CreateBatchActivityConnectorComponent.vue";
 import BatchModelComponent from "./BatchModelComponent.vue";
 import { useStore } from "vuex";
 import { ref, defineProps, computed } from 'vue'
+import { useToast } from 'vuestic-ui'
 
-defineProps({
+const { init } = useToast();
+
+const props = defineProps({
   activity: { type: Object, required: true },
 })
 
 const store = useStore();
 
 const batchModels = computed(() => store.getters['getBatchModels']);
-const connectors = computed(() => store.getters['getBatchActivityConnectors']);
+const connectors = computed(() => {
+    const data = store.getters['getBatchActivityConnectors'];
+    return data.filter((con) => {
+      return con.activityId === props.activity.id;
+    });
+});
+
+const getBatchModelName = (batchModelId) => {
+  const batchModels = store.getters['getBatchModels'];
+  return batchModels.find((model) => model.batchModelId === batchModelId).name;
+}
 
 const showBatchModelModal = ref(false);
 const showConnectorModal = ref(false);
@@ -86,6 +129,22 @@ const createConnector = (batchModelId) => {
   connectorBatchModelId.value= batchModelId;
   showBatchModelModal.value = false;
   togleConnectorModal();
+}
+
+const deleteConnector = (connectorId) => {
+  store.dispatch('deleteBatchActivityConnectors', connectorId)
+    .then(() => {
+      init({
+        color: "info",
+        message: "deleted batch model"
+      });
+    })
+    .catch((error) => {
+      init({
+        color: "danger",
+        message: "something went wrong. " + error.message,
+      });
+    });
 }
 
 </script>
