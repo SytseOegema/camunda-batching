@@ -10,6 +10,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 GET     /processes     controllers.ProcessController.get
 POST     /processes     controllers.ProcessController.post(request: Request)
+POST     /processes/:id/create-instance     controllers.ProcessController.createInstance(id: String, request: Request)
 
 GET     /process-instances     controllers.ProcessInstanceController.get
 POST     /process-instances/:id/resume-flow     controllers.ProcessInstanceController.resumeFlow(id: Long)

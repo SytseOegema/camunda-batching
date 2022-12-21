@@ -44,6 +44,21 @@ const actions = {
         return Promise.reject(error);
       });
   },
+  createProcessInstance(context, payload) {
+    return axios({
+      method: 'post',
+      url: `${process.env.VUE_APP_BATCH_CONTROLLER_API}/processes/${payload.processId}/create-instance`,
+      data: payload.data,
+    })
+      .then(() => {
+        context.dispatch("getProcessInstances");
+        return Promise.resolve();
+      })
+      .catch((error) => {
+        alert(error);
+        return Promise.reject(error);
+      });
+  },
   getBatchModels(context) {
     return axios({
       method: 'get',

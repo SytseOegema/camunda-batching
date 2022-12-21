@@ -30,31 +30,41 @@
         disabled
       />
       <div class="flex md12">
-        Condition:
+        <div class="row">
+          <va-button @click="toggleCondition()" class="ml-auto mr-auto">
+            {{ conditionText }} condition
+          </va-button>
+        </div>
+        <span v-if="addCondition">
+          Condition:
+        </span>
       </div>
       <va-input
         class="flex md6"
+        v-if="addCondition"
         v-model="data.conditions[0].fieldName"
         label="Field Name"
       />
       <va-select
+        v-if="addCondition"
         class="flex md6"
         v-model="data.conditions[0].fieldType"
         :options="fieldTypeOptions"
         label="Field Type"
       />
       <va-select
+        v-if="addCondition"
         class="flex md6"
         v-model="data.conditions[0].compareOperator"
         :options="compareOperatorOptions"
         label="Compare Operator"
       />
       <va-input
+        v-if="addCondition"
         class="flex md6"
         v-model="data.conditions[0].compareValue"
         label="Compare Value"
       />
-
     </div>
     <va-button @click="submitForm()">
       Submit Form
@@ -63,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, defineEmits, defineProps } from "vue";
+import { ref, computed, defineEmits, defineProps } from "vue";
 import { useStore } from "vuex";
 import { useToast } from 'vuestic-ui'
 
@@ -73,13 +83,32 @@ const isOpen = ref(false);
 const closeDateInput = () => {
   isOpen.value = false;
 }
+const addCondition = ref(false);
 
+const conditionText = computed(() => addCondition.value ? "remove" : "add");
 const store = useStore();
 const emit = defineEmits(['finished'])
 const props = defineProps({
   batchModelId: { type: Number, required: true},
   activityId: { type: String, required: true},
 })
+
+const toggleCondition = () => {
+  if (addCondition.value) {
+    data.value.conditions = [];
+  } else {
+    data.value.conditions.push(
+      {
+        conditionId: 0,
+        connectorId:0,
+        fieldName: "",
+        fieldType: fieldTypeOptions[0],
+        compareOperator: compareOperatorOptions[0],
+        compareValue: "",
+      });
+  }
+  addCondition.value = !addCondition.value;
+}
 
 const activeOptions = [
   {
@@ -112,16 +141,7 @@ const data = ref({
   validity: new Date(),
   batchModelId: props.batchModelId,
   activityId: props.activityId,
-  conditions: [
-    {
-      conditionId: 0,
-      connectorId:0,
-      fieldName: "",
-      fieldType: fieldTypeOptions[0],
-      compareOperator: compareOperatorOptions[0],
-      compareValue: "",
-    }
-  ],
+  conditions: [],
 });
 
 function submitForm() {
@@ -150,6 +170,6 @@ function submitForm() {
 }
 
 .heightBox {
-  height: 40vh;
+  height: 50vh;
 }
 </style>

@@ -14,6 +14,7 @@ import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.ZeebeClientBuilder;
 import io.camunda.zeebe.client.api.response.DeploymentEvent;
 import io.camunda.zeebe.client.api.response.Process;
+import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -72,6 +73,32 @@ public class ProcessController extends Controller {
           return internalServerError("Server error: could create process.");
         }
 
+      } catch (Exception e) {
+        e.printStackTrace();
+        return internalServerError("Server error: could create process.");
+      }
+    });
+  }
+
+  public CompletionStage<Result> createInstance(String id, Http.Request request) {
+    return CompletableFuture.supplyAsync(() -> {
+
+      JsonNode json = request.body().asJson();
+
+      ZeebeClientBuilder clientBuilder = ZeebeClient.newClientBuilder()
+        .gatewayAddress(json.get("zeebeAddress").asText())
+        .usePlaintext();
+      try (final ZeebeClient client = clientBuilder.build()) {
+        final ProcessInstanceEvent processInstanceEvent =
+          client
+            .newCreateInstanceCommand()
+            .bpmnProcessId(id)
+            .latestVersion()
+            .variables(json.get("variables").asText())
+            .send()
+            .join();
+
+        return ok("Deployed process instance: " + processInstanceEvent.getProcessInstanceKey());
       } catch (Exception e) {
         e.printStackTrace();
         return internalServerError("Server error: could create process.");
