@@ -275,6 +275,7 @@ public class BatchModelRepository {
         try {
           Connection connection = db.getConnection();
           if (!deleteGroupBy(connection, batchModelId)) {
+            connection.close();
             return false;
           }
           final Statement st = connection.createStatement();

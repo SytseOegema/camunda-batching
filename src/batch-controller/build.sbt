@@ -35,6 +35,6 @@ Docker / version := sys.env.getOrElse("BUILD_NUMBER", "0")
 Docker / daemonUserUid  := None
 Docker / daemonUser := "daemon"
 dockerExposedPorts := Seq(9000)
-dockerBaseImage := "openjdk:11-jre-slim"
+dockerBaseImage := "openjdk:11.0.4-jre-slim-buster"
 dockerRepository := sys.env.get("ecr_repo")
 dockerUpdateLatest := true

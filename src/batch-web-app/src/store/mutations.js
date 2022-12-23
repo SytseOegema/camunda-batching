@@ -10,6 +10,9 @@ const mutations = {
   },
   setBatchActivityConnectors(state, batchActivityConnectors) {
     state.batchActivityConnectors = batchActivityConnectors;
+  },
+  setBatchClusters(state, batchClusters) {
+    state.batchClusters = batchClusters;
   }
 };
 

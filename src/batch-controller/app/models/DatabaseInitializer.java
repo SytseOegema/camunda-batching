@@ -63,9 +63,9 @@ public class DatabaseInitializer {
       "'process_instance'," +
       "'batch_activity_connector'," +
       "'batch_activity_connector_condition'," +
-      "'batch_model'" +
-      "'batch_model_group_by'" +
-      "'batch_cluster'" +
+      "'batch_model'," +
+      "'batch_model_group_by'," +
+      "'batch_cluster'," +
       "'batch_cluster_instance'" +
       ")";
 
@@ -80,82 +80,75 @@ public class DatabaseInitializer {
         }
       }
 
+      st = connection.createStatement();
+
       for (String table : tables) {
+        System.out.println(table);
         switch (table) {
           case "process":
-              createProcessesTable(connection);
+              st.addBatch(createProcessesTable());
             break;
           case "activity":
-              createActivitiesTable(connection);
+              st.addBatch(createActivitiesTable());
             break;
           case "process_activity":
-              createProcessActivitiesTable(connection);
+              st.addBatch(createProcessActivitiesTable());
             break;
           case "process_instance":
-              createProcessInstancesTable(connection);
+              st.addBatch(createProcessInstancesTable());
+            break;
           case "batch_activity_connector":
-              createBatchActivityConnectorTable(connection);
+              st.addBatch(createBatchActivityConnectorTable());
+            break;
           case "batch_activity_connector_condition":
-              createBatchActivityConnectorConditionTable(connection);
+              st.addBatch(createBatchActivityConnectorConditionTable());
+            break;
           case "batch_model":
-              createBatchModelTable(connection);
+              st.addBatch(createBatchModelTable());
+            break;
           case "batch_model_group_by":
-              createBatchModelGroupByTable(connection);
+              st.addBatch(createBatchModelGroupByTable());
+            break;
           case "batch_cluster":
-              createBatchClusterTable(connection);
+              st.addBatch(createBatchClusterTable());
+            break;
           case "batch_cluster_instance":
-              createBatchClusterInstanceTable(connection);
+              st.addBatch(createBatchClusterInstanceTable());
+            break;
           default:
             break;
         }
       }
+      st.executeBatch();
     } catch(SQLException e) {
       e.printStackTrace();
     }
   }
 
-  private void createProcessesTable(Connection connection) {
-    String sql = "CREATE TABLE process " +
+  private String createProcessesTable() {
+    return "CREATE TABLE process " +
       "(id VARCHAR(255) not NULL, " +
       " name VARCHAR(255), " +
       " PRIMARY KEY ( id ))";
-    try {
-      Statement st = connection.createStatement();
-      st.executeQuery(sql);
-    } catch(SQLException e) {
-      e.printStackTrace();
-    }
   }
 
-  private void createActivitiesTable(Connection connection) {
-    String sql = "CREATE TABLE activity " +
+  private String createActivitiesTable() {
+    return "CREATE TABLE activity " +
       "(id VARCHAR(255) not NULL, " +
       " name VARCHAR(255), " +
       " activity_type VARCHAR(255), " +
       " PRIMARY KEY ( id ))";
-    try {
-      Statement st = connection.createStatement();
-      st.executeQuery(sql);
-    } catch(SQLException e) {
-      e.printStackTrace();
-    }
   }
 
-  private void createProcessActivitiesTable(Connection connection) {
-    String sql = "CREATE TABLE process_activity " +
+  private String createProcessActivitiesTable() {
+    return "CREATE TABLE process_activity " +
       "(process_id VARCHAR(255) not NULL, " +
       " activity_id VARCHAR(255), " +
       " PRIMARY KEY ( process_id, activity_id ))";
-    try {
-      Statement st = connection.createStatement();
-      st.executeQuery(sql);
-    } catch(SQLException e) {
-      e.printStackTrace();
-    }
   }
 
-  private void createProcessInstancesTable(Connection connection) {
-    String sql = "CREATE TABLE process_instance " +
+  private String createProcessInstancesTable() {
+    return "CREATE TABLE process_instance " +
       "(id SERIAL, " +
       " process_instance_key BIGINT not NULL, " +
       " element_instance_key BIGINT not NULL, " +
@@ -168,32 +161,20 @@ public class DatabaseInitializer {
       " variables TEXT, " +
       " intent VARCHAR(255), " +
       " PRIMARY KEY ( id ))";
-    try {
-      Statement st = connection.createStatement();
-      st.executeQuery(sql);
-    } catch(SQLException e) {
-      e.printStackTrace();
-    }
   }
 
-  private void createBatchActivityConnectorTable(Connection connection) {
-    String sql = "CREATE TABLE batch_activity_connector " +
+  private String createBatchActivityConnectorTable() {
+    return "CREATE TABLE batch_activity_connector " +
       "(connector_id SERIAL not NULL, " +
       " active BOOLEAN, " +
       " validity TIMESTAMP, " +
       " activity_id VARCHAR(255), " +
       " batch_model_id INT, " +
       " PRIMARY KEY ( connector_id ))";
-    try {
-      Statement st = connection.createStatement();
-      st.executeQuery(sql);
-    } catch(SQLException e) {
-      e.printStackTrace();
-    }
   }
 
-  private void createBatchActivityConnectorConditionTable(Connection connection) {
-    String sql = "CREATE TABLE batch_activity_connector_condition " +
+  private String createBatchActivityConnectorConditionTable() {
+    return "CREATE TABLE batch_activity_connector_condition " +
       "(condition_id SERIAL not NULL, " +
       " connector_id INT, " +
       " field_name VARCHAR(255), " +
@@ -201,16 +182,10 @@ public class DatabaseInitializer {
       " compare_operator VARCHAR(255), " +
       " compare_value VARCHAR(255), " +
       " PRIMARY KEY ( condition_id ))";
-    try {
-      Statement st = connection.createStatement();
-      st.executeQuery(sql);
-    } catch(SQLException e) {
-      e.printStackTrace();
-    }
   }
 
-  private void createBatchModelTable(Connection connection) {
-    String sql = "CREATE TABLE batch_model " +
+  private String createBatchModelTable() {
+    return "CREATE TABLE batch_model " +
       "(batch_model_id SERIAL not NULL, " +
       " name VARCHAR(255), " +
       " max_batch_size INT, " +
@@ -219,53 +194,31 @@ public class DatabaseInitializer {
       " activation_threshold_time INT, " +
       " batch_executor_URI VARCHAR(255), " +
       " PRIMARY KEY ( batch_model_id ))";
-    try {
-      Statement st = connection.createStatement();
-      st.executeQuery(sql);
-    } catch(SQLException e) {
-      e.printStackTrace();
-    }
   }
 
-  private void createBatchModelGroupByTable(Connection connection) {
-    String sql = "CREATE TABLE batch_model_group_by " +
+  private String createBatchModelGroupByTable() {
+    return "CREATE TABLE batch_model_group_by " +
       "(group_by_id SERIAL not NULL, " +
       " batch_model_id INT, " +
       " field_name VARCHAR(255), " +
       " PRIMARY KEY ( group_by_id ))";
-    try {
-      Statement st = connection.createStatement();
-      st.executeQuery(sql);
-    } catch(SQLException e) {
-      e.printStackTrace();
-    }
   }
 
-  private void createBatchClusterTable(Connection connection) {
-    String sql = "CREATE TABLE batch_cluster " +
+  private String createBatchClusterTable() {
+    return "CREATE TABLE batch_cluster " +
       "(batch_cluster_id SERIAL not NULL, " +
       " batch_model_id INT, " +
       " created_at TIMESTAMP, " +
+      " state VARCHAR(255), " +
       " PRIMARY KEY ( batch_cluster_id ))";
-    try {
-      Statement st = connection.createStatement();
-      st.executeQuery(sql);
-    } catch(SQLException e) {
-      e.printStackTrace();
-    }
   }
 
 
-    private void createBatchClusterInstanceTable(Connection connection) {
-      String sql = "CREATE TABLE batch_cluster_instance " +
+    private String createBatchClusterInstanceTable() {
+      return "CREATE TABLE batch_cluster_instance " +
         " (batch_cluster_id INT, " +
+        " process_instance_id BIGINT, " +
         " process_instance_key BIGINT, " +
-        " PRIMARY KEY ( batch_cluster_id, process_instance_key ))";
-      try {
-        Statement st = connection.createStatement();
-        st.executeQuery(sql);
-      } catch(SQLException e) {
-        e.printStackTrace();
-      }
+        " PRIMARY KEY ( batch_cluster_id, process_instance_id ))";
     }
 }

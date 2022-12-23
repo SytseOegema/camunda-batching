@@ -12,17 +12,22 @@ import java.util.List;
 import java.util.Optional;
 import models.ProcessInstanceModel;
 import models.ProcessInstanceRepository;
+import models.BatchCluster.BatchClusterRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Singleton
 public class ProcessInstanceController extends Controller {
   private ProcessInstanceRepository repository;
+  private BatchClusterRepository batchClusterRepository;
   private ObjectMapper mapper;
   private String zeebeAddress = "zeebe:26500";
 
   @Inject
-  public ProcessInstanceController(ProcessInstanceRepository repository) {
+  public ProcessInstanceController(ProcessInstanceRepository repository,
+    BatchClusterRepository batchClusterRepository
+  ) {
     this.repository = repository;
+    this.batchClusterRepository = batchClusterRepository;
     this.mapper = new ObjectMapper();
   }
 
@@ -41,18 +46,18 @@ public class ProcessInstanceController extends Controller {
     });
   }
 
-  public CompletionStage<Result> resumeFlow(long processInstanceKey) {
+  public CompletionStage<Result> resumeFlow(int id) {
     return repository
-      .get(processInstanceKey)
+      .get(id)
       .thenApplyAsync(instance -> {
         if(instance.isPresent()) {
-          return resumeBatchActivityFlow(instance.get());
+          return resumeBatchActivityFlow(instance.get(), id);
         }
-        return internalServerError("Server error: could not get instance for processInstanceKey: " + processInstanceKey);
+        return internalServerError("Server error: could not get instance for process with id: " + id);
     });
   }
 
-  private Result resumeBatchActivityFlow(ProcessInstanceModel instance) {
+  private Result resumeBatchActivityFlow(ProcessInstanceModel instance, int id) {
     ZeebeClientBuilder clientBuilder = ZeebeClient.newClientBuilder()
       .gatewayAddress(zeebeAddress)
       .usePlaintext();
@@ -75,6 +80,8 @@ public class ProcessInstanceController extends Controller {
             instance.variables)
           .send()
           .join();
+
+      batchClusterRepository.removeInstanceFromCluster(id).toCompletableFuture().join();
 
       return ok(response.getSuccess());
     } catch (Exception e) {

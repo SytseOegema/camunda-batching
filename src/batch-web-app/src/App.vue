@@ -66,6 +66,7 @@ onMounted(() => {
   store.dispatch('getProcessInstances');
   store.dispatch('getBatchModels');
   store.dispatch('getBatchActivityConnectors');
+  store.dispatch('getBatchClusters');
 })
 
 </script>

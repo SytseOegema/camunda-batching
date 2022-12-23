@@ -13,7 +13,7 @@ POST     /processes     controllers.ProcessController.post(request: Request)
 POST     /processes/:id/create-instance     controllers.ProcessController.createInstance(id: String, request: Request)
 
 GET     /process-instances     controllers.ProcessInstanceController.get
-POST     /process-instances/:id/resume-flow     controllers.ProcessInstanceController.resumeFlow(id: Long)
+POST     /process-instances/:id/resume-flow     controllers.ProcessInstanceController.resumeFlow(id: Integer)
 
 GET /batch-activity-connectors controllers.BatchActivityConnectorController.get
 POST /batch-activity-connectors controllers.BatchActivityConnectorController.post(request: Request)
@@ -25,3 +25,5 @@ GET /batch-models controllers.BatchModelController.get
 POST /batch-models controllers.BatchModelController.post(request: Request)
 PUT /batch-models/:id controllers.BatchModelController.put(id: Integer, request: Request)
 DELETE /batch-models/:id controllers.BatchModelController.delete(id: Integer)
+
+GET /batch-clusters controllers.BatchClusterController.get

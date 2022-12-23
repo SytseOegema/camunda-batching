@@ -25,7 +25,7 @@
           <p class="va-h5">
             Finished Process Instances
           </p>
-          <ProcessInstanceComponent :instance="instance" v-for="instance in otherInstances" :key="instance.elementInstanceKey" />
+          <ProcessInstanceComponent :instance="otherInstanceFinalResult(instance.processInstanceKey)" v-for="instance in otherInstances" :key="instance.elementInstanceKey" />
         </div>
       </div>
     </va-card-content>
@@ -39,6 +39,7 @@
 
 <script setup>
 import ActivityComponent from "./ActivityComponent";
+import ProcessInstanceComponent from "./ProcessInstanceComponent.vue";
 import CreateProcessInstanceComponent from "./CreateProcessInstanceComponent";
 import { useStore } from "vuex";
 import { ref, computed, defineProps } from 'vue'
@@ -52,6 +53,16 @@ const store = useStore();
 
 const togleModal = () => {
   showModal.value = true;
+}
+
+const otherInstanceFinalResult = (processInstanceKey) => {
+  const data = store.getters["getProcessInstances"];
+  data.sort((a, b) => sortFunction(a, b));
+
+  return data.find((instance) => {
+    return instance.processInstanceKey == processInstanceKey
+    && instance.elementInstanceKey == processInstanceKey
+  });
 }
 
 const processInstances = computed(() => {

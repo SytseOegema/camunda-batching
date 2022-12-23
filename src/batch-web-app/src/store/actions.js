@@ -44,6 +44,20 @@ const actions = {
         return Promise.reject(error);
       });
   },
+  ResumeProcessInstance(context, elementInstanceKey) {
+    return axios({
+      method: 'post',
+      url: `${process.env.VUE_APP_BATCH_CONTROLLER_API}/process-instances/${elementInstanceKey}/resume-flow`,
+    })
+      .then(() => {
+        context.dispatch("getProcessInstances");
+        return Promise.resolve();
+      })
+      .catch((error) => {
+        alert(error);
+        return Promise.reject(error);
+      });
+  },
   createProcessInstance(context, payload) {
     return axios({
       method: 'post',
@@ -138,6 +152,20 @@ const actions = {
     })
       .then(() => {
         context.dispatch('getBatchActivityConnectors');
+        return Promise.resolve();
+      })
+      .catch((error) => {
+        alert(error);
+        return Promise.reject(error);
+      });
+  },
+  getBatchClusters(context) {
+    return axios({
+      method: 'get',
+      url: `${process.env.VUE_APP_BATCH_CONTROLLER_API}/batch-clusters`,
+    })
+      .then((response) => {
+        context.commit("setBatchClusters", response.data);
         return Promise.resolve();
       })
       .catch((error) => {

@@ -3,6 +3,9 @@
     <h3>
       Create Process
     </h3>
+    <p>
+      NOTE: the batch controller cannot handle process update. Each process must have a different Id.
+    </p>
     <div class="row">
 
       <va-input

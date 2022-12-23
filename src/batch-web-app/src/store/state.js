@@ -4,6 +4,7 @@ function state() {
     processInstances: [],
     batchModels: [],
     batchActivityConnectors: [],
+    batchClusters: [],
   }
 }
 

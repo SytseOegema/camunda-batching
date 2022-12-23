@@ -10,6 +10,9 @@ const getters = {
   },
   getBatchActivityConnectors(state) {
     return state.batchActivityConnectors;
+  },
+  getBatchClusters(state) {
+    return state.batchClusters;
   }
 };
 

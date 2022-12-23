@@ -89,6 +89,10 @@ public class ProcessRepository {
   }
 
   public CompletionStage<Void> add(ProcessDTO process) {
+    final String sqlSelect = "SELECT id"
+      + " FROM process"
+      + " WHERE id = '" + process.id + "';";
+
     final String sql = String.format(
       "INSERT INTO process (id, name) VALUES ('%s', '%s')",
       process.id, process.name
@@ -98,7 +102,15 @@ public class ProcessRepository {
       () -> {
         try {
           Connection connection = db.getConnection();
-          final Statement st = connection.createStatement();
+          Statement st = connection.createStatement();
+          ResultSet rs = st.executeQuery(sqlSelect);
+          System.out.println("Check select statemeent" + process.id + process.name);
+          if(rs.next()) {
+            System.out.println("Quit insert");
+            connection.close();
+            return;
+          }
+          st = connection.createStatement();
           st.executeUpdate(sql);
           addActivities(connection, process.activities);
           addProcessActivities(connection, process.activities, process.id);

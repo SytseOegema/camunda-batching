@@ -10,14 +10,17 @@ import java.util.List;
 // Basically builds the list of process instances inside a cluster.
 public class BatchClusterInstanceModel {
   public int batchClusterId;
+  public int processInstanceId;
   public long processInstanceKey;
   private ObjectMapper mapper;
 
   @JsonCreator
   public BatchClusterInstanceModel(
       @JsonProperty("batchClusterId") int batchClusterId,
+      @JsonProperty("processInstanceId") int processInstanceId,
       @JsonProperty("processInstanceKey") long processInstanceKey) {
     this.batchClusterId = batchClusterId;
+    this.processInstanceId = processInstanceId;
     this.processInstanceKey = processInstanceKey;
     this.mapper = new ObjectMapper();
   }
@@ -31,6 +34,7 @@ public class BatchClusterInstanceModel {
     }
     new BatchClusterInstanceModel(
       object.batchClusterId,
+      object.processInstanceId,
       object.processInstanceKey);
   }
 

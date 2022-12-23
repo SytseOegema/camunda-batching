@@ -3,8 +3,9 @@ package kafka;
 import play.mvc.*;
 import com.google.inject.AbstractModule;
 import io.camunda.batching.messaging.MessageConsumer;
-import io.camunda.batching.messaging.messages.ProcessInstanceDTO;
 import io.camunda.batching.messaging.messages.ActivityType;
+import io.camunda.batching.messaging.messages.ProcessInstanceDTO;
+import io.camunda.batching.messaging.messages.ProcessInstanceIntent;
 import io.camunda.batching.messaging.serialization.ProcessInstanceDeserializer;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Singleton;
@@ -13,11 +14,13 @@ import models.ProcessInstanceModel;
 import models.BatchActivityConnector.BatchActivityConnectorModel;
 import models.BatchActivityConnector.BatchActivityConnectorRepository;
 import models.BatchCluster.BatchClusterRepository;
+import models.BatchCluster.BatchClusterState;
 import models.BatchModel.BatchModelModel;
 import models.BatchModel.BatchModelRepository;
 import models.ProcessInstanceRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.ZeebeClientBuilder;
 import io.camunda.zeebe.client.api.response.ResumeBatchActivityResponse;
@@ -52,39 +55,58 @@ public class ProcessInstanceKafkaConsumer extends MessageConsumer<ProcessInstanc
 
   @Override
   public void handleMessage(ProcessInstanceDTO message) {
-    processInstanceRepository.add(message);
+    OptionalInt option = processInstanceRepository.add(message).toCompletableFuture().join();
+    int processInstanceId = 0;
+    if(option.isPresent()) {
+      processInstanceId = option.getAsInt();
+    } else {
+      logger.warn("Unable to store process instance in database.");
+      return;
+    }
 
     if (!isActivity(message)) {
       logger.info("not an activity");
       return;
     }
 
-    Boolean addedToCluster = false;
+    // determine if the instance should be added to a batch cluster or
+    // resume proceess flow.
+    if (message.intent == ProcessInstanceIntent.READY_ELEMENT) {
+      Boolean addedToCluster = false;
 
-    Optional<List<BatchActivityConnectorModel>> connectors =
+      Optional<List<BatchActivityConnectorModel>> connectors =
       batchActivityConnectorRepository.listByActivityId(message.elementId).join();
-    if (connectors.isPresent()) {
-      if (connectors.get().size() > 0) {
-        logger.info("connectors pressent");
-        addedToCluster = addInstanceToCluster(new ProcessInstanceModel(message), connectors.get());
+      if (connectors.isPresent()) {
+        if (connectors.get().size() > 0) {
+          logger.info("connectors pressent");
+          addedToCluster = addInstanceToCluster(processInstanceId, message.processInstanceKey, connectors.get());
+        }
+      } else {
+        logger.info("no connectors pressent");
+        resumeBatchActivityFlow(new ProcessInstanceModel(message));
       }
-    } else {
-      logger.info("no connectors pressent");
-      resumeBatchActivityFlow(new ProcessInstanceModel(message));
+
+      if (!addedToCluster) {
+        resumeBatchActivityFlow(new ProcessInstanceModel(message));
+      }
     }
 
-    if (!addedToCluster) {
-      resumeBatchActivityFlow(new ProcessInstanceModel(message));
-    }
   }
 
-  private Boolean addInstanceToCluster(ProcessInstanceModel instance, List<BatchActivityConnectorModel> connectors) {
+  private Boolean addInstanceToCluster(int instanceId, long processInstanceKey, List<BatchActivityConnectorModel> connectors) {
+    int batchModelId = 0;
     for (BatchActivityConnectorModel connector : connectors) {
-      logger.info("connector id:" + connector.connectorId);
-      logger.info("connector activityId:" + connector.activityId);
+      batchModelId = connector.batchModelId;
+      break;
     }
-    continueBatchActivityFlow(instance);
-    return true;
+    Optional<BatchModelModel> model = batchModelRepository.get(batchModelId).toCompletableFuture().join();
+    if(model.isPresent()) {
+      batchClusterRepository.addInstanceToCluster(model.get(), instanceId, processInstanceKey);
+      return true;
+    } else {
+      logger.error("Could not retrieve batch model from DB with id: " + batchModelId);
+      return false;
+    }
   }
 
   private boolean isActivity(ProcessInstanceDTO message) {

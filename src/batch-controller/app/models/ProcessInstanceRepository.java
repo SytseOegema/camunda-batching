@@ -11,6 +11,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -76,7 +77,7 @@ public class ProcessInstanceRepository {
     );
   }
 
-  public CompletionStage<Optional<ProcessInstanceModel>> get(long elementInstanceKey) {
+  public CompletionStage<Optional<ProcessInstanceModel>> get(int id) {
     final String sql = "SELECT "
       + "process_instance_key ,"
       + "element_instance_key ,"
@@ -89,7 +90,7 @@ public class ProcessInstanceRepository {
       + "variables, "
       + "intent "
       + " FROM process_instance"
-      + " WHERE element_instance_key = " + elementInstanceKey;
+      + " WHERE id = " + id;
 
     return CompletableFuture.supplyAsync(
       () -> {
@@ -123,8 +124,7 @@ public class ProcessInstanceRepository {
     );
   }
 
-  public CompletionStage<Void> add(ProcessInstanceDTO processInstance) {
-
+  public CompletionStage<OptionalInt> add(ProcessInstanceDTO processInstance) {
     System.out.println(processInstance.intent == null);
     System.out.println(processInstance.intent);
 
@@ -141,6 +141,8 @@ public class ProcessInstanceRepository {
     query += "variables, ";
     query += "intent ";
     query += ") VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')";
+    query += "RETURNING id";
+
     final String sql = String.format(
       query,
       processInstance.processInstanceKey,
@@ -155,18 +157,23 @@ public class ProcessInstanceRepository {
       processInstance.intent.getValue());
     System.out.println(sql);
 
-    return CompletableFuture.runAsync(
+    return CompletableFuture.supplyAsync(
       () -> {
         try {
           Connection connection = db.getConnection();
           final Statement st = connection.createStatement();
-          st.executeUpdate(sql);
+          ResultSet rs = st.executeQuery(sql);
+          while(rs.next()) {
+            OptionalInt result = OptionalInt.of(rs.getInt("id"));
+            connection.close();
+            return result;
+          }
           connection.close();
         } catch(SQLException e) {
           e.printStackTrace();
           System.out.println("Error: " + e.getSQLState());
         }
-        return;
+        return OptionalInt.empty();
       },
       executionContext
     );

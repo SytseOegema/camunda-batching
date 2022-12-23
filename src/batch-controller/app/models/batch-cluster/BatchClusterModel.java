@@ -10,6 +10,7 @@ public class BatchClusterModel {
   public int batchClusterId;
   public int batchModelId;
   public String createdAt;
+  public String state;
   public List<BatchClusterInstanceModel> instances;
   private ObjectMapper mapper;
 
@@ -18,11 +19,13 @@ public class BatchClusterModel {
       @JsonProperty("batchClusterId") int batchClusterId,
       @JsonProperty("batchModelId") int batchModelId,
       @JsonProperty("instances") List<BatchClusterInstanceModel> instances,
-      @JsonProperty("createdAt") String createdAt) {
+      @JsonProperty("createdAt") String createdAt,
+      @JsonProperty("state") String state) {
     this.batchClusterId = batchClusterId;
     this.batchModelId = batchModelId;
     this.createdAt = createdAt;
     this.instances = instances;
+    this.state = state;
     this.mapper = new ObjectMapper();
   }
 
@@ -37,7 +40,8 @@ public class BatchClusterModel {
       object.batchClusterId,
       object.batchModelId,
       object.instances,
-      object.createdAt);
+      object.createdAt,
+      object.state);
   }
 
   public String toJson() {
