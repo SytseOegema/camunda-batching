@@ -1,43 +1,30 @@
-package kafka;
+package workers;
 
-import models.ProcessInstanceModel;
-import models.BatchActivityConnector.BatchActivityConnectorModel;
-import models.BatchActivityConnector.BatchActivityConnectorRepository;
-import models.BatchCluster.BatchClusterRepository;
-import models.BatchModel.BatchModelModel;
-import models.BatchModel.BatchModelRepository;
-
-
+import play.db.*;
 import models.BatchCluster.BatchClusterState;
-
-
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.HashMap;
-import java.util.Optional;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 
 @Singleton
 public class BatchClusterActivatorWorker {
   private Database db;
-  pirvate Timer timer;
-  private BatchClusterActivatorExecutionContext executionContext;
+  private Timer timer;
+  private BatchClusterActivatorContext executionContext;
 
   @Inject
     public BatchClusterActivatorWorker(
       Database db,
-      BatchClusterActivatorExecutionContext executionContext
+      BatchClusterActivatorContext executionContext
     ) {
       this.db = db;
       this.executionContext = executionContext;
@@ -68,7 +55,7 @@ public class BatchClusterActivatorWorker {
 
     CompletableFuture.supplyAsync(
       () -> {
-        List<int> batchClusterIds = new ArrayList<int>();
+        List<Integer> batchClusterIds = new ArrayList<Integer>();
         try {
           Connection connection = db.getConnection();
           Statement st = connection.createStatement();
@@ -76,7 +63,7 @@ public class BatchClusterActivatorWorker {
 
           while(rs.next()) {
             if(rs.getInt("cluster_size") >= rs.getInt("max_batch_size")) {
-              batchClusterIds.push(rs.getInt("batchClusterId"));
+              batchClusterIds.add(rs.getInt("batchClusterId"));
               continue;
             }
 
@@ -91,8 +78,7 @@ public class BatchClusterActivatorWorker {
         return batchClusterIds;
       },
       executionContext
-    )
-      .thenApplyAsync(batchClusterIds -> // here must come the Invoker Static? class)
-
+    );
+      // .thenApplyAsync(batchClusterIds -> System.out.println("batchClusterIds"));
   }
 }

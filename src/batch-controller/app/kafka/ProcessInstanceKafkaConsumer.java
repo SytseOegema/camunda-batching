@@ -10,6 +10,8 @@ import io.camunda.batching.messaging.serialization.ProcessInstanceDeserializer;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Singleton;
 import javax.inject.Inject;
+import managers.ProcessInstanceActivityManager;
+import managers.ProcessInstanceFlowManager;
 import models.ProcessInstanceModel;
 import models.BatchActivityConnector.BatchActivityConnectorModel;
 import models.BatchActivityConnector.BatchActivityConnectorRepository;
@@ -21,9 +23,6 @@ import models.ProcessInstanceRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import io.camunda.zeebe.client.ZeebeClient;
-import io.camunda.zeebe.client.ZeebeClientBuilder;
-import io.camunda.zeebe.client.api.response.ResumeBatchActivityResponse;
 
 
 @Singleton
@@ -64,7 +63,7 @@ public class ProcessInstanceKafkaConsumer extends MessageConsumer<ProcessInstanc
       return;
     }
 
-    if (!isActivity(message)) {
+    if (!ProcessInstanceActivityManager.isActivity(message)) {
       logger.info("not an activity");
       return;
     }
@@ -75,119 +74,39 @@ public class ProcessInstanceKafkaConsumer extends MessageConsumer<ProcessInstanc
       Boolean addedToCluster = false;
 
       Optional<List<BatchActivityConnectorModel>> connectors =
-      batchActivityConnectorRepository.listByActivityId(message.elementId).join();
+        batchActivityConnectorRepository.listByActivityId(message.elementId).join();
       if (connectors.isPresent()) {
         if (connectors.get().size() > 0) {
           logger.info("connectors pressent");
-          addedToCluster = addInstanceToCluster(processInstanceId, message.processInstanceKey, connectors.get());
+          addedToCluster = addInstanceToCluster(processInstanceId, message, connectors.get());
         }
       } else {
         logger.info("no connectors pressent");
-        resumeBatchActivityFlow(new ProcessInstanceModel(message));
+        ProcessInstanceFlowManager.resumeBatchActivityFlow(new ProcessInstanceModel(message));
       }
 
       if (!addedToCluster) {
-        resumeBatchActivityFlow(new ProcessInstanceModel(message));
+        ProcessInstanceFlowManager.resumeBatchActivityFlow(new ProcessInstanceModel(message));
       }
     }
 
   }
 
-  private Boolean addInstanceToCluster(int instanceId, long processInstanceKey, List<BatchActivityConnectorModel> connectors) {
-    int batchModelId = 0;
+  private Boolean addInstanceToCluster(int instanceId, ProcessInstanceDTO processInstance, List<BatchActivityConnectorModel> connectors) {
     for (BatchActivityConnectorModel connector : connectors) {
-      batchModelId = connector.batchModelId;
-      break;
+      if (ProcessInstanceActivityManager
+        .instanceSatisfiesConnectorConditions(processInstance, connector)
+      ) {
+        Optional<BatchModelModel> model = batchModelRepository.get(connector.batchModelId).toCompletableFuture().join();
+        if(model.isPresent()) {
+          batchClusterRepository.addInstanceToCluster(model.get(), instanceId, processInstance.processInstanceKey);
+          return true;
+        } else {
+          logger.error("Could not retrieve batch model from DB with id: " + connector.batchModelId);
+          return false;
+        }
+      }
     }
-    Optional<BatchModelModel> model = batchModelRepository.get(batchModelId).toCompletableFuture().join();
-    if(model.isPresent()) {
-      batchClusterRepository.addInstanceToCluster(model.get(), instanceId, processInstanceKey);
-      return true;
-    } else {
-      logger.error("Could not retrieve batch model from DB with id: " + batchModelId);
-      return false;
-    }
-  }
-
-  private boolean isActivity(ProcessInstanceDTO message) {
-    boolean result = false;
-    switch (message.elementType) {
-      case SERVICE_TASK:
-        result = true;
-        break;
-      case RECEIVE_TASK:
-        result = true;
-        break;
-      case USER_TASK:
-        result = true;
-        break;
-      case MANUAL_TASK:
-        result = true;
-        break;
-      default:
-        result = false;
-        break;
-    }
-    return result;
-  }
-
-  private void resumeBatchActivityFlow(ProcessInstanceModel instance) {
-    logger.info("resumeBatchActivityFlow - dus nu uitvoeren");
-    ZeebeClientBuilder clientBuilder = ZeebeClient.newClientBuilder()
-      .gatewayAddress("zeebe:26500")
-      .usePlaintext();
-
-    try (final ZeebeClient client = clientBuilder.build()) {
-
-      final ResumeBatchActivityResponse response =
-        client
-          .newResumeBatchActivityCommand()
-          .isBatchExecuted(false)
-          .addProcessInstance(
-            instance.processInstanceKey,
-            instance.elementInstanceKey,
-            instance.bpmnProcessId,
-            instance.processVersion,
-            instance.processDefinitionKey,
-            instance.elementId,
-            instance.elementType,
-            instance.flowScopeKey,
-            instance.variables)
-          .send()
-          .join();
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void continueBatchActivityFlow(ProcessInstanceModel instance) {
-    logger.info("continueBatchActivityFlow - dus nu overgeslagen");
-    ZeebeClientBuilder clientBuilder = ZeebeClient.newClientBuilder()
-      .gatewayAddress("zeebe:26500")
-      .usePlaintext();
-
-    try (final ZeebeClient client = clientBuilder.build()) {
-
-      final ResumeBatchActivityResponse response =
-        client
-          .newResumeBatchActivityCommand()
-          .isBatchExecuted(true)
-          .addProcessInstance(
-            instance.processInstanceKey,
-            instance.elementInstanceKey,
-            instance.bpmnProcessId,
-            instance.processVersion,
-            instance.processDefinitionKey,
-            instance.elementId,
-            instance.elementType,
-            instance.flowScopeKey,
-            instance.variables)
-          .send()
-          .join();
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    return false;
   }
 }

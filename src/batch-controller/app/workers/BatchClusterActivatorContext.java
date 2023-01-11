@@ -6,11 +6,11 @@ import play.libs.concurrent.CustomExecutionContext;
 import javax.inject.Inject;
 
 /**
- * Custom execution context wired to "database.dispatcher" thread pool
+ * Custom execution context wired to "kafka.processInstance.consumer" thread pool
  */
-public class BatchClusterActivatorExecutionContext extends CustomExecutionContext {
+public class BatchClusterActivatorContext extends CustomExecutionContext {
     @Inject
-    public BatchClusterActivatorExecutionContext(ActorSystem actorSystem) {
+    public BatchClusterActivatorContext(ActorSystem actorSystem) {
         super(actorSystem, "kafka.processInstance.consumer");
     }
 }

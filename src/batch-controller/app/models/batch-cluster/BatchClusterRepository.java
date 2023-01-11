@@ -139,7 +139,6 @@ public class BatchClusterRepository {
         try {
           Connection connection = db.getConnection();
           int batchClusterId = getBachClusterId(connection, model);
-          System.out.println("goh id: " + batchClusterId);
           String sql = String.format(query,
             batchClusterId,
             processInstanceId,
@@ -186,7 +185,7 @@ public class BatchClusterRepository {
       + "COUNT(batch_cluster_instance.process_instance_id) as cluster_size, "
       + "created_at "
       + " FROM batch_cluster"
-      + " JOIN batch_cluster_instance"
+      + " FULL JOIN batch_cluster_instance"
       + " ON batch_cluster_instance.batch_cluster_id = batch_cluster.batch_cluster_id"
       + " WHERE batch_model_id = %d AND batch_cluster.state = '%s'"
       + " GROUP BY batch_cluster.batch_cluster_id"
@@ -202,7 +201,6 @@ public class BatchClusterRepository {
 
     try {
       Statement st = connection.createStatement();
-      System.out.println(String.format(searchQuery, model.batchModelId, BatchClusterState.READY.getStateName()));
       ResultSet rs = st.executeQuery(String.format(searchQuery, model.batchModelId, BatchClusterState.READY.getStateName()));
       while(rs.next()) {
         if(rs.getInt("cluster_size") < model.maxBatchSize) {
@@ -210,8 +208,8 @@ public class BatchClusterRepository {
         }
       }
 
-      System.out.println(String.format(createQuery, model.batchModelId, new Timestamp(System.currentTimeMillis()).toString(), BatchClusterState.READY.getStateName()));
       rs = st.executeQuery(String.format(createQuery, model.batchModelId, new Timestamp(System.currentTimeMillis()).toString(), BatchClusterState.READY.getStateName()));
+
       while(rs.next()) {
         return rs.getInt("batch_cluster_id");
       }

@@ -12,7 +12,8 @@ scalaVersion := "2.13.10"
 libraryDependencies += guice
 libraryDependencies += "batching.extension" % "messaging-package" % "1.0" exclude ("com.fasterxml.jackson.core", "jackson-databind")
 libraryDependencies += "io.camunda" % "zeebe-client-java" % "8.1.0-extension-local" exclude ("com.fasterxml.jackson.core", "jackson-databind")
-
+// https://mvnrepository.com/artifact/com.google.code.gson/gson
+libraryDependencies += "com.google.code.gson" % "gson" % "2.10.1"
 // https://mvnrepository.com/artifact/org.postgresql/postgresql
 libraryDependencies += "org.postgresql" % "postgresql" % "42.5.0"
 

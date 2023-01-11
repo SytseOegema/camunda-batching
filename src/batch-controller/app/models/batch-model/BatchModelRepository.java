@@ -119,6 +119,7 @@ public class BatchModelRepository {
           BatchModelModel model;
           while(rs.next()) {
             int id = rs.getInt("batch_model_id");
+
             if(map.containsKey(id)) {
               model = map.get(id);
             } else {
@@ -189,7 +190,6 @@ public class BatchModelRepository {
           return true;
         } catch(SQLException e) {
           e.printStackTrace();
-          System.out.println("Error: " + e.getSQLState());
         }
         return false;
       },
@@ -198,6 +198,9 @@ public class BatchModelRepository {
   }
 
   private void addGroupBy(Connection connection, int batchModelId, List<String> fieldNames) {
+    if (fieldNames.size() == 0) {
+      return;
+    }
     String sql = "INSERT INTO batch_model_group_by (";
     sql += "batch_model_id, field_name) VALUES ";
     String values = "('%d','%s')";

@@ -210,6 +210,9 @@ public class BatchActivityConnectorRepository {
   }
 
   private void addConditions(Connection connection, int connectorId, List<BatchActivityConnectorConditionModel> conditions) {
+    if (conditions.size() == 0) {
+      return;
+    }
     String sql = "INSERT INTO batch_activity_connector_condition (";
     sql += "connector_id, field_name, field_type, compare_operator, compare_value) VALUES ";
     String values = "('%d','%s', '%s', '%s', '%s')";
