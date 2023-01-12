@@ -30,6 +30,7 @@ public final class ResumeBatchActivity {
 
         System.out.println("Creating process instance");
 
+
         final ResumeBatchActivityResponse response =
         client
         .newResumeBatchActivityCommand()
@@ -43,7 +44,7 @@ public final class ResumeBatchActivity {
           elementId,
           bpmnElementType,
           flowScopeKey,
-          "{}"
+          "{\"test\": \"Sytse waarde\"}"
         )
         .send()
         .join();

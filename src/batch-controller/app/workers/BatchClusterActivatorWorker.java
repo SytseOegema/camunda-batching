@@ -2,6 +2,7 @@ package workers;
 
 import play.db.*;
 import models.BatchCluster.BatchClusterState;
+import models.ProcessInstanceModel;
 import java.util.concurrent.CompletableFuture;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,21 +14,27 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class BatchClusterActivatorWorker {
   private Database db;
   private Timer timer;
   private BatchClusterActivatorContext executionContext;
+  private BatchClusterInvoker invoker;
+  private Logger logger = LoggerFactory.getLogger("BatchClusterActivatorWorker");
+
 
   @Inject
     public BatchClusterActivatorWorker(
       Database db,
-      BatchClusterActivatorContext executionContext
+      BatchClusterActivatorContext executionContext,
+      BatchClusterInvoker invoker
     ) {
       this.db = db;
       this.executionContext = executionContext;
+      this.invoker = invoker;
       this.timer = new Timer();
 
       // run function every 60 seconds
@@ -39,6 +46,7 @@ public class BatchClusterActivatorWorker {
   }
 
   private void checkClusters() {
+    logger.info("checkClusters()");
       final String searchQuery = "SELECT "
         + "batch_cluster.batch_cluster_id, "
         + "batch_cluster.created_at, "
@@ -51,19 +59,28 @@ public class BatchClusterActivatorWorker {
         + " JOIN batch_model"
         + " ON batch_model.batch_model_id = batch_cluster.batch_model_id"
         + " WHERE batch_cluster.state = '%s'"
-        + " GROUP BY batch_cluster.batch_cluster_id";
+        + " GROUP BY batch_cluster.batch_cluster_id, batch_model.max_batch_size, batch_model.activation_threshold_time";
 
-    CompletableFuture.supplyAsync(
+    try {
+      logger.info("try");
+      System.out.println("I'll run in a separate thread than the main thread. wiew");
+
+      CompletableFuture.supplyAsync(
       () -> {
+        System.out.println("CompletableFuture");
+        System.out.println("I'll run in a separate thread than the main thread.");
         List<Integer> batchClusterIds = new ArrayList<Integer>();
         try {
+          System.out.println("try{}");
           Connection connection = db.getConnection();
           Statement st = connection.createStatement();
           ResultSet rs = st.executeQuery(String.format(searchQuery, BatchClusterState.READY.getStateName()));
-
+          System.out.println(String.format(searchQuery, BatchClusterState.READY.getStateName()));
           while(rs.next()) {
+            System.out.println("got result");
             if(rs.getInt("cluster_size") >= rs.getInt("max_batch_size")) {
-              batchClusterIds.add(rs.getInt("batchClusterId"));
+              System.out.println("now add batch cluster id" + rs.getInt("batch_cluster_id"));
+              batchClusterIds.add(rs.getInt("batch_cluster_id"));
               continue;
             }
 
@@ -75,10 +92,13 @@ public class BatchClusterActivatorWorker {
         } catch(SQLException e) {
           e.printStackTrace();
         }
+        System.out.println("nu naar volgende stage.");
         return batchClusterIds;
-      },
-      executionContext
-    );
-      // .thenApplyAsync(batchClusterIds -> System.out.println("batchClusterIds"));
+      }).thenCompose(invoker::invokeBatchCluster).get();
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.info("lekker een catch.");
+    }
+    logger.info("einde.");
   }
 }

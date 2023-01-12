@@ -77,7 +77,7 @@ const data = ref({
   executeParallel: executeParallelOptions[1],
   activationThresholdCases: 2,
   activationThresholdTime: 360,
-  batchExecutorURI: "",
+  batchExecutorURI: "https://openwhisk_apigateway_1/api/v1/web/guest/test/",
   groupBy: [],
 });
 

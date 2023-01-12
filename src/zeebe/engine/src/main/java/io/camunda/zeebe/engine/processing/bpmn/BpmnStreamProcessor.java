@@ -121,6 +121,7 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
         MsgPackConverter.convertToJson(
             variableState.getVariablesAsDocument(context.getFlowScopeKey()));
     messageProducer.produceMessage(context, variables, intent);
+    LOGGER.info("variables: " + variables);
 
     switch (intent) {
       case ACTIVATE_ELEMENT:

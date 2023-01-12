@@ -3,6 +3,7 @@ package managers;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 import io.camunda.batching.messaging.messages.ActivityType;
 import io.camunda.batching.messaging.messages.ProcessInstanceDTO;
 import models.BatchActivityConnector.BatchActivityConnectorModel;
@@ -175,5 +176,16 @@ public class ProcessInstanceActivityManager {
         break;
     }
     return result;
+  }
+
+  public static String updateVariables(String variables, String faasReply) {
+    JsonObject variablesObject = new JsonParser().parse(variables).getAsJsonObject();
+    JsonObject replyObject = new JsonParser().parse(faasReply).getAsJsonObject();
+
+    variablesObject.addProperty("myProperty", replyObject.get("result").getAsString());
+
+    Gson gson = new Gson();
+    System.out.println(gson.toJson(variablesObject));
+    return gson.toJson(variablesObject);
   }
 }

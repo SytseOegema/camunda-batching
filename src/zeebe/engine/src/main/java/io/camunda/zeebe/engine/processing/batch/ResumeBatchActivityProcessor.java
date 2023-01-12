@@ -93,6 +93,7 @@ public final class ResumeBatchActivityProcessor
         logger.info("instance key: " + instance.getElementInstanceKey());
         logger.info("element id: " + instance.getElementId());
         logger.info("is batch executed: " + record.getIsBatchExecuted());
+        logger.info("variables: " + bufferAsString(instance.getVariablesBuffer()));
 
         getProcess(instance)
             .ifRightOrLeft(

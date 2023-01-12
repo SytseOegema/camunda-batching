@@ -7,6 +7,7 @@
  */
 package io.camunda.zeebe.gateway;
 
+import static io.camunda.zeebe.util.buffer.BufferUtil.bufferAsString;
 import static org.agrona.LangUtil.rethrowUnchecked;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -46,6 +47,8 @@ import io.camunda.zeebe.msgpack.value.DocumentValue;
 import io.camunda.zeebe.protocol.impl.encoding.MsgPackConverter;
 import org.agrona.DirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class RequestMapper {
 
@@ -54,7 +57,11 @@ public final class RequestMapper {
     final BrokerResumeBatchActivityRequest brokerRequest = new BrokerResumeBatchActivityRequest();
     brokerRequest.setIsBatchExecuted(grpcRequest.getIsBatchExecuted());
 
+    final Logger logger = LoggerFactory.getLogger("requestMapper");
     for (final ProcessInstance instance : grpcRequest.getProcessInstancesList()) {
+      logger.info("instance!");
+      logger.info(instance.getVariables());
+      logger.info(bufferAsString(ensureJsonSet(instance.getVariables())));
       brokerRequest.addProcessInstance(
           instance.getProcessInstanceKey(),
           instance.getElementInstanceKey(),

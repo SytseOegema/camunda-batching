@@ -43,6 +43,7 @@ public final class ResumeBatchActivityRecord extends UnifiedRecordValue
       copiedInstance.setElementId(instance.getElementId());
       copiedInstance.setBpmnElementType(instance.getBpmnElementTypeDescription());
       copiedInstance.setFlowScopeKey(instance.getFlowScopeKey());
+      copiedInstance.setVariables(instance.getVariablesBuffer());
       list.add(copiedInstance);
     }
 

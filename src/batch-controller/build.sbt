@@ -16,6 +16,8 @@ libraryDependencies += "io.camunda" % "zeebe-client-java" % "8.1.0-extension-loc
 libraryDependencies += "com.google.code.gson" % "gson" % "2.10.1"
 // https://mvnrepository.com/artifact/org.postgresql/postgresql
 libraryDependencies += "org.postgresql" % "postgresql" % "42.5.0"
+// https://mvnrepository.com/artifact/com.konghq/unirest-java
+libraryDependencies += "com.konghq" % "unirest-java" % "3.14.1"
 
 libraryDependencies ++= Seq(
 javaJdbc
