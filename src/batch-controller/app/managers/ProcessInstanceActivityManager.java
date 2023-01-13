@@ -9,6 +9,7 @@ import io.camunda.batching.messaging.messages.ProcessInstanceDTO;
 import models.BatchActivityConnector.BatchActivityConnectorModel;
 import models.BatchActivityConnector.BatchActivityConnectorConditionModel;
 import models.ProcessInstanceModel;
+import java.util.Map;
 
 public class ProcessInstanceActivityManager {
   public static boolean instanceSatisfiesConnectorConditions(ProcessInstanceDTO instance, BatchActivityConnectorModel connector) {
@@ -182,7 +183,11 @@ public class ProcessInstanceActivityManager {
     JsonObject variablesObject = new JsonParser().parse(variables).getAsJsonObject();
     JsonObject replyObject = new JsonParser().parse(faasReply).getAsJsonObject();
 
-    variablesObject.addProperty("myProperty", replyObject.get("result").getAsString());
+
+    for (Map.Entry<String, JsonElement> entry : replyObject.entrySet()) {
+      System.out.println(entry.getKey() + "/" + entry.getValue());
+      variablesObject.addProperty(entry.getKey(), entry.getValue().getAsString());
+    }
 
     Gson gson = new Gson();
     System.out.println(gson.toJson(variablesObject));

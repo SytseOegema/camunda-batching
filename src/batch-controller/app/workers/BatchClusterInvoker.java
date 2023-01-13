@@ -37,9 +37,9 @@ public class BatchClusterInvoker {
       this.executionContext = executionContext;
   }
 
-  public CompletableFuture<Void> invokeBatchCluster(List<Integer> batchClusterIds) {
+  public CompletableFuture<List<Integer>> invokeBatchCluster(List<Integer> batchClusterIds) {
     if (batchClusterIds.size() == 0) {
-      return CompletableFuture.completedFuture(null);
+      return CompletableFuture.completedFuture(batchClusterIds);
     }
     int batchClusterId = batchClusterIds.get(0);
     final String sql = "SELECT "
@@ -65,7 +65,7 @@ public class BatchClusterInvoker {
       + " ON batch_cluster.batch_model_id = batch_model.batch_model_id"
       + " WHERE batch_cluster.batch_cluster_id = %d";
 
-    return CompletableFuture.runAsync(
+    return CompletableFuture.supplyAsync(
       () -> {
         try {
           Connection connection = db.getConnection();
@@ -112,17 +112,63 @@ public class BatchClusterInvoker {
 
 
             process.variables = ProcessInstanceActivityManager
-              .updateVariables(process.variables, "{\"result\":\"mooi\"}");
+              .updateVariables(process.variables,
+                "{\"result\":\"mooi\",\"eten\":\"Sla\"}");
 
             logger.info("process.variables");
             logger.info(process.variables);
             ProcessInstanceFlowManager.continueBatchActivityFlow(process);
           }
+          logger.info(processes.get(0).variables);
         } catch(SQLException e) {
           e.printStackTrace();
         }
+        return batchClusterIds;
       },
       executionContext
     );
   }
+
+  public CompletableFuture<List<Integer>> updateStateToExecuting(List<Integer> ids) {
+    return updateStates(ids, BatchClusterState.EXECUTING.getStateName());
+  }
+
+  public CompletableFuture<List<Integer>> updateStateToFinished(List<Integer> ids) {
+    return updateStates(ids, BatchClusterState.FINISHED.getStateName());
+  }
+
+  private CompletableFuture<List<Integer>> updateStates(List<Integer> ids, String state) {
+    if (ids.size() == 0) {
+      return CompletableFuture.completedFuture(ids);
+    }
+    String query = "UPDATE batch_cluster ";
+    query += "SET state = '%s' ";
+    query += "WHERE batch_cluster_id in (";
+    for (int id : ids) {
+      query += String.valueOf(id) + ",";
+    }
+    query = query.substring(0, query.length() - 1);
+    query += ")";
+
+    final String sql = String.format(query, state);
+    logger.info(sql);
+
+    return CompletableFuture.supplyAsync(
+      () -> {
+        try {
+          Connection connection = db.getConnection();
+          final Statement st = connection.createStatement();
+          st.executeUpdate(sql);
+          connection.close();
+          return ids;
+        } catch(SQLException e) {
+          e.printStackTrace();
+          System.out.println("Error: " + e.getSQLState());
+        }
+        return ids;
+      },
+      executionContext
+    );
+  }
+
 }
