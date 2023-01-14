@@ -8,16 +8,33 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 public class MyFunction {
     public static JsonObject main(JsonObject args){
-        String testVariable;
+        String foodPreference;
+        String[] menu = {"Chicken", "Salmon", "Mushroom thingy"};
 
         try {
-            testVariable = args.getAsJsonPrimitive("testVariable").getAsString();
+            foodPreference = args.getAsJsonPrimitive("foodPreference").getAsString();
         } catch(Exception e) {
-            testVariable = "Unable to get testVariable from request body";
+            foodPreference = "random";
         }
 
+
+        String foodOrder = menu[0];
         JsonObject response = new JsonObject();
-        response.addProperty("result", "Able to read tesetvariable: " + testVariable + "!");
+        switch (foodPreference) {
+          case "random":
+             foodOrder = menu[ThreadLocalRandom.current().nextInt(min, max + 1)];
+             break;
+          case "meat":
+            foodOrder = menu[0];
+            break;
+           case "fish":
+             foodOrder = menu[0];
+             break;
+          default:
+            foodOrder = menu[ThreadLocalRandom.current().nextInt(min, max + 1)];
+            break;
+        }
+        response.addProperty("foodOrder", foodOrder);
         return response;
     }
 }

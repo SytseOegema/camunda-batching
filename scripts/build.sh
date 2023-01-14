@@ -9,7 +9,8 @@ echo " [2]: Zeebe docker image"
 echo " [3]: messaging package"
 echo " [4]: Zeebe FaaS connector"
 echo " [5]: Local Zeebe client package"
-echo " [6]: Zeebe + local client package + messaging package + FaaS connector"
+echo " [6]: Batch Web App"
+echo " [7]: Zeebe + local client package + messaging package + FaaS connector"
 
 echo "NOTE: 1 & 2 depend on 3. Also different java versions are required for building the complete project."
 printf "\n"
@@ -47,7 +48,15 @@ if [[ "$choice" ==  "5" ]]; then
   cd ..
 fi
 
+
 if [[ "$choice" ==  "6" ]]; then
+  cd build
+  ./batchWebApp.sh
+  cd ..
+fi
+
+
+if [[ "$choice" ==  "7" ]]; then
   echo "----------------------- Building Zeebe Client Package -----------------------"
   cd build
   ./zeebeClient.sh

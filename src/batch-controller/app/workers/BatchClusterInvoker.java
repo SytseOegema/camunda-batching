@@ -145,20 +145,16 @@ public class BatchClusterInvoker {
 
   private List<ProcessInstanceModel> executeBatch(List<ProcessInstanceModel> processes, String executorURI) {
     for (ProcessInstanceModel process: processes) {
-        // Unirest.config().verifySsl(false);
-        // HttpResponse<String> response = Unirest.post(executorURI)
-        //   .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
-        //   .header("Content-Type", "application/json")
-        //   .body(process.variables)
-        //   .asString();
-        //
-        // logger.info(response.getBody());
-        // process.variables = ProcessInstanceActivityManager
-        //   .updateVariables(process.variables, response.getBody());
+        Unirest.config().verifySsl(false);
+        HttpResponse<String> response = Unirest.post(executorURI)
+          .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
+          .header("Content-Type", "application/json")
+          .body(process.variables)
+          .asString();
 
+        logger.info(response.getBody());
         process.variables = ProcessInstanceActivityManager
-          .updateVariables(process.variables,
-        "{\"result\":\"mooi\",\"eten\":\"Sla\"}");
+          .updateVariables(process.variables, response.getBody());
     }
     return processes;
   }
