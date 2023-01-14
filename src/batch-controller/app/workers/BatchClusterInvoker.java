@@ -8,6 +8,7 @@ import models.ProcessInstanceModel;
 import java.util.concurrent.CompletableFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.sql.Connection;
@@ -37,11 +38,42 @@ public class BatchClusterInvoker {
       this.executionContext = executionContext;
   }
 
-  public CompletableFuture<List<Integer>> invokeBatchCluster(List<Integer> batchClusterIds) {
-    if (batchClusterIds.size() == 0) {
-      return CompletableFuture.completedFuture(batchClusterIds);
-    }
-    int batchClusterId = batchClusterIds.get(0);
+  public CompletableFuture<Void> invokeBatchClusters(Map<String, List<Integer>> map) {
+    // CompletableFuture<Boolean> futureExecute =
+    //   CompletableFuture.completedFuture(null);
+    // if(map.containsKey(BatchClusterState.EXECUTING.getStateName())) {
+    //   futureExecute = invokeBatchClusters(
+    //     BatchClusterState.EXECUTING.getStateName(),
+    //     map.get(BatchClusterState.EXECUTING.getStateName())
+    //   );
+    // }
+    //
+    // CompletableFuture<Boolean> futureResume =
+    //   CompletableFuture.completedFuture(null);
+    // if(map.containsKey(BatchClusterState.RESUMING.getStateName())) {
+    //   futureResume = invokeBatchClusters(
+    //     BatchClusterState.RESUMING.getStateName(),
+    //     map.get(BatchClusterState.RESUMING.getStateName())
+    //   );
+    // }
+
+    return CompletableFuture.runAsync(() -> {
+      logger.info("starting future of invokeBatchClustersssssss");
+      for (Map.Entry<String, List<Integer>> entry : map.entrySet()) {
+        if(entry.getKey() == BatchClusterState.EXECUTING.getStateName()) {
+          for (int id : entry.getValue()) {
+            invokeBatchCluster(id, true).thenApply(this::updateStateToFinished);
+          }
+        } else if(entry.getKey() == BatchClusterState.RESUMING.getStateName()) {
+          for (int id : entry.getValue()) {
+            invokeBatchCluster(id, false).thenApply(this::updateStateToResumed);
+          }
+        }
+      }
+    });
+  }
+
+  public CompletableFuture<Integer> invokeBatchCluster(int batchClusterId, boolean isBatchExecution) {
     final String sql = "SELECT "
       + "process_instance.process_instance_key ,"
       + "process_instance.element_instance_key ,"
@@ -67,6 +99,7 @@ public class BatchClusterInvoker {
 
     return CompletableFuture.supplyAsync(
       () -> {
+        logger.info("starting future of BatchCluster");
         try {
           Connection connection = db.getConnection();
           Statement st = connection.createStatement();
@@ -75,72 +108,125 @@ public class BatchClusterInvoker {
           List<ProcessInstanceModel> processes = new ArrayList<ProcessInstanceModel>();
           while(rs.next()) {
             processes.add(
-              new ProcessInstanceModel(
-                rs.getLong("process_instance_key"),
-                rs.getLong("element_instance_key"),
-                rs.getString("bpmn_process_id"),
-                rs.getInt("process_version"),
-                rs.getLong("process_definition_key"),
-                rs.getString("element_id"),
-                rs.getString("element_type"),
-                rs.getLong("flow_scope_key"),
-                rs.getString("variables"),
-                rs.getString("intent"))
+            new ProcessInstanceModel(
+            rs.getLong("process_instance_key"),
+            rs.getLong("element_instance_key"),
+            rs.getString("bpmn_process_id"),
+            rs.getInt("process_version"),
+            rs.getLong("process_definition_key"),
+            rs.getString("element_id"),
+            rs.getString("element_type"),
+            rs.getLong("flow_scope_key"),
+            rs.getString("variables"),
+            rs.getString("intent"))
             );
           }
 
           String executorURI = "";
-          rs = st.executeQuery(String.format(sql2, batchClusterId));
-          while(rs.next()) {
-            executorURI = rs.getString("batch_executor_URI");
+          if (isBatchExecution) {
+            rs = st.executeQuery(String.format(sql2, batchClusterId));
+            while(rs.next()) {
+              executorURI = rs.getString("batch_executor_URI");
+            }
+            processes = executeBatch(processes, executorURI);
+            ProcessInstanceFlowManager.continueBatchActivityFlow(processes);
+          } else {
+            ProcessInstanceFlowManager.resumeBatchActivityFlow(processes);
           }
           connection.close();
-
-          logger.info("before loop!");
-          for (ProcessInstanceModel process: processes) {
-            logger.info("go with process instance " + process.processInstanceKey);
-            // Unirest.config().verifySsl(false);
-            // HttpResponse<String> response = Unirest.post(executorURI)
-            //   .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
-            //   .header("Content-Type", "application/json")
-            //   .body(process.variables)
-            //   .asString();
-            //
-            // logger.info(response.getBody());
-            // process.variables = ProcessInstanceActivityManager
-            //   .updateVariables(process.variables, response.getBody());
-
-
-            process.variables = ProcessInstanceActivityManager
-              .updateVariables(process.variables,
-                "{\"result\":\"mooi\",\"eten\":\"Sla\"}");
-
-            logger.info("process.variables");
-            logger.info(process.variables);
-            ProcessInstanceFlowManager.continueBatchActivityFlow(process);
-          }
-          logger.info(processes.get(0).variables);
         } catch(SQLException e) {
           e.printStackTrace();
         }
-        return batchClusterIds;
+        return batchClusterId;
       },
       executionContext
     );
   }
 
-  public CompletableFuture<List<Integer>> updateStateToExecuting(List<Integer> ids) {
-    return updateStates(ids, BatchClusterState.EXECUTING.getStateName());
-  }
+  private List<ProcessInstanceModel> executeBatch(List<ProcessInstanceModel> processes, String executorURI) {
+    for (ProcessInstanceModel process: processes) {
+        // Unirest.config().verifySsl(false);
+        // HttpResponse<String> response = Unirest.post(executorURI)
+        //   .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
+        //   .header("Content-Type", "application/json")
+        //   .body(process.variables)
+        //   .asString();
+        //
+        // logger.info(response.getBody());
+        // process.variables = ProcessInstanceActivityManager
+        //   .updateVariables(process.variables, response.getBody());
 
-  public CompletableFuture<List<Integer>> updateStateToFinished(List<Integer> ids) {
-    return updateStates(ids, BatchClusterState.FINISHED.getStateName());
-  }
-
-  private CompletableFuture<List<Integer>> updateStates(List<Integer> ids, String state) {
-    if (ids.size() == 0) {
-      return CompletableFuture.completedFuture(ids);
+        process.variables = ProcessInstanceActivityManager
+          .updateVariables(process.variables,
+        "{\"result\":\"mooi\",\"eten\":\"Sla\"}");
     }
+    return processes;
+  }
+
+  public CompletableFuture<Map<String, List<Integer>>> updateStates(Map<String, List<Integer>> map) {
+    List<String> queries = new ArrayList<String>();
+    for (Map.Entry<String, List<Integer>> entry : map.entrySet()) {
+      if (entry.getValue().size() > 0) {
+        queries.add(constructStateQuery(entry.getKey(), entry.getValue()));
+      }
+    }
+
+    if (queries.size() == 0) {
+      return CompletableFuture.completedFuture(map);
+    }
+
+    return CompletableFuture.supplyAsync(
+      () -> {
+        try {
+          Connection connection = db.getConnection();
+          final Statement st = connection.createStatement();
+          for (String sql : queries) {
+            logger.info(sql);
+            st.executeUpdate(sql);
+          }
+          connection.close();
+        } catch(SQLException e) {
+          e.printStackTrace();
+          System.out.println("Error: " + e.getSQLState());
+        }
+        return map;
+      },
+      executionContext
+    );
+  }
+
+  private CompletableFuture<Void> updateStateToFinished(int batchClusterId) {
+    return updateStates(BatchClusterState.FINISHED.getStateName(), batchClusterId);
+  }
+
+  private CompletableFuture<Void> updateStateToResumed(int batchClusterId) {
+    return updateStates(BatchClusterState.RESUMED.getStateName(), batchClusterId);
+  }
+
+  private CompletableFuture<Void> updateStates(String state, int batchClusterId) {
+    logger.info("updateStates - " + state);
+    List<Integer> list = new ArrayList<Integer>();
+    list.add(batchClusterId);
+    final String sql = constructStateQuery(state, list);
+
+    return CompletableFuture.runAsync(
+      () -> {
+        try {
+          Connection connection = db.getConnection();
+          final Statement st = connection.createStatement();
+          logger.info(sql);
+          st.executeUpdate(sql);
+          connection.close();
+        } catch(SQLException e) {
+          e.printStackTrace();
+          System.out.println("Error: " + e.getSQLState());
+        }
+      },
+      executionContext
+    );
+  }
+
+  private String constructStateQuery(String state, List<Integer> ids) {
     String query = "UPDATE batch_cluster ";
     query += "SET state = '%s' ";
     query += "WHERE batch_cluster_id in (";
@@ -150,25 +236,7 @@ public class BatchClusterInvoker {
     query = query.substring(0, query.length() - 1);
     query += ")";
 
-    final String sql = String.format(query, state);
-    logger.info(sql);
-
-    return CompletableFuture.supplyAsync(
-      () -> {
-        try {
-          Connection connection = db.getConnection();
-          final Statement st = connection.createStatement();
-          st.executeUpdate(sql);
-          connection.close();
-          return ids;
-        } catch(SQLException e) {
-          e.printStackTrace();
-          System.out.println("Error: " + e.getSQLState());
-        }
-        return ids;
-      },
-      executionContext
-    );
+    return String.format(query, state);
   }
 
 }

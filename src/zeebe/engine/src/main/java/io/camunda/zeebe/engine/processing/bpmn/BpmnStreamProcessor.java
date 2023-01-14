@@ -132,6 +132,7 @@ public final class BpmnStreamProcessor implements TypedRecordProcessor<ProcessIn
         // if this is not an activity activate the element straightaway.
         // otherwise pause the element.
         if (!isActivity(activatingContext.getBpmnElementType())) {
+          LOGGER.info("Going straight to RESUME ELEMENT");
           processEvent(ProcessInstanceIntent.RESUME_ELEMENT, processor, element);
         }
         break;

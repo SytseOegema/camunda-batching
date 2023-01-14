@@ -125,10 +125,6 @@ public class ProcessInstanceRepository {
   }
 
   public CompletionStage<OptionalInt> add(ProcessInstanceDTO processInstance) {
-    System.out.println(processInstance.intent == null);
-    System.out.println(processInstance.intent);
-
-
     String query = "INSERT INTO process_instance  (";
     query += "process_instance_key ,";
     query += "element_instance_key ,";
@@ -155,7 +151,6 @@ public class ProcessInstanceRepository {
       processInstance.flowScopeKey,
       processInstance.variables,
       processInstance.intent.getValue());
-    System.out.println(sql);
 
     return CompletableFuture.supplyAsync(
       () -> {

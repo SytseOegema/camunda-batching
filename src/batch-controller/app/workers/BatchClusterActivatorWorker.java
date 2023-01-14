@@ -6,6 +6,8 @@ import models.ProcessInstanceModel;
 import java.util.concurrent.CompletableFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.sql.Connection;
@@ -65,18 +67,15 @@ public class BatchClusterActivatorWorker {
 
     try {
       logger.info("try");
-      System.out.println("I'll run in a separate thread than the main thread. wiew");
 
       CompletableFuture.supplyAsync(
       () -> {
-        System.out.println("I'll run in a separate thread than the main thread.");
         List<Integer> continueClusterIds = new ArrayList<Integer>();
         List<Integer> resumeClusterIds = new ArrayList<Integer>();
         try {
           Connection connection = db.getConnection();
           Statement st = connection.createStatement();
           ResultSet rs = st.executeQuery(String.format(searchQuery, BatchClusterState.READY.getStateName()));
-          System.out.println(String.format(searchQuery, BatchClusterState.READY.getStateName()));
           while(rs.next()) {
             if(rs.getInt("cluster_size") >= rs.getInt("max_batch_size")) {
               System.out.println("now add batch cluster id" + rs.getInt("batch_cluster_id"));
@@ -88,8 +87,8 @@ public class BatchClusterActivatorWorker {
             Timestamp deadline = rs.getTimestamp("created_at");
             //convert minutes to milliseconds
             int extraTime = rs.getInt("activation_threshold_time") * 60 * 1000;
-            deadline.setTime(deadline.getTime + extraTime);
-            Timestamp now = new Timestamp(System.currentTimeMillis())
+            deadline.setTime(deadline.getTime() + extraTime);
+            Timestamp now = new Timestamp(System.currentTimeMillis());
 
             // check if batchmodel deadline has passed.
             if (now.after(deadline)) {
@@ -107,14 +106,13 @@ public class BatchClusterActivatorWorker {
         } catch(SQLException e) {
           e.printStackTrace();
         }
-        Map map = new HashMap<String, List<Integer>>();
-        map.put("Continue", continueClusterIds);
-        map.put("Resume", resumeClusterIds);
+        Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
+        map.put(BatchClusterState.EXECUTING.getStateName(), continueClusterIds);
+        map.put(BatchClusterState.RESUMING.getStateName(), resumeClusterIds);
         return map;
       })
-        .thenCompose(invoker::updateStateToExecuting)
-        .thenCompose(invoker::invokeBatchCluster)
-        .thenCompose(invoker::updateStateToFinished)
+        .thenCompose(invoker::updateStates)
+        .thenCompose(invoker::invokeBatchClusters)
         .get();
     } catch (Exception e) {
       e.printStackTrace();

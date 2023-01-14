@@ -20,6 +20,7 @@ import models.BatchCluster.BatchClusterState;
 import models.BatchModel.BatchModelModel;
 import models.BatchModel.BatchModelRepository;
 import models.ProcessInstanceRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -77,19 +78,23 @@ public class ProcessInstanceKafkaConsumer extends MessageConsumer<ProcessInstanc
         batchActivityConnectorRepository.listByActivityId(message.elementId).join();
       if (connectors.isPresent()) {
         if (connectors.get().size() > 0) {
-          logger.info("connectors pressent");
           addedToCluster = addInstanceToCluster(processInstanceId, message, connectors.get());
         }
       } else {
-        logger.info("no connectors pressent");
-        ProcessInstanceFlowManager.resumeBatchActivityFlow(new ProcessInstanceModel(message));
+        resumeBatchActivityFlow(message);
       }
 
       if (!addedToCluster) {
-        ProcessInstanceFlowManager.resumeBatchActivityFlow(new ProcessInstanceModel(message));
+        resumeBatchActivityFlow(message);
       }
     }
 
+  }
+
+  private void resumeBatchActivityFlow(ProcessInstanceDTO message) {
+    List<ProcessInstanceModel> modelList = new ArrayList<ProcessInstanceModel>();
+    modelList.add(new ProcessInstanceModel(message));
+    ProcessInstanceFlowManager.resumeBatchActivityFlow(modelList);
   }
 
   private Boolean addInstanceToCluster(int instanceId, ProcessInstanceDTO processInstance, List<BatchActivityConnectorModel> connectors) {

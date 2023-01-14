@@ -15,7 +15,8 @@
             color="info"
           />
         </div>
-        <div class="row ml-3">
+        <div class="row ml-3" v-if="notExecutedYet(cluster)">
+          {{ notExecutedYet(cluster) }}
           Executed in
           <va-badge
             class="ml-3 mr-3"
@@ -37,7 +38,13 @@
           <div class="flex md6">
             {{ instance.processInstanceKey }}
           </div>
-          <va-button class="flex md6" preset="secondary" border-color="primary" @click="resume(instance.processInstanceId)">
+          <va-button
+            class="flex md6"
+            preset="secondary"
+            border-color="primary"
+            @click="resume(instance.processInstanceId)"
+            :disabled="!notExecutedYet(cluster)"
+          >
             Resume {{ instance.processInstanceKey }}
           </va-button>
         </div>
@@ -61,10 +68,23 @@ const getBatchModel = (batchModelId) => {
   return models.find((model) => model.batchModelId === batchModelId);
 }
 
+const notExecutedYet = (cluster) => {
+  if (cluster.state == "finished"){
+    return false;
+  } else if (cluster.state == "resumed") {
+    return false;
+  }
+  return true;
+}
+
 const getTimeTillExecute = (cluster) => {
   const extraTime = getBatchModel(cluster.batchModelId).activationThresholdTime;
-  const oldTime = new Date(cluster.createdAt)
-  const executionTime = new Date(oldTime.getTime() + extraTime * 60000);
+  const oldTime = new Date(cluster.createdAt);
+  // + 60 to compensate for UTC date format.
+  const executionTime = new Date(oldTime.getTime() + (60 + extraTime) * 60000);
+  // alert(executionTime.getTime());
+  // alert(new Date().getTime());
+  // alert(executionTime.getTime() - new Date().getTime());
   return Math.round((executionTime.getTime() - new Date().getTime()) / 60000);
 }
 
