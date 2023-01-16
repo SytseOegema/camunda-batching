@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ojf8du" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.4.1" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.1.0">
+  <bpmn:process id="dumy_food_process" isExecutable="true">
+    <bpmn:extensionElements>
+      <zeebe:userTaskForm id="userTaskForm_0k9aase">{
+  "components": [
+    {
+      "values": [
+        {
+          "label": "meat",
+          "value": "meat"
+        },
+        {
+          "label": "fish",
+          "value": "fish"
+        },
+        {
+          "label": "vega",
+          "value": "vega"
+        },
+        {
+          "label": "random",
+          "value": "random"
+        }
+      ],
+      "label": "What is your prefered diet",
+      "type": "select",
+      "id": "Field_0zsjxq8",
+      "key": "foodPreference",
+      "description": "foodPreference",
+      "defaultValue": "random"
+    }
+  ],
+  "type": "default",
+  "id": "Food-Preference",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.1.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.4.1"
+  },
+  "schemaVersion": 5
+}</zeebe:userTaskForm>
+      <zeebe:userTaskForm id="userTaskForm_10phbgg">{
+  "components": [
+    {
+      "values": [
+        {
+          "label": "Salmon",
+          "value": "Salmon"
+        },
+        {
+          "label": "Chicken",
+          "value": "Chicken"
+        },
+        {
+          "label": "Mushroom thingy",
+          "value": "Mushroom thingy"
+        }
+      ],
+      "label": "What is this person having?",
+      "type": "select",
+      "id": "Field_0zsjxq8",
+      "key": "dish",
+      "description": "dish",
+      "defaultValue": "random"
+    }
+  ],
+  "type": "default",
+  "id": "Food-Preference",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.1.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.4.1"
+  },
+  "schemaVersion": 5
+}</zeebe:userTaskForm>
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0xf6jw8</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="protein_restaurant" name="Protein" zeebe:modelerTemplate="io.camunda.connector.Template.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2218%22%20width%3D%2218%22%20viewBox%3D%220%200%2010%2010%22%20shape-rendering%3D%22geometricPrecision%22%3E%3Ctitle%3ESlack%3C%2Ftitle%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M0%2C0%20L0%2C10%20L10%2C10%20L10%2C0%20z%22%20fill%3D%22%23ecb12f%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:template:1" />
+        <zeebe:ioMapping>
+          <zeebe:input source="test" target="package" />
+          <zeebe:input source="https://openwhisk_apigateway_1" target="host" />
+          <zeebe:input source="batching" target="packageName" />
+          <zeebe:input source="foodDelivery" target="functionName" />
+          <zeebe:input source="={ &#34;dish&#34;: dish }" target="body" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="resultVariable" value="openwhisk" />
+          <zeebe:header key="resultExpression" value="={&#34;foodDelivery&#34; : result}" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1p28p93</bpmn:incoming>
+      <bpmn:outgoing>Flow_1b26bwz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0xf6jw8" sourceRef="StartEvent_1" targetRef="food_pref" />
+    <bpmn:endEvent id="Event_0on3w90">
+      <bpmn:incoming>Flow_1b26bwz</bpmn:incoming>
+      <bpmn:incoming>Flow_17hei2u</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1b26bwz" sourceRef="protein_restaurant" targetRef="Event_0on3w90" />
+    <bpmn:userTask id="food_pref" name="Your food preference?">
+      <bpmn:extensionElements>
+        <zeebe:formDefinition formKey="camunda-forms:bpmn:userTaskForm_0k9aase" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0xf6jw8</bpmn:incoming>
+      <bpmn:outgoing>Flow_0leh5tq</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0leh5tq" sourceRef="food_pref" targetRef="food_order_dish" />
+    <bpmn:userTask id="food_order_dish" name="Which dish">
+      <bpmn:extensionElements>
+        <zeebe:formDefinition formKey="camunda-forms:bpmn:userTaskForm_10phbgg" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0leh5tq</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vph2ed</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1vph2ed" sourceRef="food_order_dish" targetRef="Gateway_0f2pgaw" />
+    <bpmn:exclusiveGateway id="Gateway_0f2pgaw">
+      <bpmn:incoming>Flow_1vph2ed</bpmn:incoming>
+      <bpmn:outgoing>Flow_1p28p93</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1ub2z26</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1p28p93" sourceRef="Gateway_0f2pgaw" targetRef="protein_restaurant">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=dish != "Mushroom thingy"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="vega_restaurant" name="Vega" zeebe:modelerTemplate="io.camunda.connector.Template.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2218%22%20width%3D%2218%22%20viewBox%3D%220%200%2010%2010%22%20shape-rendering%3D%22geometricPrecision%22%3E%3Ctitle%3ESlack%3C%2Ftitle%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M0%2C0%20L0%2C10%20L10%2C10%20L10%2C0%20z%22%20fill%3D%22%23ecb12f%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:template:1" />
+        <zeebe:ioMapping>
+          <zeebe:input source="test" target="package" />
+          <zeebe:input source="https://openwhisk_apigateway_1" target="host" />
+          <zeebe:input source="batching" target="packageName" />
+          <zeebe:input source="foodDelivery" target="functionName" />
+          <zeebe:input source="={ &#34;dish&#34;: dish }" target="body" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="resultVariable" value="openwhisk" />
+          <zeebe:header key="resultExpression" value="={&#34;foodDelivery&#34; : result}" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ub2z26</bpmn:incoming>
+      <bpmn:outgoing>Flow_17hei2u</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1ub2z26" sourceRef="Gateway_0f2pgaw" targetRef="vega_restaurant">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=dish = "Mushroom thingy"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_17hei2u" sourceRef="vega_restaurant" targetRef="Event_0on3w90" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="con_test">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="175" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0pnc7ot_di" bpmnElement="food_pref">
+        <dc:Bounds x="250" y="153" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ggsal8_di" bpmnElement="food_order_dish">
+        <dc:Bounds x="400" y="153" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0f2pgaw_di" bpmnElement="Gateway_0f2pgaw" isMarkerVisible="true">
+        <dc:Bounds x="560" y="168" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1axys3x" bpmnElement="vega_restaurant">
+        <dc:Bounds x="660" y="227" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0kohcbt_di" bpmnElement="protein_restaurant">
+        <dc:Bounds x="660" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0on3w90_di" bpmnElement="Event_0on3w90">
+        <dc:Bounds x="822" y="175" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0xf6jw8_di" bpmnElement="Flow_0xf6jw8">
+        <di:waypoint x="188" y="193" />
+        <di:waypoint x="250" y="193" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0leh5tq_di" bpmnElement="Flow_0leh5tq">
+        <di:waypoint x="350" y="193" />
+        <di:waypoint x="400" y="193" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vph2ed_di" bpmnElement="Flow_1vph2ed">
+        <di:waypoint x="500" y="193" />
+        <di:waypoint x="560" y="193" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1p28p93_di" bpmnElement="Flow_1p28p93">
+        <di:waypoint x="585" y="168" />
+        <di:waypoint x="585" y="120" />
+        <di:waypoint x="660" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ub2z26_di" bpmnElement="Flow_1ub2z26">
+        <di:waypoint x="585" y="218" />
+        <di:waypoint x="585" y="267" />
+        <di:waypoint x="660" y="267" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17hei2u_di" bpmnElement="Flow_17hei2u">
+        <di:waypoint x="760" y="267" />
+        <di:waypoint x="840" y="267" />
+        <di:waypoint x="840" y="211" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1b26bwz_di" bpmnElement="Flow_1b26bwz">
+        <di:waypoint x="760" y="120" />
+        <di:waypoint x="840" y="120" />
+        <di:waypoint x="840" y="175" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -28,6 +28,8 @@ for the project to be executable.
 - Maven pacakge manager
 - SBT package manager
 - wsk cli tool
+- Node
+- NPM
 
 ## Zeebe
 

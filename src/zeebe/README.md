@@ -1,5 +1,61 @@
 # Zeebe - Workflow Engine for Microservices Orchestration
 
+> Zeebe engine extended for batch activities
+
+This folder contains the source code of the workflow engine Zeebe. Zeebe has
+been extended to provide batch functionality. More detail about the extension
+can be found [here](../../docs/zeebeResumeBatchActivityMessageFlow.md).
+
+__Look at and use the scripts to build and run Zeebe__ -
+[scripts](../../scripts);
+
+## Building Zeebe
+To build Zeebe Java 17 is required together with Maven. Use the command
+`mvn clean install -DskipTests` to build Zeebe and to create a local ZeebeClient
+package(this package is used by the Batch Controller and Java Client).
+
+## Running Zeebe
+You can run Zeebe localy by executing the following command in the `dist`
+folder:
+
+```
+# start broker
+mvn exec:java -Dexec.mainClass=io.camunda.zeebe.broker.StandaloneBroker
+```
+
+Or you can run Zeebe in Docker. To create a docker image use:
+```
+docker build \
+  --tag sytse/zeebe:latest \
+  --build-arg DISTBALL='dist/target/camunda-zeebe*.tar.gz' \
+  --target app \
+  .
+```
+You can change the tag but this tag is used in the docker-compose file.
+
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+```
+
+## Remainder of official Zeebe README
+
+
+
+
+
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.camunda.zeebe/camunda-zeebe/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.camunda.zeebe/camunda-zeebe)
 
 Zeebe provides visibility into and control over business processes that span multiple microservices. It is the engine that powers [Camunda Platform 8](https://camunda.com/platform/zeebe/).

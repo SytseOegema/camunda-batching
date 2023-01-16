@@ -39,24 +39,6 @@ public class BatchClusterInvoker {
   }
 
   public CompletableFuture<Void> invokeBatchClusters(Map<String, List<Integer>> map) {
-    // CompletableFuture<Boolean> futureExecute =
-    //   CompletableFuture.completedFuture(null);
-    // if(map.containsKey(BatchClusterState.EXECUTING.getStateName())) {
-    //   futureExecute = invokeBatchClusters(
-    //     BatchClusterState.EXECUTING.getStateName(),
-    //     map.get(BatchClusterState.EXECUTING.getStateName())
-    //   );
-    // }
-    //
-    // CompletableFuture<Boolean> futureResume =
-    //   CompletableFuture.completedFuture(null);
-    // if(map.containsKey(BatchClusterState.RESUMING.getStateName())) {
-    //   futureResume = invokeBatchClusters(
-    //     BatchClusterState.RESUMING.getStateName(),
-    //     map.get(BatchClusterState.RESUMING.getStateName())
-    //   );
-    // }
-
     return CompletableFuture.runAsync(() -> {
       logger.info("starting future of invokeBatchClustersssssss");
       for (Map.Entry<String, List<Integer>> entry : map.entrySet()) {
@@ -145,6 +127,7 @@ public class BatchClusterInvoker {
 
   private List<ProcessInstanceModel> executeBatch(List<ProcessInstanceModel> processes, String executorURI) {
     for (ProcessInstanceModel process: processes) {
+      logger.info("joehoe!");
         Unirest.config().verifySsl(false);
         HttpResponse<String> response = Unirest.post(executorURI)
           .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
@@ -152,6 +135,7 @@ public class BatchClusterInvoker {
           .body(process.variables)
           .asString();
 
+        logger.info("response: ");
         logger.info(response.getBody());
         process.variables = ProcessInstanceActivityManager
           .updateVariables(process.variables, response.getBody());

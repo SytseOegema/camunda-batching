@@ -1,5 +1,9 @@
 package io.camunda.connector;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 import io.camunda.connector.api.annotation.OutboundConnector;
 import io.camunda.connector.api.error.ConnectorException;
 import io.camunda.connector.api.outbound.OutboundConnectorContext;
@@ -8,6 +12,7 @@ import kong.unirest.Unirest;
 import kong.unirest.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 @OutboundConnector(
     name = "MYCONNECTOR",
@@ -44,16 +49,22 @@ public class MyConnectorFunction implements OutboundConnectorFunction {
         .header("Content-Type", "application/json")
         .body(connectorRequest.getBody())
         .asString();
-      System.out.println(response.getBody());
+      JsonObject replyObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+
       var result = new MyConnectorResult();
-      result.setMyProperty(response.getBody());
+      for (Map.Entry<String, JsonElement> entry : replyObject.entrySet()) {
+        System.out.println(entry.getKey() + "/" + entry.getValue());
+        result.setResult(entry.getValue().getAsString());
+        break;
+      }
+
       LOGGER.info("Result {}", result);
       return result;
     }
     catch (Exception e) {
       LOGGER.error(e.getMessage());
       var result = new MyConnectorResult();
-      result.setMyProperty("Something went wrong");
+      result.setResult("Something went wrong");
       return result;
     }
   }

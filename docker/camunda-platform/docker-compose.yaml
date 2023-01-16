@@ -171,6 +171,18 @@ services:
     networks:
       - camunda-platform
 
+
+  batch-web-app:
+    image: batching-extension/batch-web-app
+    container_name: batch-web-app
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - camunda-platform
+    depends_on:
+      - batch-controller
+
 volumes:
   zeebe:
   elastic:

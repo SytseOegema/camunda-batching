@@ -1,26 +1,22 @@
-> A template for new C8 connectors.
->
-> To use this template update the following resources to match the name of your connector:
->
-> * [README](./README.md) (title, description)
-> * [Element Template](./element-templates/template-connector.json)
-> * [POM](./pom.xml) (artifact name, id, description)
-> * [Connector Function](./src/main/java/io/camunda/connector/MyConnectorFunction.java) (rename, implement, update `OutboundConnector` annotation)
-> * [Service Provider Interface (SPI)](./src/main/resources/META-INF/services/io.camunda.connector.api.ConnectorFunction#L1) (rename)
->
-> ...and delete this hint.
+# Faas Connector
 
+> Camunda connector to integrate OpenWhisk
 
-Maybe we need to change this such that it is a runtime service on its own.
-See:
+The connecor in this folder is based on the
+[connector template](https://github.com/camunda/connector-template).
 
-- https://github.com/camunda/connector-sdk/tree/main/runtime-util
-- https://docs.camunda.io/docs/apis-clients/java-client-examples/job-worker-open/
-- and looking into the zeebe/client options 
+## How to use it
+The connector should be build with the command `mvn clean package`. Thereafter
+a docker image can be build using the Dockerfile using the command
+`docker build --tag batching-extension/faas-connector:latest .`
 
-# Connector Template
+The connector can be used in a process by adding the
+[element-template](element-templates/template-connector.json) to the process
+editor. [Read here](https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/#providing-and-using-connector-templates) how to add template to your editor.
 
-Camunda Connector Template
+For a Windows Desktop modeler you simply need to copy the
+`template-connector.json` file to the `resources/element-templates` folder of
+the Desktop modeler.
 
 ## Build
 
@@ -34,6 +30,13 @@ This will create the following artifacts:
 
 - A thin JAR without dependencies.
 - An uber JAR containing all dependencies, potentially shaded to avoid classpath conflicts. This will not include the SDK artifacts since those are in scope `provided` and will be brought along by the respective Connector Runtime executing the Connector.
+
+
+### Other resources
+- https://github.com/camunda/connector-sdk/tree/main/runtime-util
+- https://docs.camunda.io/docs/apis-clients/java-client-examples/job-worker-open/
+- and looking into the zeebe/client options
+
 
 ### Shading dependencies
 
