@@ -34,6 +34,18 @@ public class ProcessInstanceActivityManager {
     return true;
   }
 
+  public static String getVariableValue(ProcessInstanceModel instance, String variableName) {
+    JsonObject jsonObject = new JsonParser().parse(instance.variables).getAsJsonObject();
+    try {
+      if (jsonObject.has(variableName)) {
+        return jsonObject.get(variableName).getAsString();
+      }
+      return "EMPTY_VALUE";
+    } catch(Exception e) {
+      return "EMPTY_VALUE";
+    }
+  }
+
   private static boolean isConditionSatisfied(
       BatchActivityConnectorConditionModel condition,
       JsonElement jsonElem

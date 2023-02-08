@@ -21,12 +21,6 @@
           Processes
         </va-navbar-item>
         <va-navbar-item
-          :class="routePath === '/functions' ? 'nav-button active-route' :'nav-button'"
-          @click="goToRoute('Functions')"
-        >
-          Functions
-        </va-navbar-item>
-        <va-navbar-item
           :class="routePath === '/batch-models' ? 'nav-button active-route' :'nav-button'"
           @click="goToRoute('BatchModels')"
         >
@@ -67,7 +61,15 @@ onMounted(() => {
   store.dispatch('getBatchModels');
   store.dispatch('getBatchActivityConnectors');
   store.dispatch('getBatchClusters');
+  setInterval(refreshData, 20000);
 })
+
+const refreshData = () => {
+  store.dispatch('getProcessInstances');
+  store.dispatch('getBatchClusters');
+}
+
+
 
 </script>
 

@@ -14,9 +14,18 @@
             :text="cluster.state"
             color="info"
           />
+          <va-button
+            color="secondary"
+            round
+            class="ml-2"
+            size="small"
+            icon-right="visibility"
+            @click="showCluster(cluster.batchClusterId)"
+          >
+            Cluster Details
+          </va-button>
         </div>
         <div class="row ml-3" v-if="notExecutedYet(cluster)">
-          {{ notExecutedYet(cluster) }}
           Executed in
           <va-badge
             class="ml-3 mr-3"
@@ -57,8 +66,10 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 import { useToast } from 'vuestic-ui'
+import { useRouter } from "vue-router";
 
 const store = useStore();
+const router = useRouter();
 const { init } = useToast();
 
 const clusters = computed(() => store.getters["getBatchClusters"]);
@@ -110,6 +121,9 @@ const resume = (processInstanceId) => {
     });
 }
 
+const showCluster = (clusterId) => {
+  router.push({ name: 'BatchClusterDetails', params: { id: clusterId } });
+}
 </script>
 
 <style>

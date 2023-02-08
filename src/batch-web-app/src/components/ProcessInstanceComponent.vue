@@ -1,12 +1,9 @@
 <template>
-  <div class="ml-3">
-    {{ instance.processInstanceKey }}
-    <va-badge
-      class="mx-4"
-      :text="instanceState(instance.intent)"
-      :color="instanceColor(instance.intent)"
-    />
-  </div>
+  <va-badge
+    class="mx-4"
+    :text="instanceState(instance.intent)"
+    :color="instanceColor(instance.intent)"
+  />
 </template>
 
 <script setup>
@@ -23,13 +20,19 @@ const instanceState = (instanceIntent) => {
       result = "Ready";
       break;
     case "resumeElement":
-      result = "Resumed";
+      result = "Active";
       break;
     case "completeElement":
       result = "Completed";
       break;
     case "terminateElement":
       result = "Terminated";
+      break;
+    case "Clustered":
+      result = "Clustered";
+      break;
+    case "ActiveBatch":
+      result = "ActiveBatch";
       break;
     default :
       result = "unknown";
@@ -51,6 +54,12 @@ const instanceColor = (instanceIntent) => {
       break;
     case "terminateElement":
       result = "danger";
+      break;
+    case "Clustered":
+      result = "info";
+      break;
+    case "ActiveBatch":
+      result = "success";
       break;
     default :
       result = "warning";

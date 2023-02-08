@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.sql.Connection;
@@ -73,10 +74,14 @@ public class BatchClusterInvoker {
       + " WHERE batch_cluster_instance.batch_cluster_id = %d";
 
     final String sql2 = "SELECT "
-      + "batch_executor_URI"
+      + "batch_model.batch_executor_URI, "
+      + "batch_model_group_by.group_by_id, "
+      + "batch_model_group_by.field_name "
       + " FROM batch_model"
       + " JOIN batch_cluster"
       + " ON batch_cluster.batch_model_id = batch_model.batch_model_id"
+      + " LEFT JOIN batch_model_group_by"
+      + " ON batch_model_group_by.batch_model_id = batch_model.batch_model_id"
       + " WHERE batch_cluster.batch_cluster_id = %d";
 
     return CompletableFuture.supplyAsync(
@@ -107,10 +112,14 @@ public class BatchClusterInvoker {
           String executorURI = "";
           if (isBatchExecution) {
             rs = st.executeQuery(String.format(sql2, batchClusterId));
+            List<String> groupBy = new ArrayList<String>();
             while(rs.next()) {
               executorURI = rs.getString("batch_executor_URI");
+              if (rs.getInt("group_by_id") != 0) {
+                groupBy.add(rs.getString("field_name"));
+              }
             }
-            processes = executeBatch(processes, executorURI);
+            processes = executeBatch(processes, executorURI, groupBy);
             ProcessInstanceFlowManager.continueBatchActivityFlow(processes);
           } else {
             ProcessInstanceFlowManager.resumeBatchActivityFlow(processes);
@@ -125,22 +134,92 @@ public class BatchClusterInvoker {
     );
   }
 
-  private List<ProcessInstanceModel> executeBatch(List<ProcessInstanceModel> processes, String executorURI) {
-    for (ProcessInstanceModel process: processes) {
-      logger.info("joehoe!");
+  private List<ProcessInstanceModel> executeBatch(
+    List<ProcessInstanceModel> processes,
+    String executorURI,
+    List<String> groupBy
+  ) {
+    if (groupBy.size() == 0) {
+      for (ProcessInstanceModel process: processes) {
+        String body = "{\"content\":" + process.variables + "}";
+        logger.info("joehoe!");
+        logger.info(body);
         Unirest.config().verifySsl(false);
         HttpResponse<String> response = Unirest.post(executorURI)
-          .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
-          .header("Content-Type", "application/json")
-          .body(process.variables)
-          .asString();
+        .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
+        .header("Content-Type", "application/json")
+        .body(body)
+        .asString();
 
         logger.info("response: ");
         logger.info(response.getBody());
         process.variables = ProcessInstanceActivityManager
-          .updateVariables(process.variables, response.getBody());
+        .updateVariables(process.variables, response.getBody());
+      }
+      return processes;
     }
-    return processes;
+
+    // create map based on value in the group-by parameter
+    // !!! currently this only supports a single group-by parameter !!!
+    Map<String, List<ProcessInstanceModel>> map =
+      groupBy(processes, groupBy.get(0));
+
+    List<ProcessInstanceModel> resultProcesses = new ArrayList<ProcessInstanceModel>();
+
+    for (Map.Entry<String, List<ProcessInstanceModel>> entry : map.entrySet()) {
+      logger.info(entry.getKey() + " / " + entry.getValue().size());
+      String variableString = buildGroupedVariableBody(entry.getValue());
+      logger.info(variableString);
+
+      Unirest.config().verifySsl(false);
+      HttpResponse<String> response = Unirest.post(executorURI)
+        .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
+        .header("Content-Type", "application/json")
+        .body(variableString)
+        .asString();
+
+      logger.info("response: ");
+      logger.info(response.getBody());
+      for (ProcessInstanceModel process: entry.getValue()) {
+        process.variables = ProcessInstanceActivityManager
+          .updateVariables(process.variables, response.getBody());
+          resultProcesses.add(process);
+      }
+    }
+    return resultProcesses;
+  }
+
+  private String buildGroupedVariableBody(List<ProcessInstanceModel> processes) {
+    String body = "{\"content\":[";
+    for (ProcessInstanceModel process: processes) {
+      body += process.variables;
+      body += ",";
+    }
+    // remove last ','
+    body = body.substring(0, body.length() - 1);
+    body += "]}";
+    return body;
+  }
+
+  private Map<String, List<ProcessInstanceModel>> groupBy(
+    List<ProcessInstanceModel> processes,
+    String groupByVariable)
+  {
+    Map<String, List<ProcessInstanceModel>> map = new HashMap<String, List<ProcessInstanceModel>>();
+    for (ProcessInstanceModel process: processes) {
+      String value = ProcessInstanceActivityManager.getVariableValue(process, groupByVariable);
+      // if the key is already there add the process to the list.
+      if (map.containsKey(value)) {
+        List<ProcessInstanceModel> instances = map.get(value);
+        instances.add(process);
+        map.replace(value, instances);
+      } else {
+        List<ProcessInstanceModel> instances = new ArrayList<ProcessInstanceModel>();
+        instances.add(process);
+        map.put(value, instances);
+      }
+    }
+    return map;
   }
 
   public CompletableFuture<Map<String, List<Integer>>> updateStates(Map<String, List<Integer>> map) {

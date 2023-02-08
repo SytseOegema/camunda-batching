@@ -1,71 +1,15 @@
 <template>
-  <va-card>
-    <va-card-content>
-      <div class="row">
-        <div class="va-title">
-          {{ activity.name }}
-        </div>
-        <div class="ml-auto mr-1 mt-1">
-          <va-chip squared outline>
-            {{ activity.activityType }}
-          </va-chip>
-        </div>
-      </div>
-      <div class="row">
-        <div class="flex md6">
-          <div class="row mt-3">
-            <div class="va-h6">
-              Batch Models
-            </div>
-            <div class="ml-auto mr-1 mt-1">
-              <va-button color="secondary" @click="togleBatchModelModal()">
-                Add Batch Model
-              </va-button>
-            </div>
-          </div>
-          <div class="row"  v-for="connector in connectors" :key="connector.id">
-            <div class="flex md12">
-              <div class="row">
-                <div class="va-title mr-4 mt-3">
-                  {{ getBatchModelName(connector.batchModelId) }}
-                </div>
-
-                <va-chip squared outline v-if="connector.active">
-                  active
-                </va-chip>
-                <va-chip squared outline v-else color="secondary">
-                  not active
-                </va-chip>
-
-                <va-button
-                  icon="delete"
-                  color="danger"
-                  round class="ml-auto"
-                  @click="deleteConnector(connector.connectorId)"
-                />
-              </div>
-            </div>
-            <div class="felx md12">
-              Valid till:
-              <va-badge
-                class="mr-4"
-                :text="connector.validity"
-                color="info"
-              />
-              Conditions:
-              {{ connector.conditions }}
-            </div>
-          </div>
-        </div>
-        <div class="flex md6 pl-4">
-          <div class="va-h6 mt-4 ml-3">
-            Process Instances
-          </div>
-          <ProcessInstanceComponent :instance="instance" v-for="instance in instances" :key="instance.elementInstanceKey" />
-        </div>
-      </div>
-    </va-card-content>
-  </va-card>
+  <tr>
+    <td>{{ activity.name }}</td>
+    <td>{{ activity.activityType }}</td>
+    <td>
+      {{ activity.connectors.length }}
+      <va-button class="ml-5" @click="togleBatchModelModal()">
+        +
+      </va-button>
+    </td>
+    <td>{{ activity.activityType }}</td>
+  </tr>
 
 
   <va-modal v-model="showBatchModelModal" blur size="large">
@@ -97,33 +41,28 @@
 
 <script setup>
 import CreateBatchActivityConnectorComponent from "./CreateBatchActivityConnectorComponent.vue";
-import ProcessInstanceComponent from "./ProcessInstanceComponent.vue";
 import BatchModelComponent from "./BatchModelComponent.vue";
 import { useStore } from "vuex";
 import { ref, defineProps, computed } from 'vue'
-import { useToast } from 'vuestic-ui'
 
-const { init } = useToast();
-
-const props = defineProps({
+defineProps({
   activity: { type: Object, required: true },
-  instances: { type: Object, required: true },
 })
 
 const store = useStore();
 
 const batchModels = computed(() => store.getters['getBatchModels']);
-const connectors = computed(() => {
-    const data = store.getters['getBatchActivityConnectors'];
-    return data.filter((con) => {
-      return con.activityId === props.activity.id;
-    });
-});
+// const connectors = computed(() => {
+//     const data = store.getters['getBatchActivityConnectors'];
+//     return data.filter((con) => {
+//       return con.activityId === props.activity.id;
+//     });
+// });
 
-const getBatchModelName = (batchModelId) => {
-  const batchModels = store.getters['getBatchModels'];
-  return batchModels.find((model) => model.batchModelId === batchModelId).name;
-}
+// const getBatchModelName = (batchModelId) => {
+//   const batchModels = store.getters['getBatchModels'];
+//   return batchModels.find((model) => model.batchModelId === batchModelId).name;
+// }
 
 const showBatchModelModal = ref(false);
 const showConnectorModal = ref(false);
@@ -141,22 +80,6 @@ const createConnector = (batchModelId) => {
   connectorBatchModelId.value= batchModelId;
   showBatchModelModal.value = false;
   togleConnectorModal();
-}
-
-const deleteConnector = (connectorId) => {
-  store.dispatch('deleteBatchActivityConnectors', connectorId)
-    .then(() => {
-      init({
-        color: "info",
-        message: "deleted batch model"
-      });
-    })
-    .catch((error) => {
-      init({
-        color: "danger",
-        message: "something went wrong. " + error.message,
-      });
-    });
 }
 
 </script>

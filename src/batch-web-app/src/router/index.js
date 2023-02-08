@@ -6,6 +6,7 @@ import ProcessesComponent from "@/components/ProcessesComponent.vue";
 import DashboardComponent from "@/components/DashboardComponent.vue";
 import FunctionsComponent from "@/components/FunctionsComponent.vue";
 import BatchClustersComponent from "@/components/BatchClustersComponent.vue";
+import BatchClusterDetailComponent from "@/components/BatchClusterDetailComponent.vue";
 import BatchModelsComponent from "@/components/BatchModelsComponent.vue";
 
 const routes = [
@@ -28,6 +29,11 @@ const routes = [
     path: '/batch-clusters',
     component: BatchClustersComponent,
     name: 'BatchClusters'
+  },
+  {
+    path: '/batch-clusters/:id',
+    component: BatchClusterDetailComponent,
+    name: 'BatchClusterDetails'
   },
   {
     path: '/batch-models',

@@ -6,7 +6,7 @@
   "version": 1,
   "documentationRef": "https://docs.camunda.io/docs/components/modeler/web-modeler/connectors/available-connectors/template/",
   "icon": {
-    "contents": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2218%22%20width%3D%2218%22%20viewBox%3D%220%200%2010%2010%22%20shape-rendering%3D%22geometricPrecision%22%3E%3Ctitle%3ESlack%3C%2Ftitle%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M0%2C0%20L0%2C10%20L10%2C10%20L10%2C0%20z%22%20fill%3D%22%23ecb12f%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"
+    "contents": "data:image/svg+xml;utf8,%3C%3Fxml version='1.0' encoding='iso-8859-1'%3F%3E%3Csvg height='800px' width='800px' version='1.1' id='Capa_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 57.376 57.376' xml:space='preserve'%3E%3Cg%3E%3Cg%3E%3Cpath style='fill:%23030104;' d='M28.689,0C12.87,0,0.001,12.869,0.001,28.688c0,15.818,12.87,28.688,28.689,28.688 c15.816,0,28.686-12.869,28.686-28.688S44.507,0,28.689,0z M28.689,54.375c-14.165,0-25.689-11.523-25.689-25.688 c0-14.164,11.524-25.688,25.689-25.688c14.163,0,25.686,11.523,25.686,25.688S42.853,54.375,28.689,54.375z'/%3E%3Cpath style='fill:%23030104;' d='M36.786,15.863H21.941c-0.553,0-1,0.447-1,1V39.97c0,0.554,0.447,1,1,1h3.532c0.553,0,1-0.446,1-1 v-7.786c0-0.554,0.447-1,1-1h8.461c0.553,0,1-0.447,1-1v-3.107c0-0.553-0.447-1-1-1h-8.461c-0.553,0-1-0.447-1-1v-3.105 c0-0.553,0.447-1,1-1h9.312c0.553,0,1-0.447,1-1v-3.107C37.786,16.311,37.339,15.863,36.786,15.863z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"
   },
   "category": {
     "id": "connectors",

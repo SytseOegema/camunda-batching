@@ -43,11 +43,20 @@ public class MyConnectorFunction implements OutboundConnectorFunction {
       + ".json";
 
     try {
+      JsonObject jsonObject = new JsonParser()
+        .parse(connectorRequest.getBody())
+        .getAsJsonObject();
+      
+      JsonObject body = new JsonObject();
+      body.add("content", jsonObject);
+
+      LOGGER.info(body.toString());
+
       Unirest.config().verifySsl(false);
       HttpResponse<String> response = Unirest.post(url)
         .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
         .header("Content-Type", "application/json")
-        .body(connectorRequest.getBody())
+        .body(body)
         .asString();
       JsonObject replyObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 

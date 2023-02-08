@@ -3,8 +3,11 @@
 </template>
 
 <script setup>
-// import { useRouter } from "vue-router";
-// import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+router.push("/processes");
 </script>
 
 <style>

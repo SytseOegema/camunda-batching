@@ -42,6 +42,24 @@
         placeholder="batchExecutorURI"
       />
     </div>
+    <div class="flex md12">
+      <div class="row">
+        <va-button @click="toggleGroupBy()" class="ml-auto mr-auto">
+          {{ groupByText }} Group By
+        </va-button>
+      </div>
+      <span v-if="addGroupBy">
+        Group By:
+      </span>
+    </div>
+    <div class="row md12">
+      <va-input
+        v-if="addGroupBy"
+        class="flex md6"
+        v-model="data.groupBy[0]"
+        label="Group By Variable"
+      />
+    </div>
     <va-button
       @click="submitForm()"
     >
@@ -51,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from "vue";
+import { ref, defineEmits, computed } from "vue";
 import { useStore } from "vuex";
 import { useToast } from 'vuestic-ui'
 
@@ -80,6 +98,19 @@ const data = ref({
   batchExecutorURI: "https://openwhisk_apigateway_1/api/v1/web/guest/batching/[name].json",
   groupBy: [],
 });
+
+const addGroupBy = ref(false);
+
+const groupByText = computed(() => addGroupBy.value ? "remove" : "add");
+const toggleGroupBy = () => {
+  if (addGroupBy.value) {
+    data.value.groupBy = [];
+  } else {
+    data.value.groupBy.push("");
+  }
+  addGroupBy.value = !addGroupBy.value;
+}
+
 
 function submitForm() {
   data.value.executeParallel = data.value.executeParallel.value;
