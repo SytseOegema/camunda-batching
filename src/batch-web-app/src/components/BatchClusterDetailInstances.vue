@@ -30,6 +30,7 @@
             <td>{{ getGroupByValue(instance) }}</td>
             <td>
               <va-button
+                v-if="cluster.state === 'ready'"
                 color="primary"
                 round
                 size="small"

@@ -2,5 +2,5 @@
 
 > folder with Camunda source files
 
-This folder contains a few example source files for Camunda. It contains two
-forms and a process witch uses those forms.
+This folder contains a few example source files for Camunda. These are used by
+the example crossdock process.

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ojf8du" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.4.1" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.1.0">
-  <bpmn:process id="dumy_food_process" isExecutable="true">
+  <bpmn:process id="con_test" isExecutable="true">
     <bpmn:extensionElements>
       <zeebe:userTaskForm id="userTaskForm_0k9aase">{
   "components": [
@@ -85,6 +85,7 @@
         <zeebe:taskDefinition type="io.camunda:template:1" />
         <zeebe:ioMapping>
           <zeebe:input source="test" target="package" />
+          <zeebe:input source="myTestFunction" target="fucntionName" />
           <zeebe:input source="https://openwhisk_apigateway_1" target="host" />
           <zeebe:input source="batching" target="packageName" />
           <zeebe:input source="foodDelivery" target="functionName" />
@@ -92,7 +93,7 @@
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
           <zeebe:header key="resultVariable" value="openwhisk" />
-          <zeebe:header key="resultExpression" value="={&#34;foodDelivery&#34; : result}" />
+          <zeebe:header key="resultExpression" value="={&#34;foodDelivery&#34; : myProperty.foodDelivery}" />
         </zeebe:taskHeaders>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1p28p93</bpmn:incoming>
@@ -133,6 +134,7 @@
         <zeebe:taskDefinition type="io.camunda:template:1" />
         <zeebe:ioMapping>
           <zeebe:input source="test" target="package" />
+          <zeebe:input source="myTestFunction" target="fucntionName" />
           <zeebe:input source="https://openwhisk_apigateway_1" target="host" />
           <zeebe:input source="batching" target="packageName" />
           <zeebe:input source="foodDelivery" target="functionName" />
@@ -140,7 +142,7 @@
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
           <zeebe:header key="resultVariable" value="openwhisk" />
-          <zeebe:header key="resultExpression" value="={&#34;foodDelivery&#34; : result}" />
+          <zeebe:header key="resultExpression" value="={&#34;foodDelivery&#34; : myProperty.foodDelivery}" />
         </zeebe:taskHeaders>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1ub2z26</bpmn:incoming>
@@ -155,6 +157,13 @@
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="con_test">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="175" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0kohcbt_di" bpmnElement="protein_restaurant">
+        <dc:Bounds x="660" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0on3w90_di" bpmnElement="Event_0on3w90">
+        <dc:Bounds x="822" y="175" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0pnc7ot_di" bpmnElement="food_pref">
         <dc:Bounds x="250" y="153" width="100" height="80" />
@@ -171,16 +180,14 @@
         <dc:Bounds x="660" y="227" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0kohcbt_di" bpmnElement="protein_restaurant">
-        <dc:Bounds x="660" y="80" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0on3w90_di" bpmnElement="Event_0on3w90">
-        <dc:Bounds x="822" y="175" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0xf6jw8_di" bpmnElement="Flow_0xf6jw8">
         <di:waypoint x="188" y="193" />
         <di:waypoint x="250" y="193" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1b26bwz_di" bpmnElement="Flow_1b26bwz">
+        <di:waypoint x="760" y="120" />
+        <di:waypoint x="840" y="120" />
+        <di:waypoint x="840" y="175" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0leh5tq_di" bpmnElement="Flow_0leh5tq">
         <di:waypoint x="350" y="193" />
@@ -204,11 +211,6 @@
         <di:waypoint x="760" y="267" />
         <di:waypoint x="840" y="267" />
         <di:waypoint x="840" y="211" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1b26bwz_di" bpmnElement="Flow_1b26bwz">
-        <di:waypoint x="760" y="120" />
-        <di:waypoint x="840" y="120" />
-        <di:waypoint x="840" y="175" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

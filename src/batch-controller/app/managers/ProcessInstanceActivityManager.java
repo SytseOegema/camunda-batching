@@ -198,7 +198,14 @@ public class ProcessInstanceActivityManager {
 
     for (Map.Entry<String, JsonElement> entry : replyObject.entrySet()) {
       System.out.println(entry.getKey() + "/" + entry.getValue());
-      variablesObject.addProperty(entry.getKey(), entry.getValue().getAsString());
+      variablesObject.add(entry.getKey(), entry.getValue());
+      // if(entry.getValue().isJsonArray()) {
+      //   variablesObject.add(entry.getKey(), entry.getValue().getAsJsonArray());
+      // } else if (entry.getValue().isJsonObject()) {
+      //   variablesObject.add(entry.getKey(), entry.getValue().getAsJsonObject());
+      // } else {
+      //   variablesObject.addProperty(entry.getKey(), entry.getValue().toString());
+      // }
     }
 
     Gson gson = new Gson();

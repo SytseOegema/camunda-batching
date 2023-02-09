@@ -5,14 +5,23 @@ import java.util.Objects;
 public class MyConnectorResult {
 
   // TODO: define connector result properties, which are returned to the process engine
-  private String result;
+  private String stringBody;
+  private Object jsonBody;
 
-  public String getResult() {
-    return result;
+  public String getStringBody() {
+    return stringBody;
   }
 
-  public void setResult(String result) {
-    this.result = result;
+  public void setStringBody(String stringBody) {
+    this.stringBody = stringBody;
+  }
+
+  public Object getJsonBody() {
+    return jsonBody;
+  }
+
+  public void setJsonBody(Object jsonBody) {
+    this.jsonBody = jsonBody;
   }
 
   @Override
@@ -24,17 +33,17 @@ public class MyConnectorResult {
       return false;
     }
     final MyConnectorResult that = (MyConnectorResult) o;
-    return Objects.equals(result, that.result);
+    return Objects.equals(stringBody, that.stringBody);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(result);
+    return Objects.hash(stringBody);
   }
 
   @Override
   public String toString() {
-    return "MyConnectorResult [result=" + result + "]";
+    return "MyConnectorResult [body=" + stringBody + "]";
   }
 
 }

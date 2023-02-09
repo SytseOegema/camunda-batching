@@ -1,0 +1,31 @@
+{
+  "components": [
+    {
+      "values": [
+        {
+          "label": "Yes",
+          "value": "Yes"
+        },
+        {
+          "label": "No",
+          "value": "No"
+        }
+      ],
+      "label": "Is inbound door accepted?",
+      "type": "select",
+      "id": "Field_0sn3957",
+      "key": "accepted",
+      "defaultValue": "Yes",
+      "description": "accepted"
+    }
+  ],
+  "type": "default",
+  "id": "DoorPlanningAcceptanceForm",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.1.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.4.1"
+  },
+  "schemaVersion": 5
+}

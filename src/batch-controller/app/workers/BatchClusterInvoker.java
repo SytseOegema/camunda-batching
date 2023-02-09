@@ -154,7 +154,7 @@ public class BatchClusterInvoker {
         logger.info("response: ");
         logger.info(response.getBody());
         process.variables = ProcessInstanceActivityManager
-        .updateVariables(process.variables, response.getBody());
+          .updateVariables(process.variables, response.getBody());
       }
       return processes;
     }
@@ -181,9 +181,11 @@ public class BatchClusterInvoker {
       logger.info("response: ");
       logger.info(response.getBody());
       for (ProcessInstanceModel process: entry.getValue()) {
+        logger.info("wiew1: ");
         process.variables = ProcessInstanceActivityManager
           .updateVariables(process.variables, response.getBody());
-          resultProcesses.add(process);
+        resultProcesses.add(process);
+        logger.info(String.valueOf(resultProcesses.size()));
       }
     }
     return resultProcesses;

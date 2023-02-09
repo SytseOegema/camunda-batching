@@ -4,7 +4,7 @@ import io.camunda.connector.api.annotation.Secret;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 import java.util.Objects;
 
 public class MyConnectorRequest {
@@ -18,7 +18,7 @@ public class MyConnectorRequest {
   @NotEmpty
   private String functionName;
 
-  private JSONObject body;
+  private JsonObject body;
 
   public String getHost() {
     return host;
@@ -44,7 +44,7 @@ public class MyConnectorRequest {
     this.functionName = functionName;
   }
 
-  public void setBody(JSONObject body) {
+  public void setBody(JsonObject body) {
     this.body = body;
   }
 

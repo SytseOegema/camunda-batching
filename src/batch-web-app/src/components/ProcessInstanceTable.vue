@@ -129,7 +129,11 @@ const processInstances = computed(() => {
       if (idx !== -1) {
         data[idx].batchClusterId = cluster.batchClusterId;
         data[idx].processInstanceId = instance.processInstanceId;
-        data[idx].intent = cluster.state === "ready" ? "Clustered" : "ActiveBatch";
+        if (cluster.state === "ready") {
+          data[idx].intent = "Clustered"
+        } else if (cluster.state === "executing") {
+          data[idx].intent = "ActiveBatch"
+        }
         const model = batchModels.find((model) => model.batchModelId === cluster.batchModelId);
         if (model !== undefined) {
           data[idx].batchModelName = model.name;
@@ -156,7 +160,12 @@ const processInstances = computed(() => {
 
 const otherInstances = computed(() => {
   const activityIds = props.process.activities.map((activity) => activity.id);
-  return processInstanceInProcess.value.filter((instance) => !activityIds.includes(instance.elementId));
+  return processInstanceInProcess.value
+    .filter((instance) => !activityIds.includes(instance.elementId))
+    .map((instance) => {
+      instance.intent = "completeElement"
+      return instance;
+    });
 })
 
 // function to sort instance records chronoligcal

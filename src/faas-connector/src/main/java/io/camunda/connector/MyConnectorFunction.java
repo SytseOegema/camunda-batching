@@ -16,7 +16,7 @@ import java.util.Map;
 
 @OutboundConnector(
     name = "MYCONNECTOR",
-    inputVariables = {"myProperty", "authentication"},
+    inputVariables = {"host", "packageName", "functionName", "body"},
     type = "io.camunda:template:1")
 public class MyConnectorFunction implements OutboundConnectorFunction {
 
@@ -29,42 +29,49 @@ public class MyConnectorFunction implements OutboundConnectorFunction {
     context.validate(connectorRequest);
     context.replaceSecrets(connectorRequest);
 
-    return executeConnector(connectorRequest);
+    return executeConnector(context.getVariables());
   }
 
-  private MyConnectorResult executeConnector(final MyConnectorRequest connectorRequest) {
-    LOGGER.info("Executing my connector with request {}", connectorRequest);
+  private MyConnectorResult executeConnector(final String json) {
+    JsonObject jsonObject = new JsonParser()
+      .parse(json)
+      .getAsJsonObject();
     // always uses Openwhisk namespace 'guest'
-    String url = connectorRequest.getHost()
+    String url = jsonObject.get("host").getAsString()
       + "/api/v1/web/guest/"
-      + connectorRequest.getPackageName()
+      + jsonObject.get("packageName").getAsString()
       + "/"
-      + connectorRequest.getFunctionName()
+      + jsonObject.get("functionName").getAsString()
       + ".json";
 
+    LOGGER.info(url);
+
     try {
-      JsonObject jsonObject = new JsonParser()
-        .parse(connectorRequest.getBody())
-        .getAsJsonObject();
-      
       JsonObject body = new JsonObject();
-      body.add("content", jsonObject);
+      body.add("content", jsonObject.getAsJsonObject("body"));
 
       LOGGER.info(body.toString());
 
       Unirest.config().verifySsl(false);
+      LOGGER.info(".....1......");
       HttpResponse<String> response = Unirest.post(url)
         .header("Authorization", "Basic Nzg5YzQ2YjEtNzFmNi00ZWQ1LThjNTQtODE2YWE0ZjhjNTAyOmFiY3pPM3haQ0xyTU42djJCS0sxZFhZRnBYbFBrY2NPRnFtMTJDZEFzTWdSVTRWck5aOWx5R1ZDR3VNREdJd1A=")
         .header("Content-Type", "application/json")
-        .body(body)
+        .body(body.toString())
         .asString();
       JsonObject replyObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 
       var result = new MyConnectorResult();
+      Gson gson = new Gson();
       for (Map.Entry<String, JsonElement> entry : replyObject.entrySet()) {
-        System.out.println(entry.getKey() + "/" + entry.getValue());
-        result.setResult(entry.getValue().getAsString());
-        break;
+        LOGGER.info(entry.getKey() + "/" + entry.getValue());
+        // if (entry.getValue().isJsonArray()) {
+        //   result.setJsonBody(gson.fromJson(entry.getValue().toString(), Object.class));
+        // } else if (entry.getValue().isJsonObject()) {
+        //   // result.setJsonBody(entry.getValue().getAsJsonObject());
+        // }
+        result.setJsonBody(gson.fromJson(entry.getValue().toString(), Object.class));
+        result.setStringBody(entry.getValue().toString());
       }
 
       LOGGER.info("Result {}", result);
@@ -73,7 +80,7 @@ public class MyConnectorFunction implements OutboundConnectorFunction {
     catch (Exception e) {
       LOGGER.error(e.getMessage());
       var result = new MyConnectorResult();
-      result.setResult("Something went wrong");
+      result.setStringBody("Something went wrong");
       return result;
     }
   }

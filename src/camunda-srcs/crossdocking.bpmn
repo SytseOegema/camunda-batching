@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0coeesf" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.4.1" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.1.0">
+  <bpmn:process id="Crossdocking" name="Crossdocking" isExecutable="true">
+    <bpmn:extensionElements>
+      <zeebe:userTaskForm id="userTaskForm_2m0erbt">{
+  "components": [
+    {
+      "values": [
+        {
+          "label": "Yes",
+          "value": "Yes"
+        },
+        {
+          "label": "No",
+          "value": "No"
+        }
+      ],
+      "label": "Is inbound door accepted?",
+      "type": "select",
+      "id": "Field_0sn3957",
+      "key": "accepted",
+      "defaultValue": "Yes",
+      "description": "accepted"
+    }
+  ],
+  "type": "default",
+  "id": "DoorPlanningAcceptanceForm",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.1.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.4.1"
+  },
+  "schemaVersion": 5
+}</zeebe:userTaskForm>
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1ewjbin</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_1o6cdqb" name="Determine outgoing door per good" zeebe:modelerTemplate="io.camunda.connector.Template.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;utf8,%3C%3Fxml version=&#39;1.0&#39; encoding=&#39;iso-8859-1&#39;%3F%3E%3Csvg height=&#39;800px&#39; width=&#39;800px&#39; version=&#39;1.1&#39; id=&#39;Capa_1&#39; xmlns=&#39;http://www.w3.org/2000/svg&#39; xmlns:xlink=&#39;http://www.w3.org/1999/xlink&#39; viewBox=&#39;0 0 57.376 57.376&#39; xml:space=&#39;preserve&#39;%3E%3Cg%3E%3Cg%3E%3Cpath style=&#39;fill:%23030104;&#39; d=&#39;M28.689,0C12.87,0,0.001,12.869,0.001,28.688c0,15.818,12.87,28.688,28.689,28.688 c15.816,0,28.686-12.869,28.686-28.688S44.507,0,28.689,0z M28.689,54.375c-14.165,0-25.689-11.523-25.689-25.688 c0-14.164,11.524-25.688,25.689-25.688c14.163,0,25.686,11.523,25.686,25.688S42.853,54.375,28.689,54.375z&#39;/%3E%3Cpath style=&#39;fill:%23030104;&#39; d=&#39;M36.786,15.863H21.941c-0.553,0-1,0.447-1,1V39.97c0,0.554,0.447,1,1,1h3.532c0.553,0,1-0.446,1-1 v-7.786c0-0.554,0.447-1,1-1h8.461c0.553,0,1-0.447,1-1v-3.107c0-0.553-0.447-1-1-1h-8.461c-0.553,0-1-0.447-1-1v-3.105 c0-0.553,0.447-1,1-1h9.312c0.553,0,1-0.447,1-1v-3.107C37.786,16.311,37.339,15.863,36.786,15.863z&#39;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:template:1" />
+        <zeebe:ioMapping>
+          <zeebe:input source="https://openwhisk_apigateway_1" target="host" />
+          <zeebe:input source="batching" target="packageName" />
+          <zeebe:input source="determineOutboundDoor" target="functionName" />
+          <zeebe:input source="={ &#34;goods&#34;: goods }" target="body" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="resultVariable" value="result" />
+          <zeebe:header key="resultExpression" value="={ &#34;goods&#34;: jsonBody }" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ewjbin</bpmn:incoming>
+      <bpmn:outgoing>Flow_03plgaz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_03plgaz" sourceRef="Activity_1o6cdqb" targetRef="Activity_1esuqna" />
+    <bpmn:serviceTask id="Activity_1esuqna" name="Determine inbound door" zeebe:modelerTemplate="io.camunda.connector.Template.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;utf8,%3C%3Fxml version=&#39;1.0&#39; encoding=&#39;iso-8859-1&#39;%3F%3E%3Csvg height=&#39;800px&#39; width=&#39;800px&#39; version=&#39;1.1&#39; id=&#39;Capa_1&#39; xmlns=&#39;http://www.w3.org/2000/svg&#39; xmlns:xlink=&#39;http://www.w3.org/1999/xlink&#39; viewBox=&#39;0 0 57.376 57.376&#39; xml:space=&#39;preserve&#39;%3E%3Cg%3E%3Cg%3E%3Cpath style=&#39;fill:%23030104;&#39; d=&#39;M28.689,0C12.87,0,0.001,12.869,0.001,28.688c0,15.818,12.87,28.688,28.689,28.688 c15.816,0,28.686-12.869,28.686-28.688S44.507,0,28.689,0z M28.689,54.375c-14.165,0-25.689-11.523-25.689-25.688 c0-14.164,11.524-25.688,25.689-25.688c14.163,0,25.686,11.523,25.686,25.688S42.853,54.375,28.689,54.375z&#39;/%3E%3Cpath style=&#39;fill:%23030104;&#39; d=&#39;M36.786,15.863H21.941c-0.553,0-1,0.447-1,1V39.97c0,0.554,0.447,1,1,1h3.532c0.553,0,1-0.446,1-1 v-7.786c0-0.554,0.447-1,1-1h8.461c0.553,0,1-0.447,1-1v-3.107c0-0.553-0.447-1-1-1h-8.461c-0.553,0-1-0.447-1-1v-3.105 c0-0.553,0.447-1,1-1h9.312c0.553,0,1-0.447,1-1v-3.107C37.786,16.311,37.339,15.863,36.786,15.863z&#39;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:template:1" />
+        <zeebe:ioMapping>
+          <zeebe:input source="https://openwhisk_apigateway_1" target="host" />
+          <zeebe:input source="batching" target="packageName" />
+          <zeebe:input source="determineInboundDoor" target="functionName" />
+          <zeebe:input source="={ &#34;goods&#34;: goods }" target="body" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="resultVariable" value="result2" />
+          <zeebe:header key="resultExpression" value="={ &#34;inboundDoor&#34;: jsonBody }" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_03plgaz</bpmn:incoming>
+      <bpmn:incoming>Flow_0b3km0q</bpmn:incoming>
+      <bpmn:outgoing>Flow_11qudww</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_11qudww" sourceRef="Activity_1esuqna" targetRef="Activity_13fcmik" />
+    <bpmn:userTask id="Activity_13fcmik" name="Accept planning">
+      <bpmn:extensionElements>
+        <zeebe:formDefinition formKey="camunda-forms:bpmn:userTaskForm_2m0erbt" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_11qudww</bpmn:incoming>
+      <bpmn:outgoing>Flow_0a7fxi4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1uyjqjp">
+      <bpmn:incoming>Flow_0a7fxi4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0b3km0q</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1csb7xw</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0a7fxi4" sourceRef="Activity_13fcmik" targetRef="Gateway_1uyjqjp" />
+    <bpmn:sequenceFlow id="Flow_0b3km0q" name="not accepted" sourceRef="Gateway_1uyjqjp" targetRef="Activity_1esuqna">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=accepted = "No"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_01wa2so">
+      <bpmn:incoming>Flow_1csb7xw</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1csb7xw" name="accepted" sourceRef="Gateway_1uyjqjp" targetRef="Event_01wa2so">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=accepted = "Yes"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1ewjbin" sourceRef="StartEvent_1" targetRef="Activity_1o6cdqb" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Crossdocking">
+      <bpmndi:BPMNShape id="Activity_0jiepws_di" bpmnElement="Activity_1o6cdqb">
+        <dc:Bounds x="270" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0thxdil_di" bpmnElement="Activity_1esuqna">
+        <dc:Bounds x="420" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="172" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1uyjqjp_di" bpmnElement="Gateway_1uyjqjp" isMarkerVisible="true">
+        <dc:Bounds x="745" y="165" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_01wa2so_di" bpmnElement="Event_01wa2so">
+        <dc:Bounds x="852" y="172" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0g55htq_di" bpmnElement="Activity_13fcmik">
+        <dc:Bounds x="590" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1ewjbin_di" bpmnElement="Flow_1ewjbin">
+        <di:waypoint x="188" y="190" />
+        <di:waypoint x="270" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03plgaz_di" bpmnElement="Flow_03plgaz">
+        <di:waypoint x="370" y="190" />
+        <di:waypoint x="420" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b3km0q_di" bpmnElement="Flow_0b3km0q">
+        <di:waypoint x="770" y="165" />
+        <di:waypoint x="770" y="100" />
+        <di:waypoint x="470" y="100" />
+        <di:waypoint x="470" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="589" y="82" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11qudww_di" bpmnElement="Flow_11qudww">
+        <di:waypoint x="520" y="190" />
+        <di:waypoint x="590" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0a7fxi4_di" bpmnElement="Flow_0a7fxi4">
+        <di:waypoint x="690" y="190" />
+        <di:waypoint x="745" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1csb7xw_di" bpmnElement="Flow_1csb7xw">
+        <di:waypoint x="795" y="190" />
+        <di:waypoint x="852" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="802" y="172" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

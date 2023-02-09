@@ -10,15 +10,15 @@ wsk package create batching -i
 
 cd ../src/functions
 
-cd foodDelivery
+cd determineInboundDoor
 mvn clean package
-wsk action create batching/foodDelivery target/my-func-1.0-SNAPSHOT-jar-with-dependencies.jar --main MyFunction -i --web true
+wsk action create batching/determineInboundDoor target/my-func-1.0-SNAPSHOT-jar-with-dependencies.jar --main MyFunction -i --web true
 cd ..
 
 
-cd foodOrder
+cd determineOutboundDoor
 mvn clean package
-wsk action create batching/foodOrder target/my-func-1.0-SNAPSHOT-jar-with-dependencies.jar --main MyFunction -i --web true
+wsk action create batching/determineOutboundDoor target/my-func-1.0-SNAPSHOT-jar-with-dependencies.jar --main MyFunction -i --web true
 cd ..
 
 cd ../scripts
