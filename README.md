@@ -6,6 +6,8 @@ OpenWishk(Serverless FaaS framework). This project has been developed for my
 Master Thesis. For the motivation, goal and conclusion of the project please
 read the thesis
 
+[Quick Start Guide](./docs/quickStartGuide.md)
+
 __LINK TO THESIS DOCUMENT__
 
  The repository structure is described in
