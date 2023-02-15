@@ -28,16 +28,16 @@ inputs that can be used are:
     "location": "Groningen",
     "goods": [
         {
-            "description": "bananas",
+            "description": "apples",
             "postalCode": "7701CK"
         },
         {
             "description": "bananas",
-            "postalCode": "5431BE"
+            "postalCode": "5803BE"
         },
         {
-            "description": "bananas",
-            "postalCode": "1111AA"
+            "description": "lemons",
+            "postalCode": "1423AA"
         }
     ]
 }
