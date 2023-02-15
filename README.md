@@ -33,6 +33,40 @@ for the project to be executable.
 - Node
 - NPM
 
+```
+private static Integer determineOutgoingDoor(String postalCode) {
+  int code = Integer.parseInt(postalCode.substring(0, 4));
+  // add 3333 to code to get result 1,2 or 3 instead of 0, 1 or 2
+  return (code + 3333) / 3333;
+}
+ 
+ 
+private static JsonObject determineInboundDoor(JsonObject vehicle) {
+  int bestDoor = 0;
+  int bestDoorDistance = 100000;
+  for (int idx = 1; idx <= 3; idx++) {
+    int distance = calculateDistance(vehicle.getAsJsonArray("goods"), idx);
+    if (distance < bestDoorDistance) {
+      bestDoorDistance = distance;
+      bestDoor = idx;
+    }
+  }
+  JsonObject response = new JsonObject();
+  response.addProperty("inboundDoor", bestDoor);
+  return response;
+}
+
+private static Integer calculateDistance(JsonArray goods, Integer inboundDoorNumber) {
+  int distance = 0;
+  for (int idx = 0; idx < goods.size(); idx++) {
+    JsonObject good = goods.get(idx).getAsJsonObject();
+    distance += Math.abs(good.get("outboundDoor").getAsInt() - inboundDoorNumber);
+  }
+  return distance;
+}
+  
+```
+
 ## Zeebe
 
 Requires java 17
